@@ -7,30 +7,321 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Client {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
-  phone     String?
-  address   String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  products  Product[]
+// ──────────────────────────────── Enums ────────────────────────────────
 
-  @@map("clients")
+enum AccountStatus {
+  active
+  inactive
+  deleted
+}
+
+enum NotificationType {
+  internal
+  email
+  both
+}
+
+enum CartStatus {
+  active
+  abandoned
+  converted
+}
+
+enum OrderStatus {
+  pending_payment
+  confirmed
+  in_preparation
+  ready_shipment
+  shipped
+  in_transit
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  SINPE
+  cash
+  card
+  other
+}
+
+enum PaymentStatus {
+  pending
+  approved
+  rejected
+  voided
+}
+
+enum ItemType {
+  product
+}
+
+enum ItemStatus {
+  active
+  inactive
+}
+
+enum ProductType {
+  standard
+  custom
+}
+
+enum ReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+enum VoteType {
+  helpful
+  unhelpful
+}
+
+// ──────────────────────────────── Models ────────────────────────────────
+
+model ClientUser {
+  id            BigInt        @id @default(autoincrement())
+  fullName      String        @map("full_name") @db.VarChar(100)
+  email         String        @unique @db.VarChar(150)
+  passwordHash  String        @map("password_hash") @db.VarChar(255)
+  accountStatus AccountStatus @default(active) @map("account_status")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp()
+
+  recoveryTokens ClientRecoveryToken[]
+  notifications  ClientNotification[]
+  carts          Cart[]
+  favorites      Favorite[]
+  orders         Order[]
+  reviews        Review[]
+  reviewVotes    ReviewVote[]
+
+  @@map("client_users")
+}
+
+model ClientRecoveryToken {
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt    @map("user_id")
+  tokenHash String    @map("token_hash") @db.VarChar(255)
+  expiresAt DateTime  @map("expires_at") @db.Timestamp()
+  usedAt    DateTime? @map("used_at") @db.Timestamp()
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp()
+
+  user ClientUser @relation(fields: [userId], references: [id])
+
+  @@map("client_recovery_tokens")
+}
+
+model ClientNotification {
+  id           BigInt           @id @default(autoincrement())
+  clientUserId BigInt           @map("client_user_id")
+  type         NotificationType
+  title        String           @db.VarChar(200)
+  content      String           @db.Text
+  entityType   String           @map("entity_type") @db.VarChar(50)
+  entityId     BigInt           @map("entity_id")
+  read         Boolean          @default(false)
+  sentAt       DateTime?        @map("sent_at") @db.Timestamp()
+  sendAttempts Int              @default(0) @map("send_attempts") @db.SmallInt
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamp()
+
+  clientUser ClientUser @relation(fields: [clientUserId], references: [id])
+
+  @@map("client_notifications")
+}
+
+model Cart {
+  id           BigInt     @id @default(autoincrement())
+  clientUserId BigInt     @map("client_user_id")
+  status       CartStatus @default(active)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamp()
+
+  clientUser ClientUser @relation(fields: [clientUserId], references: [id])
+  cartItems  CartItem[]
+  order      Order?
+
+  @@map("carts")
+}
+
+model Favorite {
+  id           BigInt   @id @default(autoincrement())
+  clientUserId BigInt   @map("client_user_id")
+  productId    BigInt   @map("product_id")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  clientUser ClientUser @relation(fields: [clientUserId], references: [id])
+  product    Product    @relation(fields: [productId], references: [itemId])
+
+  @@unique([clientUserId, productId])
+  @@map("favorites")
+}
+
+model CartItem {
+  id            BigInt  @id @default(autoincrement())
+  cartId        BigInt  @map("cart_id")
+  variantId     BigInt  @map("variant_id")
+  quantity      Int
+  unitPriceSnap Decimal @map("unit_price_snap") @db.Decimal(10, 2)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  cart    Cart           @relation(fields: [cartId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("cart_items")
+}
+
+model Order {
+  id              BigInt      @id @default(autoincrement())
+  clientUserId    BigInt      @map("client_user_id")
+  cartId          BigInt      @unique @map("cart_id")
+  status          OrderStatus @default(pending_payment)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  taxes           Decimal     @db.Decimal(10, 2)
+  totalAmount     Decimal     @map("total_amount") @db.Decimal(10, 2)
+  shippingAddress String      @map("shipping_address") @db.VarChar(300)
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamp()
+
+  clientUser ClientUser  @relation(fields: [clientUserId], references: [id])
+  cart       Cart        @relation(fields: [cartId], references: [id])
+  orderItems OrderItem[]
+  payments   Payment[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id            BigInt  @id @default(autoincrement())
+  orderId       BigInt  @map("order_id")
+  variantId     BigInt  @map("variant_id")
+  quantity      Int
+  unitPriceSnap Decimal @map("unit_price_snap") @db.Decimal(10, 2)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  order   Order          @relation(fields: [orderId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                BigInt        @id @default(autoincrement())
+  orderId           BigInt        @map("order_id")
+  method            PaymentMethod
+  externalReference String        @map("external_reference") @db.VarChar(100)
+  amount            Decimal       @db.Decimal(10, 2)
+  status            PaymentStatus @default(pending)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamp()
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
+}
+
+model Category {
+  id   BigInt @id @default(autoincrement())
+  name String @unique @db.VarChar(80)
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Item {
+  id        BigInt     @id @default(autoincrement())
+  name      String     @db.VarChar(100)
+  itemType  ItemType   @map("item_type")
+  status    ItemStatus @default(active)
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamp()
+
+  product Product?
+
+  @@map("items")
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  price       Decimal  @db.Decimal(10, 2)
-  stock       Int      @default(0)
-  clientId    Int      @map("client_id")
-  client      Client   @relation(fields: [clientId], references: [id])
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  itemId      BigInt      @id @map("item_id")
+  categoryId  BigInt      @map("category_id")
+  description String      @db.Text
+  imageUrl    String      @map("image_url") @db.VarChar(300)
+  type        ProductType
+
+  item           Item             @relation(fields: [itemId], references: [id])
+  category       Category         @relation(fields: [categoryId], references: [id])
+  variants       ProductVariant[]
+  ratingsSummary RatingsSummary?
+  reviews        Review[]
+  favorites      Favorite[]
 
   @@map("products")
+}
+
+model ProductVariant {
+  id            BigInt  @id @default(autoincrement())
+  productId     BigInt  @map("product_id")
+  color         String  @db.VarChar(50)
+  size          String  @db.VarChar(30)
+  price         Decimal @db.Decimal(10, 2)
+  currentStock  Int     @map("current_stock")
+  minThreshold  Int     @map("min_threshold")
+  reservedStock Int     @map("reserved_stock")
+
+  product    Product     @relation(fields: [productId], references: [itemId])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@map("product_variants")
+}
+
+model RatingsSummary {
+  id           BigInt  @id @default(autoincrement())
+  productId    BigInt  @unique @map("product_id")
+  average      Decimal @db.Decimal(3, 1)
+  totalReviews Int     @map("total_reviews")
+  stars1       Int     @map("stars_1")
+  stars2       Int     @map("stars_2")
+  stars3       Int     @map("stars_3")
+  stars4       Int     @map("stars_4")
+  stars5       Int     @map("stars_5")
+
+  product Product @relation(fields: [productId], references: [itemId])
+
+  @@map("ratings_summaries")
+}
+
+model Review {
+  id            BigInt       @id @default(autoincrement())
+  productId     BigInt       @map("product_id")
+  clientUserId  BigInt       @map("client_user_id")
+  rating        Int          @db.SmallInt
+  comment       String       @db.Text
+  status        ReviewStatus @default(pending)
+  edited        Boolean      @default(false)
+  helpfulVotes  Int          @default(0) @map("helpful_votes")
+  unhelpfulVotes Int         @default(0) @map("unhelpful_votes")
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamp()
+
+  product    Product      @relation(fields: [productId], references: [itemId])
+  clientUser ClientUser   @relation(fields: [clientUserId], references: [id])
+  votes      ReviewVote[]
+
+  @@map("reviews")
+}
+
+model ReviewVote {
+  id           BigInt   @id @default(autoincrement())
+  reviewId     BigInt   @map("review_id")
+  clientUserId BigInt   @map("client_user_id")
+  voteType     VoteType @map("vote_type")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  review     Review     @relation(fields: [reviewId], references: [id])
+  clientUser ClientUser @relation(fields: [clientUserId], references: [id])
+
+  @@unique([reviewId, clientUserId])
+  @@map("review_votes")
 }
