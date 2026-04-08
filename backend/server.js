@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRoutes from './features/auth/auth.routes.js';
 import clientsRoutes from './features/clients/clients.routes.js';
 import productsRoutes from './features/products/products.routes.js';
+import notificationsRoutes from './features/notifications/notifications.routes.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientsRoutes);
 app.use('/api/products', productsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 app.use(errorHandler);
 
