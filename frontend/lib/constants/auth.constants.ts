@@ -46,5 +46,17 @@ export const AUTH_STRINGS = {
     emailAlreadyExists: 'Este correo electrónico ya está registrado',
     unexpectedError: 'Ocurrió un error inesperado',
     connectionError: 'No se pudo conectar con el servidor',
+    invalidCredentials: 'Correo electrónico o contraseña incorrectos',
   },
+} as const;
+
+export const AUTH_STORAGE_KEYS = {
+  TOKEN: 'auth_token',
+  USER: 'auth_user',
+} as const;
+
+export const LOGIN_VALIDATION = {
+  emailRequired: 'El correo electrónico es obligatorio',
+  emailInvalid: 'El formato del correo electrónico no es válido',
+  passwordRequired: 'La contraseña es obligatoria',
 } as const;
