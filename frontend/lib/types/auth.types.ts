@@ -10,7 +10,24 @@ export interface RegisterFormData {
   confirmPassword: string;
 }
 
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  fullName: string;
+}
+
 export interface ApiErrorResponse {
   errors?: FieldError[];
   error?: string;
+}
+
+export interface LoginResponse {
+  message: string;
+  token: string;
+  usuario: AuthUser;
 }

@@ -1,6 +1,11 @@
 import { API_BASE_URL } from '@/lib/constants/api.constants';
 import type { RegisterFormData, ApiErrorResponse } from '@/lib/types/auth.types';
 
+async function extraerErrorApi(res: Response): Promise<ApiErrorResponse> {
+  const body = await res.json().catch(() => ({}));
+  return body as ApiErrorResponse;
+}
+
 export async function registerUser(data: RegisterFormData): Promise<ApiErrorResponse | null> {
   const res = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
@@ -14,7 +19,7 @@ export async function registerUser(data: RegisterFormData): Promise<ApiErrorResp
   }
 
   if (!res.ok) {
-    const body: ApiErrorResponse = await res.json().catch(() => ({}));
+    const body = await extraerErrorApi(res);
     return { error: body.error };
   }
 
