@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/constants/api.constants';
+import { API_BASE_URL, REQUEST_TIMEOUT_MS } from '@/lib/constants/api.constants';
 import type {
   RegisterFormData,
   ApiErrorResponse,
@@ -16,6 +16,7 @@ export async function registerUser(data: RegisterFormData): Promise<ApiErrorResp
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   if (res.status === 400) {
@@ -36,6 +37,7 @@ export async function loginUser(data: LoginFormData): Promise<LoginResponse> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   if (!res.ok) {
@@ -44,4 +46,15 @@ export async function loginUser(data: LoginFormData): Promise<LoginResponse> {
   }
 
   return res.json() as Promise<LoginResponse>;
+}
+
+export async function logoutUser(token: string): Promise<void> {
+  await fetch(`${API_BASE_URL}/auth/logout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
 }

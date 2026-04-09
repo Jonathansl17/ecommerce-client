@@ -325,3 +325,15 @@ model ReviewVote {
   @@unique([reviewId, clientUserId])
   @@map("review_votes")
 }
+
+// ──────────────────────────────── Auth Security ────────────────────────────────
+
+model RevokedToken {
+  id        BigInt   @id @default(autoincrement())
+  jti       String   @unique @db.VarChar(36)
+  expiresAt DateTime @map("expires_at") @db.Timestamp()
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  @@index([expiresAt])
+  @@map("revoked_tokens")
+}

@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AUTH_STORAGE_KEYS } from '@/lib/constants/auth.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
+import { logoutUser } from '@/lib/utils/api';
 import type { AuthUser } from '@/lib/types/auth.types';
 
 interface AuthContextValue {
@@ -40,22 +41,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  function login(newToken: string, newUser: AuthUser) {
+  const login = useCallback((newToken: string, newUser: AuthUser) => {
     localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, newToken);
     localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
-  }
+  }, []);
 
-  function logout() {
+  const logout = useCallback(async () => {
+    if (token) {
+      try {
+        await logoutUser(token);
+      } catch {
+        // Best-effort: siempre limpiar estado local aunque falle el servidor
+      }
+    }
+
     localStorage.removeItem(AUTH_STORAGE_KEYS.TOKEN);
     localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
     setToken(null);
     setUser(null);
     router.push(ROUTES.LOGIN);
-  }
+  }, [router, token]);
 
-  const isAuthenticated = useMemo(() => !!user && !!token, [user, token]);
+  const isAuthenticated = !!user && !!token;
 
   return (
     <AuthContext.Provider value={{ user, token, isLoading, isAuthenticated, login, logout }}>
