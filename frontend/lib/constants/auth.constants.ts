@@ -53,3 +53,13 @@ export const AUTH_STORAGE_KEYS = {
   TOKEN: 'auth_token',
   USER: 'auth_user',
 } as const;
+
+export const DASHBOARD_NAV_STRINGS = {
+  brandTitle: 'Ecommerce',
+  catalog: 'Catálogo',
+  login: 'Iniciar sesión',
+  register: 'Registrarse',
+  logout: 'Cerrar sesión',
+  navAriaLabel: 'Navegación principal',
+  sectionsHeading: 'Secciones',
+} as const;

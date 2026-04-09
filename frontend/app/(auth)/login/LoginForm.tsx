@@ -4,6 +4,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { AUTH_STRINGS } from '@/lib/constants/auth.constants';
+import { ROUTES } from '@/lib/constants/routes.constants';
 import type { LoginFormData } from '@/lib/types/auth.types';
 
 const strings = AUTH_STRINGS.login;
@@ -28,7 +29,7 @@ export function LoginForm({
   return (
     <AuthLayout title={strings.title} subtitle={strings.subtitle}>
       {generalError && (
-        <p role="status" aria-live="polite" className="text-center text-sm text-red-500">
+        <p role="alert" aria-live="assertive" className="text-center text-sm text-red-500">
           {generalError}
         </p>
       )}
@@ -79,7 +80,7 @@ export function LoginForm({
 
       <p className="text-center text-sm text-foreground/70">
         {strings.noAccountText}{' '}
-        <Link href="/register" className="font-medium text-foreground underline">
+        <Link href={ROUTES.REGISTER} className="font-medium text-foreground underline">
           {strings.registerLink}
         </Link>
       </p>

@@ -1,19 +1,22 @@
+import { ROUTES } from '@/lib/constants/routes.constants';
+import { DASHBOARD_NAV_STRINGS } from '@/lib/constants/auth.constants';
+
 const PAGE_TITLE = 'Bienvenido a la tienda';
 const PAGE_SUBTITLE = 'Explora nuestros productos y encuentra lo que necesitas.';
 
 const FEATURED_SECTIONS = [
   {
-    href: '/catalogo',
+    href: ROUTES.CATALOG,
     title: 'Explorar catálogo',
     description: 'Descubre todos nuestros productos disponibles.',
   },
   {
-    href: '/catalogo?categoria=nuevos',
+    href: ROUTES.CATALOG_NEW,
     title: 'Nuevos productos',
     description: 'Los últimos productos agregados a nuestra tienda.',
   },
   {
-    href: '/catalogo?categoria=ofertas',
+    href: ROUTES.CATALOG_OFFERS,
     title: 'Ofertas especiales',
     description: 'Aprovecha los mejores descuentos disponibles.',
   },
@@ -37,7 +40,7 @@ export default function StorePage() {
       </div>
 
       <section aria-labelledby="secciones-heading">
-        <h2 id="secciones-heading" className="sr-only">Secciones</h2>
+        <h2 id="secciones-heading" className="sr-only">{DASHBOARD_NAV_STRINGS.sectionsHeading}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURED_SECTIONS.map((section) => (
             <a
