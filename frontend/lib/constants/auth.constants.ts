@@ -29,6 +29,7 @@ export const AUTH_STRINGS = {
     submittingButton: 'Ingresando...',
     noAccountText: '¿No tienes cuenta?',
     registerLink: 'Registrarse',
+    backToStore: 'Volver a la tienda',
   },
   validation: {
     fullNameRequired: 'El nombre completo es obligatorio',

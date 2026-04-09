@@ -78,12 +78,19 @@ export function LoginForm({
         </Button>
       </form>
 
-      <p className="text-center text-sm text-foreground/70">
-        {strings.noAccountText}{' '}
-        <Link href={ROUTES.REGISTER} className="font-medium text-foreground underline">
-          {strings.registerLink}
-        </Link>
-      </p>
+      <div className="space-y-2 text-center text-sm text-foreground/70">
+        <p>
+          {strings.noAccountText}{' '}
+          <Link href={ROUTES.REGISTER} className="font-medium text-foreground underline">
+            {strings.registerLink}
+          </Link>
+        </p>
+        <p>
+          <Link href={ROUTES.DASHBOARD} className="font-medium text-foreground/50 hover:text-foreground underline transition-colors">
+            {strings.backToStore}
+          </Link>
+        </p>
+      </div>
     </AuthLayout>
   );
 }
