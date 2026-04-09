@@ -29,7 +29,6 @@ export const AUTH_STRINGS = {
     submittingButton: 'Ingresando...',
     noAccountText: '¿No tienes cuenta?',
     registerLink: 'Registrarse',
-    comingSoon: 'Próximamente',
   },
   validation: {
     fullNameRequired: 'El nombre completo es obligatorio',
@@ -53,10 +52,4 @@ export const AUTH_STRINGS = {
 export const AUTH_STORAGE_KEYS = {
   TOKEN: 'auth_token',
   USER: 'auth_user',
-} as const;
-
-export const LOGIN_VALIDATION = {
-  emailRequired: 'El correo electrónico es obligatorio',
-  emailInvalid: 'El formato del correo electrónico no es válido',
-  passwordRequired: 'La contraseña es obligatoria',
 } as const;
