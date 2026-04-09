@@ -24,7 +24,7 @@ export const registrar = async ({ fullName, email, password }) => {
     });
   } catch (error) {
     if (error.code === PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT) {
-      throw crearError(AUTH_MESSAGES.EMAIL_ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
+      throw crearError(AUTH_MESSAGES.CORREO_YA_REGISTRADO, HTTP_STATUS.CONFLICT);
     }
     throw error;
   }
@@ -36,30 +36,6 @@ const generarToken = (usuario) =>
     process.env.JWT_SECRET,
     { expiresIn: AUTH_CONFIG.JWT_EXPIRES_IN }
   );
-
-const crearNotificacionBienvenida = (clientUserId) =>
-  prisma.clientNotification.create({
-    data: {
-      clientUserId,
-      type: 'internal',
-      title: WELCOME_NOTIFICATION.TITLE,
-      content: WELCOME_NOTIFICATION.CONTENT,
-      entityType: WELCOME_NOTIFICATION.ENTITY_TYPE,
-      entityId: 0n,
-      sentAt: new Date(),
-    },
-  });
-
-const esPrimerLogin = async (clientUserId) => {
-  const notificacionBienvenida = await prisma.clientNotification.findFirst({
-    where: {
-      clientUserId,
-      entityType: WELCOME_NOTIFICATION.ENTITY_TYPE,
-    },
-    select: { id: true },
-  });
-  return notificacionBienvenida === null;
-};
 
 const obtenerNotificacionesNoLeidas = (clientUserId) =>
   prisma.clientNotification.findMany({
@@ -91,25 +67,43 @@ export const iniciarSesion = async ({ email, password }) => {
   });
 
   if (!usuario) {
-    throw crearError(AUTH_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
+    throw crearError(AUTH_MESSAGES.CREDENCIALES_INVALIDAS, HTTP_STATUS.UNAUTHORIZED);
   }
 
   if (usuario.accountStatus !== 'active') {
-    throw crearError(AUTH_MESSAGES.ACCOUNT_INACTIVE, HTTP_STATUS.UNAUTHORIZED);
+    throw crearError(AUTH_MESSAGES.CUENTA_INACTIVA, HTTP_STATUS.UNAUTHORIZED);
   }
 
   const passwordValida = await bcrypt.compare(password, usuario.passwordHash);
   if (!passwordValida) {
-    throw crearError(AUTH_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
+    throw crearError(AUTH_MESSAGES.CREDENCIALES_INVALIDAS, HTTP_STATUS.UNAUTHORIZED);
   }
 
-  const primerLogin = await esPrimerLogin(usuario.id);
-  if (primerLogin) {
-    await crearNotificacionBienvenida(usuario.id);
-  }
+  await prisma.$transaction(
+    async (tx) => {
+      const notificacionExistente = await tx.clientNotification.findFirst({
+        where: { clientUserId: usuario.id, entityType: WELCOME_NOTIFICATION.ENTITY_TYPE },
+        select: { id: true },
+      });
+      if (!notificacionExistente) {
+        await tx.clientNotification.create({
+          data: {
+            clientUserId: usuario.id,
+            type: 'internal',
+            title: WELCOME_NOTIFICATION.TITLE,
+            content: WELCOME_NOTIFICATION.CONTENT,
+            entityType: WELCOME_NOTIFICATION.ENTITY_TYPE,
+            entityId: 0n,
+            sentAt: new Date(),
+          },
+        });
+      }
+    },
+    { isolationLevel: 'Serializable' }
+  );
 
   const [token, notificaciones] = await Promise.all([
-    Promise.resolve(generarToken(usuario)),
+    generarToken(usuario),
     obtenerNotificacionesNoLeidas(usuario.id),
   ]);
 

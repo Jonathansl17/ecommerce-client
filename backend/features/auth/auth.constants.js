@@ -1,10 +1,10 @@
 export const AUTH_MESSAGES = {
-  REGISTER_SUCCESS: 'Registro exitoso',
-  EMAIL_ALREADY_EXISTS: 'Este correo electrónico ya está registrado',
-  REGISTRATION_FAILED: 'Error al registrar el usuario',
-  LOGIN_SUCCESS: 'Inicio de sesión exitoso',
-  INVALID_CREDENTIALS: 'Correo electrónico o contraseña incorrectos',
-  ACCOUNT_INACTIVE: 'Tu cuenta está inactiva. Contacta al soporte.',
+  REGISTRO_EXITOSO: 'Registro exitoso',
+  CORREO_YA_REGISTRADO: 'Este correo electrónico ya está registrado',
+  ERROR_AL_REGISTRAR: 'Error al registrar el usuario',
+  INICIO_SESION_EXITOSO: 'Inicio de sesión exitoso',
+  CREDENCIALES_INVALIDAS: 'Correo electrónico o contraseña incorrectos',
+  CUENTA_INACTIVA: 'Tu cuenta está inactiva. Contacta al soporte.',
 };
 
 export const AUTH_CONFIG = {
