@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 
 const loginSchema = z.object({
