@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AUTH_STRINGS } from '@/lib/constants/auth.constants';
+import { ROUTES } from '@/lib/constants/routes.constants';
 
 const strings = AUTH_STRINGS.register;
 
@@ -12,7 +13,7 @@ export function RegisterSuccess() {
         </h1>
         <p className="text-foreground/70">{strings.successMessage}</p>
         <Link
-          href="/login"
+          href={ROUTES.LOGIN}
           className="inline-block rounded-md bg-foreground text-background px-6 py-2 font-medium hover:opacity-90 transition-opacity"
         >
           {strings.goToLogin}

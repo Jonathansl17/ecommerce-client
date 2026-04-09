@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AUTH_STRINGS } from '@/lib/constants/auth.constants';
+import { ROUTES } from '@/lib/constants/routes.constants';
 import { validateLoginForm, getFieldError } from '@/lib/utils/validation';
 import { loginUser } from '@/lib/utils/api';
 import { useAuth } from '@/lib/context/AuthContext';
@@ -45,7 +46,7 @@ export function useLoginForm() {
     try {
       const response = await loginUser(formData);
       auth.login(response.token, response.usuario);
-      router.push('/dashboard');
+      router.push(ROUTES.DASHBOARD);
     } catch (err) {
       const apiError = err as ApiErrorResponse;
       if (apiError.errors && apiError.errors.length > 0) {

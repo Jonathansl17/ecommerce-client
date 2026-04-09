@@ -6,7 +6,7 @@ import type {
   LoginResponse,
 } from '@/lib/types/auth.types';
 
-async function extraerErrorApi(res: Response): Promise<ApiErrorResponse> {
+async function extractApiError(res: Response): Promise<ApiErrorResponse> {
   const body = await res.json().catch(() => ({}));
   return body as ApiErrorResponse;
 }
@@ -24,7 +24,7 @@ export async function registerUser(data: RegisterFormData): Promise<ApiErrorResp
   }
 
   if (!res.ok) {
-    const body = await extraerErrorApi(res);
+    const body = await extractApiError(res);
     return { error: body.error };
   }
 
@@ -39,7 +39,7 @@ export async function loginUser(data: LoginFormData): Promise<LoginResponse> {
   });
 
   if (!res.ok) {
-    const body = await extraerErrorApi(res);
+    const body = await extractApiError(res);
     throw body;
   }
 

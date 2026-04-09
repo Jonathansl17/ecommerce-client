@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AUTH_STORAGE_KEYS } from '@/lib/constants/auth.constants';
+import { ROUTES } from '@/lib/constants/routes.constants';
 import type { AuthUser } from '@/lib/types/auth.types';
 
 interface AuthContextValue {
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
     setToken(null);
     setUser(null);
-    router.push('/login');
+    router.push(ROUTES.LOGIN);
   }
 
   const isAuthenticated = useMemo(() => !!user && !!token, [user, token]);

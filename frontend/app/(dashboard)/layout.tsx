@@ -2,17 +2,13 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/lib/context/AuthContext';
+import { DASHBOARD_NAV_STRINGS } from '@/lib/constants/auth.constants';
+import { ROUTES } from '@/lib/constants/routes.constants';
 import { NotificationBell } from '@/features/notifications/NotificationBell';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
-
-const NAV_TITLE = 'Ecommerce';
-const LOGIN_TEXT = 'Iniciar sesión';
-const REGISTER_TEXT = 'Registrarse';
-const CATALOG_TEXT = 'Catálogo';
-const LOGOUT_TEXT = 'Cerrar sesión';
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
@@ -22,21 +18,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background shadow-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Link
-            href="/dashboard"
+            href={ROUTES.DASHBOARD}
             className="text-lg font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity"
           >
-            {NAV_TITLE}
+            {DASHBOARD_NAV_STRINGS.brandTitle}
           </Link>
 
-          <nav className="flex items-center gap-6" aria-label="Navegación principal">
+          <nav className="flex items-center gap-6" aria-label={DASHBOARD_NAV_STRINGS.navAriaLabel}>
             <Link
-              href="/catalogo"
+              href={ROUTES.CATALOG}
               className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
             >
-              {CATALOG_TEXT}
+              {DASHBOARD_NAV_STRINGS.catalog}
             </Link>
 
-            <div className="h-5 w-px bg-foreground/20" />
+            <div className="h-5 w-px bg-foreground/20" aria-hidden="true" />
 
             {isLoading ? null : isAuthenticated ? (
               <>
@@ -45,25 +41,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </span>
                 <NotificationBell />
                 <button
+                  type="button"
                   onClick={logout}
                   className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
                 >
-                  {LOGOUT_TEXT}
+                  {DASHBOARD_NAV_STRINGS.logout}
                 </button>
               </>
             ) : (
               <>
                 <Link
-                  href="/login"
+                  href={ROUTES.LOGIN}
                   className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
                 >
-                  {LOGIN_TEXT}
+                  {DASHBOARD_NAV_STRINGS.login}
                 </Link>
                 <Link
-                  href="/register"
+                  href={ROUTES.REGISTER}
                   className="rounded-md bg-foreground text-background px-4 py-1.5 text-sm font-medium hover:opacity-90 transition-opacity"
                 >
-                  {REGISTER_TEXT}
+                  {DASHBOARD_NAV_STRINGS.register}
                 </Link>
               </>
             )}
