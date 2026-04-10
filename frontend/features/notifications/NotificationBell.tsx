@@ -60,7 +60,7 @@ export function NotificationBell() {
         }
         aria-expanded={abierto}
         aria-haspopup="listbox"
-        className="relative flex h-9 w-9 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/70 hover:bg-foreground/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
       >
         <BellIcon />
         {noLeidas > 0 && (
@@ -77,10 +77,10 @@ export function NotificationBell() {
         <div
           role="dialog"
           aria-label={NOTIFICATION_STRINGS.bellAriaLabel}
-          className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-foreground/10 bg-gray-900 shadow-lg"
         >
-          <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-            <h2 className="text-sm font-semibold text-gray-900">
+          <div className="flex items-center justify-between border-b border-foreground/10 px-4 py-3">
+            <h2 className="text-sm font-semibold text-foreground">
               {NOTIFICATION_STRINGS.panelTitle}
             </h2>
             {noLeidas > 0 && (
@@ -91,7 +91,7 @@ export function NotificationBell() {
           </div>
 
           {cargando && (
-            <p className="px-4 py-6 text-center text-sm text-gray-500">{NOTIFICATION_STRINGS.loading}</p>
+            <p className="px-4 py-6 text-center text-sm text-foreground/50">{NOTIFICATION_STRINGS.loading}</p>
           )}
 
           {!cargando && error && (
@@ -101,7 +101,7 @@ export function NotificationBell() {
           )}
 
           {!cargando && !error && notificaciones.length === 0 && (
-            <p className="px-4 py-6 text-center text-sm text-gray-500">
+            <p className="px-4 py-6 text-center text-sm text-foreground/50">
               {NOTIFICATION_STRINGS.noNotifications}
             </p>
           )}
@@ -110,7 +110,7 @@ export function NotificationBell() {
             <ul
               role="listbox"
               aria-label={NOTIFICATION_STRINGS.bellAriaLabel}
-              className="max-h-80 divide-y divide-gray-100 overflow-y-auto"
+              className="max-h-80 divide-y divide-foreground/10 overflow-y-auto"
             >
               {notificaciones.map((notificacion) => (
                 <NotificationItem
