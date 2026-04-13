@@ -1,6 +1,6 @@
 import prisma from '../../shared/db/prisma.js';
 import { crearError } from '../../shared/middleware/errorHandler.js';
-import { NOTIFICATION_MESSAGES } from './notifications.constants.js';
+import { NOTIFICATION_MESSAGES, NOTIFICATION_TYPES } from './notifications.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 
 const serializarNotificacion = (n) => ({
@@ -8,6 +8,7 @@ const serializarNotificacion = (n) => ({
   title: n.title,
   content: n.content,
   entityType: n.entityType,
+  entityId: n.entityId?.toString() ?? null,
   read: n.read,
   sentAt: n.sentAt,
   createdAt: n.createdAt,
@@ -16,7 +17,7 @@ const serializarNotificacion = (n) => ({
 export const obtenerNotificaciones = async ({ clientUserId, soloNoLeidas }) => {
   const filtroBase = {
     clientUserId,
-    type: 'internal',
+    type: NOTIFICATION_TYPES.INTERNAL,
   };
 
   if (soloNoLeidas) {
@@ -31,6 +32,7 @@ export const obtenerNotificaciones = async ({ clientUserId, soloNoLeidas }) => {
       title: true,
       content: true,
       entityType: true,
+      entityId: true,
       read: true,
       sentAt: true,
       createdAt: true,
@@ -61,6 +63,7 @@ export const marcarComoLeida = async ({ notificationId, clientUserId }) => {
       title: true,
       content: true,
       entityType: true,
+      entityId: true,
       read: true,
       sentAt: true,
       createdAt: true,
