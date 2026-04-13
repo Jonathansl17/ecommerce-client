@@ -27,5 +27,13 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
     "prisma": "^6.19.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt",
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma"
+    ]
   }
 }
