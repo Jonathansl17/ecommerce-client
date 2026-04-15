@@ -31,16 +31,6 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* Logo */}
-        <Link href={ROUTES.HOME} className="flex shrink-0 items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <span className="font-serif text-lg font-bold text-primary-foreground">A</span>
-          </div>
-          <span className="hidden font-serif text-xl font-medium text-foreground sm:block">
-            Artisan
-          </span>
-        </Link>
-
         {/* Buscador desktop */}
         <div className="mx-auto hidden max-w-md flex-1 md:block">
           <div className="relative">
