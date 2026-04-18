@@ -1,5 +1,5 @@
 import { ROUTES } from '@/lib/constants/routes.constants';
-import { DASHBOARD_NAV_STRINGS } from '@/lib/constants/auth.constants';
+import { DASHBOARD_NAV_STRINGS } from '@/features/auth/constants/auth.constants';
 
 const PAGE_TITLE = 'Bienvenido a la tienda';
 const PAGE_SUBTITLE = 'Explora nuestros productos y encuentra lo que necesitas.';
