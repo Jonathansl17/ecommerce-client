@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { fetchNotifications, markNotificationAsRead } from './notifications.api';
-import { AUTH_STORAGE_KEYS } from '@/lib/constants/auth.constants';
+import { AUTH_STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
 import { NOTIFICATION_STRINGS } from './notifications.constants';
 import type { ClientNotification } from './notifications.types';
 
