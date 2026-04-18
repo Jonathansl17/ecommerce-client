@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AUTH_STRINGS } from '@/lib/constants/auth.constants';
+import { AUTH_STRINGS } from '@/features/auth/constants/auth.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
-import { validateLoginForm, getFieldError } from '@/lib/utils/validation';
-import { loginUser } from '@/lib/utils/api';
-import { useAuth } from '@/lib/context/AuthContext';
-import type { FieldError, LoginFormData, ApiErrorResponse } from '@/lib/types/auth.types';
+import { validateLoginForm, getFieldError } from '@/features/auth/shared/auth.validation';
+import { loginUser } from '@/features/auth/shared/auth.api';
+import { useAuth } from '@/features/auth/hooks/AuthContext';
+import type { FieldError, LoginFormData, ApiErrorResponse } from '@/features/auth/types/auth.types';
 
 const INITIAL_FORM_DATA: LoginFormData = {
   email: '',
