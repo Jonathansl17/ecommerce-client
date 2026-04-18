@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { AuthLayout } from '@/components/ui/AuthLayout';
+import { AuthLayout } from '@/features/auth/components/AuthLayout';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { AUTH_STRINGS } from '@/lib/constants/auth.constants';
+import { AUTH_STRINGS } from '@/features/auth/constants/auth.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
-import type { LoginFormData } from '@/lib/types/auth.types';
+import type { LoginFormData } from '@/features/auth/types/auth.types';
 
 const strings = AUTH_STRINGS.login;
 
