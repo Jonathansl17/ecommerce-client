@@ -4,7 +4,7 @@ import type {
   ApiErrorResponse,
   LoginFormData,
   LoginResponse,
-} from '@/lib/types/auth.types';
+} from '@/features/auth/types/auth.types';
 
 async function extractApiError(res: Response): Promise<ApiErrorResponse> {
   const body = await res.json().catch(() => ({}));
