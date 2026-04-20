@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '@/lib/constants/api.constants';
-import { NOTIFICATION_STRINGS } from './notifications.constants';
-import type { ClientNotification, NotificationsResponse } from './notifications.types';
+import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
+import type { ClientNotification, NotificationsResponse } from '../types/notifications.types';
 
 function getAuthHeaders(token: string): HeadersInit {
   return {
@@ -38,6 +38,6 @@ export async function markNotificationAsRead(
     throw new Error(NOTIFICATION_STRINGS.markAsReadError);
   }
 
-  const body = await res.json();
-  return body.notificacion as ClientNotification;
+  const body: { notificacion: ClientNotification } = await res.json();
+  return body.notificacion;
 }
