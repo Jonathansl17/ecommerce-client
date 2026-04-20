@@ -24,7 +24,10 @@ export const NOTIFICATION_BADGE = {
   OVERFLOW_LABEL: '9+',
 } as const;
 
-export const NOTIFICATION_DATE_FORMAT = {
+export const NOTIFICATION_DATE_FORMAT: {
+  LOCALE: string;
+  OPTIONS: Intl.DateTimeFormatOptions;
+} = {
   LOCALE: 'es-CR',
   OPTIONS: {
     day: 'numeric',
@@ -32,4 +35,4 @@ export const NOTIFICATION_DATE_FORMAT = {
     hour: '2-digit',
     minute: '2-digit',
   },
-} as const;
+};
