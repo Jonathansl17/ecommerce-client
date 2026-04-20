@@ -2,8 +2,8 @@ import { NOTIFICATION_ENTITY_TYPES, NOTIFICATION_STRINGS } from '../../constants
 import type { NotificationEntityType, NotificationTypeTagProps } from '../../types/notifications.types';
 
 const TAG_STYLES: Record<NotificationEntityType, string> = {
-  [NOTIFICATION_ENTITY_TYPES.ONBOARDING]: 'bg-blue-100 text-blue-700',
-  [NOTIFICATION_ENTITY_TYPES.ORDER]: 'bg-amber-100 text-amber-700',
+  [NOTIFICATION_ENTITY_TYPES.ONBOARDING]: 'bg-sky-400 text-white dark:bg-sky-500',
+  [NOTIFICATION_ENTITY_TYPES.ORDER]: 'bg-secondary text-secondary-foreground',
 };
 
 const TAG_LABELS: Record<NotificationEntityType, string> = {

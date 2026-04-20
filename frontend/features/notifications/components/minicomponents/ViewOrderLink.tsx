@@ -8,7 +8,7 @@ export function ViewOrderLink({ orderId }: ViewOrderLinkProps) {
     <Link
       href={ROUTES.ORDER_DETAIL(orderId)}
       onClick={(e) => e.stopPropagation()}
-      className="mt-2 inline-block text-xs font-medium text-amber-400 hover:text-amber-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 rounded"
+      className="mt-2 inline-block rounded text-xs font-medium text-primary transition-colors hover:underline hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {NOTIFICATION_STRINGS.viewOrder}
     </Link>
