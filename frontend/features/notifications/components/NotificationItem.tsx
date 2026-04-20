@@ -15,14 +15,14 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
 
   const borderClass =
     notification.entityType === 'onboarding'
-      ? 'border-l-4 border-foreground/30'
+      ? 'border-l-4 border-sky-400 dark:border-sky-500'
       : notification.entityType === 'order'
-        ? 'border-l-4 border-amber-500/60'
+        ? 'border-l-4 border-primary'
         : '';
 
   const bgClass = notification.read
-    ? 'hover:bg-gray-800'
-    : 'bg-gray-800 hover:bg-gray-700';
+    ? 'bg-card hover:bg-accent'
+    : 'bg-accent hover:bg-accent/80';
 
   const handleClick = useCallback(() => {
     if (!notification.read) onRead(notification.id);
@@ -49,7 +49,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
           ? notification.title
           : `${NOTIFICATION_STRINGS.markAsRead}: ${notification.title}`
       }
-      className={`px-4 py-3 cursor-pointer select-none animate-tap focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 ${bgClass} ${borderClass}`.trim()}
+      className={`px-4 py-3 cursor-pointer select-none animate-tap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${bgClass} ${borderClass}`.trim()}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
@@ -59,10 +59,10 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
             </p>
             <NotificationTypeTag entityType={notification.entityType} />
           </div>
-          <p className="mt-0.5 text-xs text-foreground/70 line-clamp-2">
+          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
             {notification.content}
           </p>
-          <p className="mt-1 text-xs text-foreground/50">{formatearFecha(fecha)}</p>
+          <p className="mt-1 text-xs text-muted-foreground/80">{formatearFecha(fecha)}</p>
           {mostrarLinkPedido && <ViewOrderLink orderId={notification.entityId as string} />}
         </div>
         {!notification.read && <UnreadDot />}
