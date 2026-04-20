@@ -5,7 +5,7 @@ export function PanelLoadingState() {
     <p
       role="status"
       aria-live="polite"
-      className="px-4 py-6 text-center text-sm text-foreground/50"
+      className="px-4 py-6 text-center text-sm text-muted-foreground"
     >
       {NOTIFICATION_STRINGS.loading}
     </p>

@@ -53,7 +53,7 @@ export function NotificationBell() {
         aria-expanded={abierto}
         aria-haspopup="menu"
         aria-controls={panelId}
-        className="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/70 hover:bg-foreground/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
+        className="relative flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <BellIcon />
         <UnreadCountBadge count={noLeidas} />
@@ -62,7 +62,7 @@ export function NotificationBell() {
       {abierto && (
         <div
           id={panelId}
-          className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-foreground/10 bg-gray-900 shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-lg"
         >
           <PanelHeader unreadCount={noLeidas} />
 
@@ -74,7 +74,7 @@ export function NotificationBell() {
             <ul
               role="menu"
               aria-label={NOTIFICATION_STRINGS.bellAriaLabel}
-              className="max-h-80 divide-y divide-foreground/10 overflow-y-auto"
+              className="max-h-80 divide-y divide-border overflow-y-auto"
             >
               {notificaciones.map((notificacion) => (
                 <NotificationItem
