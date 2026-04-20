@@ -1,21 +1,13 @@
 import Link from 'next/link';
 import { AuthLayout } from '@/features/auth/components/AuthLayout';
-import { FormField } from '@/components/ui/FormField';
-import { Input } from '@/components/ui/Input';
+import { AuthField } from '@/features/auth/components/minicomponents/AuthField';
+import { FormGeneralError } from '@/features/auth/components/minicomponents/FormGeneralError';
 import { Button } from '@/components/ui/Button';
 import { AUTH_STRINGS } from '@/features/auth/constants/auth.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
-import type { RegisterFormData } from '@/features/auth/types/auth.types';
+import type { RegisterFormProps } from '@/features/auth/types/auth.types';
 
 const strings = AUTH_STRINGS.register;
-
-interface RegisterFormProps {
-  formData: RegisterFormData;
-  loading: boolean;
-  handleChange: (field: keyof RegisterFormData) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  fieldError: (field: string) => string | undefined;
-}
 
 export function RegisterForm({
   formData,
@@ -24,86 +16,54 @@ export function RegisterForm({
   handleSubmit,
   fieldError,
 }: RegisterFormProps) {
-  const generalError = fieldError('general');
-
   return (
     <AuthLayout title={strings.title} subtitle={strings.subtitle}>
-      {generalError && (
-        <p role="alert" aria-live="assertive" className="text-center text-sm text-red-500">
-          {generalError}
-        </p>
-      )}
+      <FormGeneralError message={fieldError('general')} />
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <FormField
+        <AuthField
           id="fullName"
           label={strings.fullNameLabel}
+          type="text"
+          value={formData.fullName}
+          onChange={handleChange('fullName')}
+          placeholder={strings.fullNamePlaceholder}
+          autoComplete="name"
           error={fieldError('fullName')}
-        >
-          <Input
-            id="fullName"
-            type="text"
-            value={formData.fullName}
-            onChange={handleChange('fullName')}
-            placeholder={strings.fullNamePlaceholder}
-            hasError={!!fieldError('fullName')}
-            aria-describedby={fieldError('fullName') ? 'fullName-error' : undefined}
-            autoComplete="name"
-          />
-        </FormField>
+        />
 
-        <FormField
+        <AuthField
           id="email"
           label={strings.emailLabel}
+          type="email"
+          value={formData.email}
+          onChange={handleChange('email')}
+          placeholder={strings.emailPlaceholder}
+          autoComplete="email"
           error={fieldError('email')}
-        >
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange('email')}
-            placeholder={strings.emailPlaceholder}
-            hasError={!!fieldError('email')}
-            aria-describedby={fieldError('email') ? 'email-error' : undefined}
-            autoComplete="email"
-          />
-        </FormField>
+        />
 
-        <FormField
+        <AuthField
           id="password"
           label={strings.passwordLabel}
+          type="password"
+          value={formData.password}
+          onChange={handleChange('password')}
+          placeholder={strings.passwordPlaceholder}
+          autoComplete="new-password"
           error={fieldError('password')}
-        >
-          <Input
-            id="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange('password')}
-            placeholder={strings.passwordPlaceholder}
-            hasError={!!fieldError('password')}
-            aria-describedby={fieldError('password') ? 'password-error' : undefined}
-            autoComplete="new-password"
-          />
-        </FormField>
+        />
 
-        <FormField
+        <AuthField
           id="confirmPassword"
           label={strings.confirmPasswordLabel}
+          type="password"
+          value={formData.confirmPassword}
+          onChange={handleChange('confirmPassword')}
+          placeholder={strings.confirmPasswordPlaceholder}
+          autoComplete="new-password"
           error={fieldError('confirmPassword')}
-        >
-          <Input
-            id="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleChange('confirmPassword')}
-            placeholder={strings.confirmPasswordPlaceholder}
-            hasError={!!fieldError('confirmPassword')}
-            aria-describedby={
-              fieldError('confirmPassword') ? 'confirmPassword-error' : undefined
-            }
-            autoComplete="new-password"
-          />
-        </FormField>
+        />
 
         <Button
           type="submit"
