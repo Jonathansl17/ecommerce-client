@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Menu, X } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
-import { NotificationBell } from '@/features/notifications/NotificationBell';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { DASHBOARD_NAV_STRINGS } from '@/features/auth/constants/auth.constants';
 
