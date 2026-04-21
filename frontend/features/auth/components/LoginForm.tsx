@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { AuthLayout } from '@/features/auth/components/AuthLayout';
-import { AuthField } from '@/features/auth/components/minicomponents/AuthField';
-import { FormGeneralError } from '@/features/auth/components/minicomponents/FormGeneralError';
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { AuthField } from '@/components/auth/AuthField';
+import { FormGeneralError } from '@/components/auth/FormGeneralError';
 import { Button } from '@/components/ui/Button';
 import { AUTH_STRINGS } from '@/features/auth/constants/auth.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
@@ -42,6 +42,15 @@ export function LoginForm({
           autoComplete="current-password"
           error={fieldError('password')}
         />
+
+        <div className="text-right text-sm">
+          <Link
+            href={ROUTES.FORGOT_PASSWORD}
+            className="font-medium text-foreground underline"
+          >
+            {strings.forgotPasswordLink}
+          </Link>
+        </div>
 
         <Button
           type="submit"

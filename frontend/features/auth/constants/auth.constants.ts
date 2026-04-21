@@ -27,6 +27,7 @@ export const AUTH_STRINGS = {
     passwordPlaceholder: '••••••••',
     submitButton: 'Iniciar sesión',
     submittingButton: 'Ingresando...',
+    forgotPasswordLink: '¿Olvidaste tu contraseña?',
     noAccountText: '¿No tienes cuenta?',
     registerLink: 'Registrarse',
     backToStore: 'Volver a la tienda',
