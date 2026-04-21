@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { limpiarTokensExpirados } from './features/auth/auth.service.js';
 import authRoutes from './features/auth/auth.routes.js';
+import passwordRecoveryRoutes from './features/password-recovery/password-recovery.routes.js';
 import clientsRoutes from './features/clients/clients.routes.js';
 import productsRoutes from './features/products/products.routes.js';
 import notificationsRoutes from './features/notifications/notifications.routes.js';
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/password-recovery', passwordRecoveryRoutes);
 app.use('/api/clients', clientsRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/notifications', notificationsRoutes);
