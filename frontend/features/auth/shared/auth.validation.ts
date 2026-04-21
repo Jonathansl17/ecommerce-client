@@ -4,7 +4,11 @@ import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_PATTERN_REGEX,
 } from '@/features/auth/constants/validation.constants';
-import type { FieldError, LoginFormData, RegisterFormData } from '@/features/auth/types/auth.types';
+import type {
+  FieldError,
+  LoginFormData,
+  RegisterFormData,
+} from '@/features/auth/types/auth.types';
 
 export function validateRegisterForm(data: RegisterFormData): FieldError[] {
   const errors: FieldError[] = [];

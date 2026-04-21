@@ -1,4 +1,8 @@
-import { registrar as registrarService, iniciarSesion as iniciarSesionService, cerrarSesion as cerrarSesionService } from './auth.service.js';
+import {
+  registrar as registrarService,
+  iniciarSesion as iniciarSesionService,
+  cerrarSesion as cerrarSesionService,
+} from './auth.service.js';
 import { AUTH_MESSAGES } from './auth.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 
