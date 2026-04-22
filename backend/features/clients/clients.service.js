@@ -49,3 +49,16 @@ export const eliminar = async (id) => {
     select: CAMPOS_PUBLICOS,
   });
 };
+
+export const obtenerPerfil = async (userId) => {
+  const cliente = await prisma.clientUser.findUnique({
+    where: { id: BigInt(userId) },
+    select: CAMPOS_PUBLICOS,
+  });
+
+  if (!cliente) {
+    throw crearError(CLIENTS_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  return cliente;
+};
