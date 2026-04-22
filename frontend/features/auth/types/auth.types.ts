@@ -17,12 +17,15 @@ export interface LoginFormData {
   password: string;
 }
 
+
+
 export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
   accountStatus?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiErrorResponse {

@@ -3,14 +3,19 @@ import type { NOTIFICATION_ENTITY_TYPES } from '../constants/notifications.const
 export type NotificationEntityType =
   (typeof NOTIFICATION_ENTITY_TYPES)[keyof typeof NOTIFICATION_ENTITY_TYPES];
 
+export type NotificationType = 'internal' | 'email' | 'both';
+
 export interface ClientNotification {
   id: string;
+  clientUserId: string;
+  type: NotificationType;
   title: string;
   content: string;
   entityType: NotificationEntityType;
   entityId?: string | null;
   read: boolean;
   sentAt: string | null;
+  sendAttempts: number;
   createdAt: string;
 }
 
