@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { REVIEW_STRINGS } from '../constants/reviews.constants';
 import { formatReviewDate } from '../shared/formatDate';
 import { ReviewCard } from './ReviewCard';
@@ -12,16 +14,27 @@ export function PurchasedProductCard({
   item,
   isEditing,
   submitting,
+  deleting,
   onStartEditing,
   onCancel,
   onSubmit,
+  onDelete,
 }: PurchasedProductCardProps) {
   const { product, review } = item;
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const isEditingExisting = isEditing && review !== null;
   const submitLabel = isEditingExisting ? REVIEW_STRINGS.update : REVIEW_STRINGS.submit;
   const submittingLabel = isEditingExisting
     ? REVIEW_STRINGS.updating
     : REVIEW_STRINGS.submitting;
+
+  const handleConfirmDelete = async () => {
+    try {
+      await onDelete();
+    } finally {
+      setConfirmingDelete(false);
+    }
+  };
 
   return (
     <article className="rounded-lg border border-foreground/10 bg-background p-5 space-y-4">
@@ -30,6 +43,9 @@ export function PurchasedProductCard({
           <div className="h-16 w-16 shrink-0 rounded-md bg-foreground/5" aria-hidden="true" />
           <div className="space-y-1">
             <h3 className="text-base font-semibold text-foreground">{product.name}</h3>
+            <p className="text-xs text-muted-foreground">
+              {product.variant.color} · {product.variant.size}
+            </p>
             <p className="text-sm font-medium text-foreground/80">{product.price}</p>
             <p className="text-xs text-muted-foreground">
               {REVIEW_STRINGS.purchasedOn(formatReviewDate(product.purchasedAt))}
@@ -51,7 +67,11 @@ export function PurchasedProductCard({
           submittingLabel={submittingLabel}
         />
       ) : review ? (
-        <ReviewCard review={review} onEdit={onStartEditing} />
+        <ReviewCard
+          review={review}
+          onEdit={onStartEditing}
+          onDelete={() => setConfirmingDelete(true)}
+        />
       ) : (
         <div className="flex justify-end">
           <Button
@@ -63,6 +83,18 @@ export function PurchasedProductCard({
           </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        title={REVIEW_STRINGS.deleteDialogTitle}
+        message={REVIEW_STRINGS.deleteDialogMessage}
+        confirmLabel={deleting ? REVIEW_STRINGS.deleting : REVIEW_STRINGS.deleteDialogConfirm}
+        cancelLabel={REVIEW_STRINGS.deleteDialogCancel}
+        loading={deleting}
+        destructive
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmingDelete(false)}
+      />
     </article>
   );
 }

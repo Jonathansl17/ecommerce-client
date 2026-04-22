@@ -13,8 +13,24 @@ export const REVIEW_STRINGS = {
   loadError: 'No se pudieron cargar tus productos comprados',
   empty: 'Aún no tienes productos comprados para reseñar.',
   verifiedBadge: 'Compra verificada',
+  editedTag: 'editada',
+  pendingModeration: 'Pendiente de moderación',
+  helpfulLabel: 'Útil',
+  unhelpfulLabel: 'No útil',
+  helpfulAriaLabel: (count: number) =>
+    `${count} ${count === 1 ? 'voto útil' : 'votos útiles'}`,
+  unhelpfulAriaLabel: (count: number) =>
+    `${count} ${count === 1 ? 'voto no útil' : 'votos no útiles'}`,
   writeReview: 'Escribir reseña',
   editReview: 'Editar reseña',
+  deleteReview: 'Eliminar reseña',
+  deleting: 'Eliminando...',
+  deleteDialogTitle: 'Eliminar reseña',
+  deleteDialogMessage:
+    '¿Estás seguro que deseas eliminar esta reseña? Esta acción no se puede deshacer.',
+  deleteDialogConfirm: 'Eliminar',
+  deleteDialogCancel: 'Cancelar',
+  successDeleted: 'Tu reseña fue eliminada correctamente.',
   cancel: 'Cancelar',
   submit: 'Publicar reseña',
   submitting: 'Publicando...',
@@ -41,6 +57,9 @@ export const REVIEW_STRINGS = {
   errors: {
     submitFailed: 'No se pudo publicar tu reseña. Intenta de nuevo.',
     updateFailed: 'No se pudo actualizar tu reseña. Intenta de nuevo.',
+    deleteFailed: 'No se pudo eliminar tu reseña. Intenta de nuevo.',
+    deleteNotFound: 'La reseña ya no existe.',
+    notOwner: 'No puedes modificar una reseña que no te pertenece.',
   },
 } as const;
 

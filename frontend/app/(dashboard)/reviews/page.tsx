@@ -14,10 +14,12 @@ import type { ReviewFormData } from '@/features/reviews/types/reviews.types';
 export default function ReviewsPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { items, loading, error, submitReview, updateReview } = useReviews();
+  const { items, loading, error, submitReview, updateReview, deleteReview } =
+    useReviews();
 
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [submittingProductId, setSubmittingProductId] = useState<string | null>(null);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function ReviewsPage() {
   const handleSubmit = async (productId: string, data: ReviewFormData) => {
     setSubmittingProductId(productId);
     try {
-      const item = items.find((i) => i.product.id === productId);
+      const item = items.find((i) => i.product.itemId === productId);
       if (item?.review) {
         await updateReview(item.review.id, data);
         setToastMessage(REVIEW_STRINGS.successUpdated);
@@ -47,6 +49,26 @@ export default function ReviewsPage() {
       setEditingProductId(null);
     } finally {
       setSubmittingProductId(null);
+    }
+  };
+
+  const handleDelete = async (productId: string) => {
+    const item = items.find((i) => i.product.itemId === productId);
+    if (!item?.review) return;
+
+    setDeletingProductId(productId);
+    try {
+      await deleteReview(productId, item.review.id);
+      setToastMessage(REVIEW_STRINGS.successDeleted);
+      if (editingProductId === productId) {
+        setEditingProductId(null);
+      }
+    } catch (err) {
+      setToastMessage(
+        err instanceof Error ? err.message : REVIEW_STRINGS.errors.deleteFailed,
+      );
+    } finally {
+      setDeletingProductId(null);
     }
   };
 
@@ -77,13 +99,15 @@ export default function ReviewsPage() {
         <section className="space-y-4">
           {items.map((item) => (
             <PurchasedProductCard
-              key={item.product.id}
+              key={item.product.itemId}
               item={item}
-              isEditing={editingProductId === item.product.id}
-              submitting={submittingProductId === item.product.id}
-              onStartEditing={() => setEditingProductId(item.product.id)}
+              isEditing={editingProductId === item.product.itemId}
+              submitting={submittingProductId === item.product.itemId}
+              deleting={deletingProductId === item.product.itemId}
+              onStartEditing={() => setEditingProductId(item.product.itemId)}
               onCancel={() => setEditingProductId(null)}
-              onSubmit={(data) => handleSubmit(item.product.id, data)}
+              onSubmit={(data) => handleSubmit(item.product.itemId, data)}
+              onDelete={() => handleDelete(item.product.itemId)}
             />
           ))}
         </section>
