@@ -6,6 +6,7 @@ import {
   fetchPurchasedProductsWithReviews,
   submitReview as apiSubmitReview,
   updateReview as apiUpdateReview,
+  deleteReview as apiDeleteReview,
 } from '../shared/reviews.api';
 import { REVIEWS_MOCK } from '../shared/reviews.mock';
 import { REVIEW_STRINGS } from '../constants/reviews.constants';
@@ -52,7 +53,7 @@ export function useReviews(): UseReviewsResult {
       const review = await apiSubmitReview(user.id, user.fullName, productId, data);
       setItems((prev) =>
         prev.map((item) =>
-          item.product.id === productId ? { ...item, review } : item,
+          item.product.itemId === productId ? { ...item, review } : item,
         ),
       );
       return review;
@@ -74,5 +75,18 @@ export function useReviews(): UseReviewsResult {
     [user],
   );
 
-  return { items, loading, error, submitReview, updateReview };
+  const deleteReview = useCallback(
+    async (productId: string, reviewId: string): Promise<void> => {
+      if (!user) throw new Error(REVIEW_STRINGS.errors.deleteFailed);
+      await apiDeleteReview(user.id, reviewId);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.product.itemId === productId ? { ...item, review: null } : item,
+        ),
+      );
+    },
+    [user],
+  );
+
+  return { items, loading, error, submitReview, updateReview, deleteReview };
 }

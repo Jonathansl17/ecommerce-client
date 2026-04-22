@@ -17,10 +17,15 @@ export interface LoginFormData {
   password: string;
 }
 
+export type AccountStatus = 'active' | 'inactive' | 'deleted';
+
 export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
+  accountStatus?: AccountStatus;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiErrorResponse {
