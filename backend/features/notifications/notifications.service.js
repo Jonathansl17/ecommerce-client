@@ -17,7 +17,9 @@ const serializarNotificacion = (n) => ({
 export const obtenerNotificaciones = async ({ clientUserId, soloNoLeidas }) => {
   const filtroBase = {
     clientUserId,
-    type: NOTIFICATION_TYPES.INTERNAL,
+    type: {
+      in: [NOTIFICATION_TYPES.INTERNAL, NOTIFICATION_TYPES.BOTH],
+    },
   };
 
   if (soloNoLeidas) {
