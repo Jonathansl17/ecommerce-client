@@ -1,6 +1,11 @@
 import { Router } from 'express';
-import { checkout, obtenerMisPedidos, obtenerPedidoPorId } from './orders.controller.js';
-import { validateCheckout } from './orders.validator.js';
+import {
+  actualizarEstadoPedido,
+  checkout,
+  obtenerMisPedidos,
+  obtenerPedidoPorId,
+} from './orders.controller.js';
+import { validateCheckout, validateUpdateOrderStatus } from './orders.validator.js';
 import { requireAuth } from '../../shared/middleware/authMiddleware.js';
 
 const router = Router();
@@ -12,6 +17,10 @@ router.use(requireAuth);
 //   Body: { shippingAddress, paymentMethod, externalReference? }
 //   Operación atómica: crea Order + OrderItems + Payment, actualiza stock y carrito
 router.post('/checkout', validateCheckout, checkout);
+
+// TODO(order_status_notification): this provisional route exists because the admin/backoffice
+// order-management flow is not implemented yet. Replace it with the future privileged trigger.
+router.patch('/:id/status', validateUpdateOrderStatus, actualizarEstadoPedido);
 
 // GET  /api/orders         → lista todos los pedidos del usuario autenticado
 router.get('/', obtenerMisPedidos);
