@@ -31,11 +31,18 @@ enum OrderStatus {
   pending_payment
   confirmed
   in_preparation
+  customization_in_progress
   ready_shipment
   shipped
   in_transit
   delivered
   cancelled
+}
+
+enum OrderStatusNotificationDeliveryStatus {
+  pending
+  sent
+  failed
 }
 
 enum PaymentMethod {
@@ -93,6 +100,7 @@ model ClientUser {
   carts          Cart[]
   favorites      Favorite[]
   orders         Order[]
+  orderStatusNotifications OrderStatusNotification[]
   reviews        Review[]
   reviewVotes    ReviewVote[]
 
@@ -186,6 +194,7 @@ model Order {
   clientUser ClientUser  @relation(fields: [clientUserId], references: [id])
   cart       Cart        @relation(fields: [cartId], references: [id])
   orderItems OrderItem[]
+  orderStatusNotifications OrderStatusNotification[]
   payments   Payment[]
 
   @@map("orders")
@@ -218,6 +227,28 @@ model Payment {
   order Order @relation(fields: [orderId], references: [id])
 
   @@map("payments")
+}
+
+model OrderStatusNotification {
+  id                   BigInt                                 @id @default(autoincrement())
+  orderId              BigInt                                 @map("order_id")
+  clientUserId         BigInt                                 @map("client_user_id")
+  previousStatus       OrderStatus?                           @map("previous_status")
+  newStatus            OrderStatus                            @map("new_status")
+  changedAt            DateTime                               @map("changed_at") @db.Timestamp()
+  internalNotificationId BigInt?                              @map("internal_notification_id")
+  deliveryStatus       OrderStatusNotificationDeliveryStatus  @default(pending) @map("delivery_status")
+  deliveryAttempts     Int                                    @default(0) @map("delivery_attempts") @db.SmallInt
+  deliveryLastError    String?                                @map("delivery_last_error") @db.Text
+  deliveredAt          DateTime?                              @map("delivered_at") @db.Timestamp()
+  createdAt            DateTime                               @default(now()) @map("created_at") @db.Timestamp()
+
+  order      Order      @relation(fields: [orderId], references: [id])
+  clientUser ClientUser @relation(fields: [clientUserId], references: [id])
+
+  @@index([orderId, changedAt])
+  @@index([clientUserId, changedAt])
+  @@map("order_status_notifications")
 }
 
 model Category {

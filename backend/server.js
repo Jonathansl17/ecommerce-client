@@ -1,5 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
+
+// Prisma returns BigInt for id fields; JSON.stringify can't serialize them by default
+BigInt.prototype.toJSON = function () { return this.toString(); };
 import cors from 'cors';
 import { limpiarTokensExpirados } from './features/auth/auth.service.js';
 import authRoutes from './features/auth/auth.routes.js';
