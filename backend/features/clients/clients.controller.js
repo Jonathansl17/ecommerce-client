@@ -3,6 +3,7 @@ import {
   obtenerPorId as obtenerPorIdService,
   actualizar as actualizarService,
   eliminar as eliminarService,
+  obtenerPerfil as obtenerPerfilService,
 } from './clients.service.js';
 import { CLIENTS_MESSAGES } from './clients.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
@@ -41,6 +42,15 @@ export const eliminar = async (req, res, next) => {
       message: CLIENTS_MESSAGES.DELETED_SUCCESS,
       cliente,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const obtenerPerfil = async (req, res, next) => {
+  try {
+    const cliente = await obtenerPerfilService(req.user.id);
+    res.status(HTTP_STATUS.OK).json(cliente);
   } catch (error) {
     next(error);
   }
