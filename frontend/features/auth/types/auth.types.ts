@@ -17,13 +17,13 @@ export interface LoginFormData {
   password: string;
 }
 
-export type AccountStatus = 'active' | 'inactive' | 'deleted';
+
 
 export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
-  accountStatus?: AccountStatus;
+  accountStatus?: string;
   createdAt?: string;
   updatedAt?: string;
 }
