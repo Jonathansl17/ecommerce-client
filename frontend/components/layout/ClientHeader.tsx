@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Home } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
+import { ProfileDropdown } from '@/components/layout/ProfileDropdown';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { DASHBOARD_NAV_STRINGS } from '@/features/auth/constants/auth.constants';
@@ -13,7 +14,7 @@ interface ClientHeaderProps {
 }
 
 export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
-  const { isAuthenticated, isLoading, user, logout } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
 
   const initials = user?.fullName
@@ -30,6 +31,16 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
+
+        {/* Botón Home */}
+        <Link
+          href={ROUTES.HOME}
+          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          title="Ir a inicio"
+        >
+          <Home className="h-5 w-5" />
+          <span className="hidden sm:inline">Home</span>
+        </Link>
 
         {/* Buscador desktop */}
         <div className="mx-auto hidden max-w-md flex-1 md:block">
@@ -56,17 +67,7 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
           {!isLoading && isAuthenticated && <NotificationBell />}
 
           {isLoading ? null : isAuthenticated ? (
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                {initials}
-              </div>
-              <button
-                onClick={logout}
-                className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
-              >
-                {DASHBOARD_NAV_STRINGS.logout}
-              </button>
-            </div>
+            <ProfileDropdown initials={initials} />
           ) : (
             <div className="flex items-center gap-2">
               <Link
