@@ -4,7 +4,7 @@ export const PROFILE_STRINGS = {
     subtitle: 'Información de tu cuenta',
     loadingText: 'Cargando...',
     loadingProfileText: 'Cargando perfil...',
-    supportMessage: 'Para cambiar tu información personal o contraseña, contacta con el equipo de soporte.',
+    supportMessage: 'Para cambiar tu información personal o contraseña, utiliza los botones a continuación.',
   },
   sections: {
     email: {
@@ -24,6 +24,39 @@ export const PROFILE_STRINGS = {
     ariaLabel: 'Abrir menú de perfil',
     myProfile: 'Mi Perfil',
     logout: 'Cerrar sesión',
+  },
+  editButtons: {
+    editProfile: 'Editar Perfil',
+    changePassword: 'Cambiar Contraseña',
+  },
+  editDialog: {
+    title: 'Editar Perfil',
+    fullNameLabel: 'Nombre completo',
+    emailLabel: 'Correo electrónico',
+    passwordLabel: 'Contraseña actual (requerida)',
+    passwordPlaceholder: '••••••••',
+    passwordHint: 'Necesaria para confirmar cualquier cambio.',
+    successMessage: 'Perfil actualizado correctamente',
+    cancel: 'Cancelar',
+    save: 'Guardar cambios',
+    saving: 'Guardando...',
+  },
+  passwordDialog: {
+    title: 'Cambiar Contraseña',
+    currentPasswordLabel: 'Contraseña actual',
+    newPasswordLabel: 'Nueva contraseña',
+    confirmPasswordLabel: 'Confirmar nueva contraseña',
+    passwordPlaceholder: '••••••••',
+    cancel: 'Cancelar',
+    change: 'Cambiar contraseña',
+    changing: 'Cambiando...',
+    passwordMismatch: 'Las contraseñas no coinciden',
+    requirements: {
+      minLength: 'Al menos 8 caracteres',
+      uppercase: 'Al menos una letra mayúscula',
+      lowercase: 'Al menos una letra minúscula',
+      number: 'Al menos un número',
+    },
   },
 };
 
