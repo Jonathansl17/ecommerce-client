@@ -4,6 +4,20 @@ export const ORDERS_MESSAGES = {
   CART_NOT_FOUND: 'No tienes un carrito activo',
   OUT_OF_STOCK: 'Stock insuficiente para uno o más productos',
   CHECKOUT_SUCCESS: 'Pedido creado exitosamente',
+  STATUS_UPDATED_SUCCESS: 'Estado del pedido actualizado exitosamente',
+  STATUS_UNCHANGED: 'El pedido ya tiene ese estado',
 };
 
 export const TAX_RATE = 0.13; // IVA Costa Rica 13%
+
+export const ORDER_STATUS_VALUES = [
+  'pending_payment',
+  'confirmed',
+  'in_preparation',
+  'customization_in_progress',
+  'ready_shipment',
+  'shipped',
+  'in_transit',
+  'delivered',
+  'cancelled',
+];

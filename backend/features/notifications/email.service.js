@@ -1,9 +1,28 @@
 import nodemailer from 'nodemailer';
-import { EMAIL_CONFIG } from './notifications.constants.js';
-import { construirPlantillaConfirmacionPedido } from './email.template.js';
+import { EMAIL_CONFIG, NOTIFICATION_MESSAGES } from './notifications.constants.js';
+import {
+  construirPlantillaCambioEstadoPedido,
+  construirPlantillaConfirmacionPedido,
+} from './email-template.service.js';
 
-function crearTransporte() {
-  return nodemailer.createTransport({
+let transporterInstance = null;
+
+function validarConfiguracionEmail() {
+  for (const configKey of EMAIL_CONFIG.REQUIRED_ENV_VARS) {
+    if (!process.env[configKey]) {
+      throw new Error(NOTIFICATION_MESSAGES.EMAIL_CONFIGURATION_MISSING(configKey));
+    }
+  }
+}
+
+function obtenerTransporte() {
+  if (transporterInstance) {
+    return transporterInstance;
+  }
+
+  validarConfiguracionEmail();
+
+  transporterInstance = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: Number(process.env.EMAIL_PORT),
     secure: Number(process.env.EMAIL_PORT) === EMAIL_CONFIG.SMTP_SECURE_PORT,
@@ -12,16 +31,89 @@ function crearTransporte() {
       pass: process.env.EMAIL_PASS,
     },
   });
+
+  return transporterInstance;
+}
+
+function validarPayloadBaseCorreo({ to, subject, html }) {
+  if (!to) {
+    throw new Error(NOTIFICATION_MESSAGES.EMAIL_RECIPIENT_REQUIRED);
+  }
+
+  if (!subject) {
+    throw new Error(NOTIFICATION_MESSAGES.EMAIL_SUBJECT_REQUIRED);
+  }
+
+  if (!html) {
+    throw new Error(NOTIFICATION_MESSAGES.EMAIL_HTML_REQUIRED);
+  }
+}
+
+function validarDatosNotificacionPedido(order, clientUser) {
+  if (!order) {
+    throw new Error(NOTIFICATION_MESSAGES.EMAIL_ORDER_DATA_REQUIRED);
+  }
+
+  if (!clientUser) {
+    throw new Error(NOTIFICATION_MESSAGES.EMAIL_CLIENT_DATA_REQUIRED);
+  }
+
+  if (order.id == null) {
+    throw new Error(NOTIFICATION_MESSAGES.EMAIL_ORDER_ID_REQUIRED);
+  }
+
+  if (!clientUser.email) {
+    throw new Error(NOTIFICATION_MESSAGES.EMAIL_CLIENT_EMAIL_REQUIRED);
+  }
+}
+
+async function enviarCorreo({ to, subject, html }) {
+  validarPayloadBaseCorreo({ to, subject, html });
+
+  const transporte = obtenerTransporte();
+
+  await transporte.sendMail({
+    from: `"${EMAIL_CONFIG.BRAND_NAME}" <${process.env.EMAIL_FROM}>`,
+    to,
+    subject,
+    html,
+  });
 }
 
 export async function enviarCorreoConfirmacionPedido(order, clientUser) {
-  const transporte = crearTransporte();
+  validarDatosNotificacionPedido(order, clientUser);
   const html = construirPlantillaConfirmacionPedido({ order, clientUser });
 
-  await transporte.sendMail({
-    from: `"Mi Tienda" <${process.env.EMAIL_FROM}>`,
+  await enviarCorreo({
     to: clientUser.email,
-    subject: `Confirmación de tu pedido #${order.id} — Mi Tienda`,
+    subject: NOTIFICATION_MESSAGES.ORDER_CONFIRMATION_EMAIL_SUBJECT(
+      order.id,
+      EMAIL_CONFIG.BRAND_NAME,
+    ),
+    html,
+  });
+}
+
+export async function enviarCorreoCambioEstadoPedido({
+  order,
+  clientUser,
+  previousStatus,
+  newStatus,
+  changedAt,
+  subject,
+}) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaCambioEstadoPedido({
+    order,
+    clientUser,
+    previousStatus,
+    newStatus,
+    changedAt,
+  });
+
+  await enviarCorreo({
+    to: clientUser.email,
+    subject,
     html,
   });
 }
