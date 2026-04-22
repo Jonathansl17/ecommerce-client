@@ -66,6 +66,7 @@ export const iniciarSesion = async ({ email, password }) => {
       fullName: true,
       passwordHash: true,
       accountStatus: true,
+      createdAt: true,
     },
   });
 
@@ -116,6 +117,8 @@ export const iniciarSesion = async ({ email, password }) => {
       id: usuario.id.toString(),
       email: usuario.email,
       fullName: usuario.fullName,
+      accountStatus: usuario.accountStatus,
+      createdAt: usuario.createdAt?.toISOString(),
     },
     notificaciones: notificaciones.map((n) => ({
       ...n,
