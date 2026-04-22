@@ -21,6 +21,8 @@ export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
+  accountStatus?: string;
+  createdAt?: string;
 }
 
 export interface ApiErrorResponse {
