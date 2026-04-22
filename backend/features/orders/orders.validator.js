@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ORDER_STATUS_VALUES } from './orders.constants.js';
 
 const checkoutSchema = z.object({
   shippingAddress: z
@@ -8,6 +9,10 @@ const checkoutSchema = z.object({
   paymentMethod: z.enum(['SINPE', 'cash', 'card', 'other']),
   // Referencia externa opcional (número SINPE, comprobante, etc.)
   externalReference: z.string().max(100).optional().default(''),
+});
+
+const updateOrderStatusSchema = z.object({
+  status: z.enum(ORDER_STATUS_VALUES),
 });
 
 function validar(schema) {
@@ -24,3 +29,4 @@ function validar(schema) {
 }
 
 export const validateCheckout = validar(checkoutSchema);
+export const validateUpdateOrderStatus = validar(updateOrderStatusSchema);
