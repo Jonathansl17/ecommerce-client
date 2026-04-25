@@ -4,7 +4,8 @@ import express from 'express';
 // Prisma returns BigInt for id fields; JSON.stringify can't serialize them by default
 BigInt.prototype.toJSON = function () { return this.toString(); };
 import cors from 'cors';
-import { limpiarTokensExpirados } from './features/auth/auth.service.js';
+import cookieParser from 'cookie-parser';
+import { limpiarTokensExpirados } from './features/auth/auth.tokens.service.js';
 import authRoutes from './features/auth/auth.routes.js';
 import passwordRecoveryRoutes from './features/password-recovery/password-recovery.routes.js';
 import clientsRoutes from './features/clients/clients.routes.js';
@@ -13,12 +14,20 @@ import notificationsRoutes from './features/notifications/notifications.routes.j
 import cartRoutes from './features/cart/cart.routes.js';
 import ordersRoutes from './features/orders/orders.routes.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
+import { requireFetchHeader } from './shared/middleware/csrfMiddleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:4001';
+
+app.use(cors({
+  origin: FRONTEND_ORIGIN,
+  credentials: true,
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(requireFetchHeader);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/password-recovery', passwordRecoveryRoutes);
