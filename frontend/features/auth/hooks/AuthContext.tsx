@@ -2,63 +2,49 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AUTH_STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
-import { logoutUser } from '@/features/auth/shared/auth.api';
+import { fetchCurrentUser, logoutUser } from '@/features/auth/shared/auth.api';
+import { AUTH_EXPIRED_EVENT } from '@/lib/http/apiFetch';
 import type { AuthContextValue, AuthProviderProps, AuthUser } from '@/features/auth/types/auth.types';
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem(AUTH_STORAGE_KEYS.TOKEN);
-    const storedUser = localStorage.getItem(AUTH_STORAGE_KEYS.USER);
-
-    if (storedToken && storedUser) {
-      try {
-        setToken(storedToken);
-        setUser({ ...(JSON.parse(storedUser) as AuthUser) });
-      } catch {
-        localStorage.removeItem(AUTH_STORAGE_KEYS.TOKEN);
-        localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
-      }
-    }
-
-    setIsLoading(false);
+    const controller = new AbortController();
+    fetchCurrentUser(controller.signal)
+      .then((current) => setUser(current))
+      .finally(() => setIsLoading(false));
+    return () => controller.abort();
   }, []);
 
-  const login = useCallback((newToken: string, newUser: AuthUser) => {
-    localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, newToken);
-    localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(newUser));
-    setToken(newToken);
+  const login = useCallback((newUser: AuthUser) => {
     setUser(newUser);
   }, []);
 
   const logout = useCallback(async () => {
-    if (token) {
-      try {
-        await logoutUser(token);
-      } catch {
-        // Best-effort: siempre limpiar estado local aunque falle el servidor
-      }
-    }
-
-    localStorage.removeItem(AUTH_STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
-    setToken(null);
+    await logoutUser();
     setUser(null);
     router.push(ROUTES.LOGIN);
-  }, [router, token]);
+  }, [router]);
 
-  const isAuthenticated = !!user && !!token;
+  useEffect(() => {
+    const handleExpired = () => {
+      setUser(null);
+      router.push(ROUTES.LOGIN);
+    };
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleExpired);
+  }, [router]);
+
+  const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

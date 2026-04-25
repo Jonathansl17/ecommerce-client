@@ -51,11 +51,6 @@ export const AUTH_STRINGS = {
   },
 } as const;
 
-export const AUTH_STORAGE_KEYS = {
-  TOKEN: 'auth_token',
-  USER: 'auth_user',
-} as const;
-
 export const DASHBOARD_NAV_STRINGS = {
   brandTitle: 'Ecommerce',
   catalog: 'Catálogo',
