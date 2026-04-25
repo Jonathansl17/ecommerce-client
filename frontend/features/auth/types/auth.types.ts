@@ -35,17 +35,15 @@ export interface ApiErrorResponse {
 
 export interface LoginResponse {
   message: string;
-  token: string;
   usuario: AuthUser;
 }
 
 export interface AuthContextValue {
   user: AuthUser | null;
-  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (token: string, user: AuthUser) => void;
-  logout: () => void;
+  login: (user: AuthUser) => void;
+  logout: () => Promise<void>;
 }
 
 export interface AuthProviderProps {

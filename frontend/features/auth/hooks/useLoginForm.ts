@@ -45,7 +45,7 @@ export function useLoginForm() {
 
     try {
       const response = await loginUser(formData);
-      auth.login(response.token, response.usuario);
+      auth.login(response.usuario);
       router.push(ROUTES.DASHBOARD);
     } catch (err) {
       const apiError = err as ApiErrorResponse;
