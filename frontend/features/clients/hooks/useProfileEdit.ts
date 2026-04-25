@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
+import { apiFetch, ApiError } from '@/lib/http/apiFetch';
 
 interface UpdateProfileData {
   fullName?: string;
@@ -18,16 +19,20 @@ interface UpdateProfileResponse {
   };
 }
 
-function extractErrorMessage(body: Record<string, unknown>, fallback: string): string {
-  if (body.errors && Array.isArray(body.errors)) {
-    const first = (body.errors as { message?: string }[])[0];
-    return first?.message ?? fallback;
+function extractErrorMessage(body: unknown, fallback: string): string {
+  if (body && typeof body === 'object') {
+    const record = body as Record<string, unknown>;
+    if (Array.isArray(record.errors)) {
+      const first = (record.errors as { message?: string }[])[0];
+      if (first?.message) return first.message;
+    }
+    if (typeof record.error === 'string') return record.error;
   }
-  return (body.error as string) || fallback;
+  return fallback;
 }
 
 export function useProfileEdit() {
-  const { token, login, user } = useAuth();
+  const { login, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,29 +41,14 @@ export function useProfileEdit() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/clients/me`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-          signal: AbortSignal.timeout(10_000),
-        },
-      );
-
-      const body = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(extractErrorMessage(body, 'Error al actualizar perfil'));
-      }
-
-      const result = body as UpdateProfileResponse;
+      const result = await apiFetch<UpdateProfileResponse>('/clients/me', {
+        method: 'PUT',
+        body: data as unknown as Record<string, unknown>,
+        signal: AbortSignal.timeout(10_000),
+      });
 
       if (user) {
-        login(token!, {
+        login({
           ...user,
           fullName: result.cliente.fullName,
           email: result.cliente.email,
@@ -67,7 +57,11 @@ export function useProfileEdit() {
 
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      if (err instanceof ApiError) {
+        setError(extractErrorMessage(err.body, 'Error al actualizar perfil'));
+      } else {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+      }
       return false;
     } finally {
       setIsLoading(false);
