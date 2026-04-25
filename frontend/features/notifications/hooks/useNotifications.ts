@@ -2,18 +2,18 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchNotifications, markNotificationAsRead } from '../shared/notifications.api';
-import { AUTH_STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
+import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 import type { ClientNotification, UseNotificationsResult } from '../types/notifications.types';
 
 export function useNotifications(): UseNotificationsResult {
+  const { isAuthenticated } = useAuth();
   const [notificaciones, setNotificaciones] = useState<ClientNotification[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const cargarNotificaciones = useCallback(async () => {
-    const token = localStorage.getItem(AUTH_STORAGE_KEYS.TOKEN);
-    if (!token) {
+    if (!isAuthenticated) {
       setError(null);
       setCargando(false);
       return;
@@ -21,32 +21,31 @@ export function useNotifications(): UseNotificationsResult {
 
     try {
       setError(null);
-      const respuesta = await fetchNotifications(token);
+      const respuesta = await fetchNotifications();
       setNotificaciones(respuesta.notificaciones);
     } catch {
       setError(NOTIFICATION_STRINGS.loadError);
     } finally {
       setCargando(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     cargarNotificaciones();
   }, [cargarNotificaciones]);
 
   const marcarComoLeida = useCallback(async (id: string) => {
-    const token = localStorage.getItem(AUTH_STORAGE_KEYS.TOKEN);
-    if (!token) return;
+    if (!isAuthenticated) return;
 
     try {
-      const notificacionActualizada = await markNotificationAsRead(token, id);
+      const notificacionActualizada = await markNotificationAsRead(id);
       setNotificaciones((prev) =>
         prev.map((n) => (n.id === id ? notificacionActualizada : n))
       );
     } catch {
       // Error silencioso: no interrumpe la UX
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const noLeidas = useMemo(
     () => notificaciones.filter((n) => !n.read).length,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/features/auth/hooks/AuthContext';
+import { apiFetch, ApiError } from '@/lib/http/apiFetch';
 
 interface ChangePasswordData {
   currentPassword: string;
@@ -13,16 +13,19 @@ interface PasswordChangeResponse {
   confirmationLink?: string;
 }
 
-function extractErrorMessage(body: Record<string, unknown>, fallback: string): string {
-  if (body.errors && Array.isArray(body.errors)) {
-    const first = (body.errors as { message?: string }[])[0];
-    return first?.message ?? fallback;
+function extractErrorMessage(body: unknown, fallback: string): string {
+  if (body && typeof body === 'object') {
+    const record = body as Record<string, unknown>;
+    if (Array.isArray(record.errors)) {
+      const first = (record.errors as { message?: string }[])[0];
+      if (first?.message) return first.message;
+    }
+    if (typeof record.error === 'string') return record.error;
   }
-  return (body.error as string) || fallback;
+  return fallback;
 }
 
 export function usePasswordChange() {
-  const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmationLink, setConfirmationLink] = useState<string | null>(null);
@@ -33,26 +36,11 @@ export function usePasswordChange() {
     setConfirmationLink(null);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/clients/me/password`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-          signal: AbortSignal.timeout(10_000),
-        },
-      );
-
-      const body = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(extractErrorMessage(body, 'Error al cambiar contraseña'));
-      }
-
-      const result = body as PasswordChangeResponse;
+      const result = await apiFetch<PasswordChangeResponse>('/clients/me/password', {
+        method: 'PUT',
+        body: data as unknown as Record<string, unknown>,
+        signal: AbortSignal.timeout(10_000),
+      });
 
       if (result.confirmationLink) {
         setConfirmationLink(result.confirmationLink);
@@ -60,7 +48,11 @@ export function usePasswordChange() {
 
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      if (err instanceof ApiError) {
+        setError(extractErrorMessage(err.body, 'Error al cambiar contraseña'));
+      } else {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+      }
       return false;
     } finally {
       setIsLoading(false);

@@ -1,5 +1,4 @@
-import { API_BASE_URL } from '@/lib/constants/api.constants';
-import { AUTH_STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
+import { apiFetch, ApiError } from '@/lib/http/apiFetch';
 import { ORDER_STATUS_NOTIFICATION_API_STRINGS } from '../constants/order-status-notification.constants';
 import type {
   OrderDetail,
@@ -19,11 +18,8 @@ export type OrderStatusNotificationRequestErrorCode =
   | 'ORDERS_FETCH_FAILED'
   | 'ORDER_DETAIL_FETCH_FAILED';
 
-type TokenProvider = () => string | null;
-
 interface OrderStatusNotificationRequestOptions {
   signal?: AbortSignal;
-  getToken?: TokenProvider;
 }
 
 interface RawOrderProductCatalogItem {
@@ -64,33 +60,6 @@ export class OrderStatusNotificationRequestError extends Error {
     this.code = code;
     this.name = ORDER_STATUS_NOTIFICATION_API_STRINGS.errorName;
   }
-}
-
-function defaultTokenProvider() {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  return window.localStorage.getItem(AUTH_STORAGE_KEYS.TOKEN);
-}
-
-function getTokenOrThrow(getToken: TokenProvider = defaultTokenProvider) {
-  const token = getToken();
-
-  if (!token) {
-    throw new OrderStatusNotificationRequestError(
-      'AUTH_TOKEN_MISSING',
-      ORDER_STATUS_NOTIFICATION_API_STRINGS.missingAuthToken,
-    );
-  }
-
-  return token;
-}
-
-function getAuthHeaders(token: string): HeadersInit {
-  return {
-    Authorization: `Bearer ${token}`,
-  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -274,37 +243,26 @@ function normalizeOrderDetail(payload: RawOrderDetail): OrderDetail {
   };
 }
 
-async function parseJsonOrThrow(response: Response): Promise<unknown> {
-  try {
-    return await response.json();
-  } catch {
-    throw new OrderStatusNotificationRequestError(
-      'INVALID_RESPONSE',
-      ORDER_STATUS_NOTIFICATION_API_STRINGS.invalidJsonResponse,
-    );
-  }
-}
-
 function buildHttpError(
-  response: Response,
+  status: number,
   fallbackCode: OrderStatusNotificationRequestErrorCode,
   fallbackMessage: string,
 ) {
-  if (response.status === 401) {
+  if (status === 401) {
     return new OrderStatusNotificationRequestError(
       'REQUEST_UNAUTHORIZED',
       ORDER_STATUS_NOTIFICATION_API_STRINGS.requestUnauthorized,
     );
   }
 
-  if (response.status === 403) {
+  if (status === 403) {
     return new OrderStatusNotificationRequestError(
       'REQUEST_FORBIDDEN',
       ORDER_STATUS_NOTIFICATION_API_STRINGS.requestForbidden,
     );
   }
 
-  if (response.status === 404) {
+  if (status === 404) {
     return new OrderStatusNotificationRequestError(
       'ORDER_NOT_FOUND',
       ORDER_STATUS_NOTIFICATION_API_STRINGS.orderNotFound,
@@ -325,14 +283,13 @@ export async function fetchOrderStatusNotificationOrderDetail(
     );
   }
 
-  const response = await executeOrderStatusNotificationRequest({
+  const payload = await executeOrderStatusNotificationRequest({
     endpoint: `/orders/${orderId}`,
     options,
     fallbackErrorCode: 'ORDER_DETAIL_FETCH_FAILED',
     fallbackErrorMessage: ORDER_STATUS_NOTIFICATION_API_STRINGS.fetchOrderDetailFailed,
   });
 
-  const payload = await parseJsonOrThrow(response);
   assertOrderDetailResponse(payload);
 
   return normalizeOrderDetail(payload);
@@ -348,35 +305,27 @@ async function executeOrderStatusNotificationRequest({
   options?: OrderStatusNotificationRequestOptions;
   fallbackErrorCode: OrderStatusNotificationRequestErrorCode;
   fallbackErrorMessage: string;
-}) {
-  const token = getTokenOrThrow(options?.getToken);
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: getAuthHeaders(token),
-    signal: options?.signal,
-  });
-
-  if (!response.ok) {
-    throw buildHttpError(
-      response,
-      fallbackErrorCode,
-      fallbackErrorMessage,
-    );
+}): Promise<unknown> {
+  try {
+    return await apiFetch<unknown>(endpoint, { signal: options?.signal });
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw buildHttpError(err.status, fallbackErrorCode, fallbackErrorMessage);
+    }
+    throw err;
   }
-
-  return response;
 }
 
 export async function fetchOrderStatusNotificationOrders(
   options?: OrderStatusNotificationRequestOptions,
 ): Promise<OrderListItem[]> {
-  const response = await executeOrderStatusNotificationRequest({
+  const payload = await executeOrderStatusNotificationRequest({
     endpoint: '/orders',
     options,
     fallbackErrorCode: 'ORDERS_FETCH_FAILED',
     fallbackErrorMessage: ORDER_STATUS_NOTIFICATION_API_STRINGS.fetchOrdersFailed,
   });
 
-  const payload = await parseJsonOrThrow(response);
   assertOrdersResponse(payload);
 
   return payload.map(normalizeOrderListItem);
