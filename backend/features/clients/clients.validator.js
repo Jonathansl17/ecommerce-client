@@ -56,3 +56,18 @@ export const validateChangePassword = (req, res, next) => {
   req.body = resultado.data;
   next();
 };
+
+const deactivateAccountSchema = z.object({
+  password: z
+    .string({ required_error: 'La contraseña es requerida' })
+    .min(1, 'La contraseña es requerida'),
+});
+
+export const validateDeactivateAccount = (req, res, next) => {
+  const resultado = deactivateAccountSchema.safeParse(req.body);
+  if (!resultado.success) {
+    return responderErrores(res, resultado);
+  }
+  req.body = resultado.data;
+  next();
+};
