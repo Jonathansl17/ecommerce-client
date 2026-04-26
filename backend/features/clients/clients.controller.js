@@ -6,6 +6,7 @@ import {
   obtenerPerfil as obtenerPerfilService,
   actualizarPerfilUsuario as actualizarPerfilUsuarioService,
   cambiarContrasenaUsuario as cambiarContrasenaUsuarioService,
+  desactivarCuenta as desactivarCuentaService,
 } from './clients.service.js';
 import { CLIENTS_MESSAGES } from './clients.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
@@ -73,6 +74,15 @@ export const actualizarPerfil = async (req, res, next) => {
 export const cambiarContrasena = async (req, res, next) => {
   try {
     const resultado = await cambiarContrasenaUsuarioService(req.user.id, req.body);
+    res.status(HTTP_STATUS.OK).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const desactivarCuenta = async (req, res, next) => {
+  try {
+    const resultado = await desactivarCuentaService(req.user.id, req.body);
     res.status(HTTP_STATUS.OK).json(resultado);
   } catch (error) {
     next(error);
