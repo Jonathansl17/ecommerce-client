@@ -4,11 +4,11 @@ import { useState, useRef, useEffect, useId } from 'react';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationItem } from './NotificationItem';
 import { BellIcon } from './icons/BellIcon';
-import { UnreadCountBadge } from './minicomponents/UnreadCountBadge';
-import { PanelHeader } from './minicomponents/PanelHeader';
-import { PanelLoadingState } from './minicomponents/PanelLoadingState';
-import { PanelErrorState } from './minicomponents/PanelErrorState';
-import { PanelEmptyState } from './minicomponents/PanelEmptyState';
+import { UnreadCountBadge } from './ui/UnreadCountBadge';
+import { PanelHeader } from './ui/PanelHeader';
+import { PanelLoadingState } from './ui/PanelLoadingState';
+import { PanelErrorState } from './ui/PanelErrorState';
+import { PanelEmptyState } from './ui/PanelEmptyState';
 import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 
 export function NotificationBell() {
