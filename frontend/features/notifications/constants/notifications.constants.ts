@@ -21,6 +21,13 @@ export const NOTIFICATION_STRINGS = {
   markAsReadError: 'Error al marcar la notificación como leída',
 } as const;
 
+export const PAYMENT_RECEIPT_STRINGS = {
+  downloadLabel: 'Descargar comprobante',
+  downloadingLabel: 'Generando...',
+  downloadError: 'No se pudo descargar el comprobante',
+  filename: (paymentId: string) => `comprobante-pago-${paymentId}.pdf`,
+} as const;
+
 export const NOTIFICATION_BADGE = {
   MAX_COUNT: 9,
   OVERFLOW_LABEL: '9+',

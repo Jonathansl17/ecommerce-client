@@ -7,7 +7,7 @@ import {
 } from '../notifications/order-status-notification.service.js';
 import { triggerNotificacionPagoAprobado } from '../notifications/payment-notification.service.js';
 import { NOTIFICATION_MESSAGES } from '../notifications/notifications.constants.js';
-import { ORDERS_MESSAGES, PAYMENT_MESSAGES, TAX_RATE } from './orders.constants.js';
+import { ORDERS_MESSAGES, PAYMENT_MESSAGES, PAYMENT_STATUSES, TAX_RATE } from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 
 const ORDER_STATUS_NOTIFICATION_SELECT = {
@@ -305,7 +305,7 @@ export const aprobarPago = async (orderId, paymentId) => {
     throw crearError(PAYMENT_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
   }
 
-  if (payment.status === 'approved') {
+  if (payment.status === PAYMENT_STATUSES.APPROVED) {
     return { message: PAYMENT_MESSAGES.ALREADY_APPROVED };
   }
 
@@ -314,7 +314,7 @@ export const aprobarPago = async (orderId, paymentId) => {
   const [pagoActualizado, orden] = await prisma.$transaction(async (tx) => {
     const pago = await tx.payment.update({
       where: { id: parsedPaymentId },
-      data: { status: 'approved', updatedAt: approvedAt },
+      data: { status: PAYMENT_STATUSES.APPROVED, updatedAt: approvedAt },
       select: {
         id: true,
         method: true,
