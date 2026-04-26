@@ -1,6 +1,7 @@
 export const NOTIFICATION_ENTITY_TYPES = {
   ONBOARDING: 'onboarding',
   ORDER: 'order',
+  PAYMENT: 'payment',
 } as const;
 
 export const NOTIFICATION_STRINGS = {
@@ -12,6 +13,7 @@ export const NOTIFICATION_STRINGS = {
   unreadCount: (count: number) => `${count} sin leer`,
   welcomeTag: 'Bienvenida',
   orderTag: 'Pedido',
+  paymentTag: 'Pago',
   viewOrder: 'Ver pedido →',
   loading: 'Cargando...',
   loadError: 'No se pudieron cargar las notificaciones',
