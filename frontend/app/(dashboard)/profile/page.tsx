@@ -5,12 +5,14 @@ import { useProfile } from '@/features/clients/hooks/useProfile';
 import { ProfileHeader, ProfileDetails, ProfileLoadingState } from '@/features/clients/components/Profile';
 import { ProfileEditDialog } from '@/features/clients/components/ProfileEditDialog';
 import { ChangePasswordDialog } from '@/features/clients/components/ChangePasswordDialog';
+import { DeactivateAccountDialog } from '@/features/clients/components/DeactivateAccountDialog';
 import { PROFILE_STRINGS } from '@/features/clients/constants/clients.constants';
 
 export default function ProfilePage() {
   const { isLoading, user, getInitials, getFormattedCreatedAt } = useProfile();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Mostrar mientras verifica autenticación
@@ -71,6 +73,22 @@ export default function ProfilePage() {
         <p className="text-sm text-muted-foreground">{PROFILE_STRINGS.page.supportMessage}</p>
       </div>
 
+      {/* Zona de peligro */}
+      <div className="mt-6 border border-destructive/40 rounded-lg p-5">
+        <h2 className="text-sm font-semibold text-destructive mb-1">
+          {PROFILE_STRINGS.dangerZone.title}
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          {PROFILE_STRINGS.dangerZone.description}
+        </p>
+        <button
+          onClick={() => setIsDeactivateDialogOpen(true)}
+          className="px-4 py-2 text-sm font-medium text-destructive border border-destructive rounded-md hover:bg-destructive/10 transition-colors"
+        >
+          {PROFILE_STRINGS.dangerZone.deactivateButton}
+        </button>
+      </div>
+
       {/* Diálogos */}
       <ProfileEditDialog
         isOpen={isEditDialogOpen}
@@ -84,6 +102,11 @@ export default function ProfilePage() {
         isOpen={isPasswordDialogOpen}
         onClose={() => setIsPasswordDialogOpen(false)}
         onSuccess={handleProfileUpdated}
+      />
+
+      <DeactivateAccountDialog
+        isOpen={isDeactivateDialogOpen}
+        onClose={() => setIsDeactivateDialogOpen(false)}
       />
     </div>
   );
