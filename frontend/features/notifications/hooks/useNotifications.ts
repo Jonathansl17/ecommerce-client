@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { fetchNotifications, markNotificationAsRead } from '../shared/notifications.api';
+import { fetchNotifications, markNotificationAsRead } from '../api/notifications.api';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 import type { ClientNotification, UseNotificationsResult } from '../types/notifications.types';
