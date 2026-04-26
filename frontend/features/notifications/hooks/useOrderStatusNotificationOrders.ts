@@ -6,7 +6,7 @@ import {
 } from '../constants/order-status-notification.constants';
 import {
   fetchOrderStatusNotificationOrders,
-} from '../shared/order-status-notification.api';
+} from '../api/order-status-notification.api';
 import type {
   OrderListItem,
   UseOrderStatusNotificationOrdersResult,

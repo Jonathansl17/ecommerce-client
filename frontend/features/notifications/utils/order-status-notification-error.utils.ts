@@ -3,7 +3,7 @@ import {
   ORDER_STATUS_NOTIFICATION_REQUEST_ERROR_CODES,
   ORDER_STATUS_NOTIFICATION_STRINGS,
 } from '../constants/order-status-notification.constants';
-import { OrderStatusNotificationRequestError } from '../shared/order-status-notification.api';
+import { OrderStatusNotificationRequestError } from '../api/order-status-notification.api';
 import type {
   OrderStatusNotificationErrorContext,
   OrderStatusNotificationRequestErrorCode,

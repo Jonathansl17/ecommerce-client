@@ -1,6 +1,6 @@
 import prisma from '../../shared/db/prisma.js';
 import { EMAIL_RETRY, NOTIFICATION_ENTITY_TYPES, NOTIFICATION_MESSAGES, NOTIFICATION_TYPES } from './notifications.constants.js';
-import { enviarCorreoConfirmacionPedido } from './email.service.js';
+import { enviarCorreoConfirmacionPedido } from './email/email.service.js';
 
 function notificarAdminFalloEmail(orderId, clientEmail, error) {
   console.error('[EMAIL_FAILURE] Fallo permanente al enviar correo de confirmación.', {

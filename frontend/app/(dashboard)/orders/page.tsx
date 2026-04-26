@@ -8,7 +8,7 @@ import {
   ORDER_STATUS_NOTIFICATION_STRINGS,
 } from '@/features/notifications/constants/order-status-notification.constants';
 import { useOrderStatusNotificationOrders } from '@/features/notifications/hooks/useOrderStatusNotificationOrders';
-import { formatearFecha } from '@/features/notifications/shared/formatDate';
+import { formatearFecha } from '@/features/notifications/utils/formatDate';
 
 export default function OrdersPage() {
   const { pedidos, cargando, error } = useOrderStatusNotificationOrders();
