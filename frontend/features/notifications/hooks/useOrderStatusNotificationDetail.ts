@@ -9,7 +9,7 @@ import {
 import {
   fetchOrderStatusNotificationOrderDetail,
   OrderStatusNotificationRequestError,
-} from '../shared/order-status-notification.api';
+} from '../api/order-status-notification.api';
 import type { UseOrderStatusNotificationDetailResult } from '../types/order-status-notification.types';
 import { getOrderStatusNotificationDetailErrorMessage } from '../utils/order-status-notification-error.utils';
 import { useOrderStatusNotificationRequest } from './useOrderStatusNotificationRequest';
