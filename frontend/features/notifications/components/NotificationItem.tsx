@@ -2,11 +2,11 @@
 
 import { useCallback } from 'react';
 import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
-import { formatearFecha } from '../shared/formatDate';
+import { formatearFecha } from '../utils/formatDate';
 import type { NotificationItemProps } from '../types/notifications.types';
-import { NotificationTypeTag } from './minicomponents/NotificationTypeTag';
-import { UnreadDot } from './minicomponents/UnreadDot';
-import { ViewOrderLink } from './minicomponents/ViewOrderLink';
+import { NotificationTypeTag } from './ui/NotificationTypeTag';
+import { UnreadDot } from './ui/UnreadDot';
+import { ViewOrderLink } from './ui/ViewOrderLink';
 
 export function NotificationItem({ notification, onRead }: NotificationItemProps) {
   const fecha = notification.sentAt ?? notification.createdAt;

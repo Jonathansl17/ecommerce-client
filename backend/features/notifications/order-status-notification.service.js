@@ -7,7 +7,7 @@ import {
   ORDER_STATUS_NOTIFICATION_DELIVERY_STATUS,
   ORDER_STATUS_NOTIFICATION_STATUS_LABELS,
 } from './notifications.constants.js';
-import { enviarCorreoCambioEstadoPedido } from './email.service.js';
+import { enviarCorreoCambioEstadoPedido } from './email/email.service.js';
 
 function formatearFechaCambioEstado(changedAt) {
   return new Date(changedAt).toLocaleString('es-CR', {
