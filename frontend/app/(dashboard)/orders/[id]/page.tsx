@@ -8,7 +8,7 @@ import {
   ORDER_STATUS_NOTIFICATION_STRINGS,
 } from '@/features/notifications/constants/order-status-notification.constants';
 import { useOrderStatusNotificationDetail } from '@/features/notifications/hooks/useOrderStatusNotificationDetail';
-import { formatearFecha } from '@/features/notifications/shared/formatDate';
+import { formatearFecha } from '@/features/notifications/utils/formatDate';
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();

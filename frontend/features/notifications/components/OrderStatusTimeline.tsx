@@ -6,12 +6,12 @@ import {
   ORDER_STATUS_NOTIFICATION_STATUS_LABELS,
   ORDER_STATUS_NOTIFICATION_STRINGS,
 } from '../constants/order-status-notification.constants';
-import { formatearFecha } from '../shared/formatDate';
+import { formatearFecha } from '../utils/formatDate';
 import type {
   OrderStatusNotificationHistoryItem,
   OrderStatusTimelineProps,
 } from '../types/order-status-notification.types';
-import { OrderStatusTimelineEmptyState } from './minicomponents/OrderStatusTimelineEmptyState';
+import { OrderStatusTimelineEmptyState } from './ui/OrderStatusTimelineEmptyState';
 
 function getPreviousStatusLabel(
   previousStatus: OrderStatusNotificationHistoryItem['previousStatus'],
