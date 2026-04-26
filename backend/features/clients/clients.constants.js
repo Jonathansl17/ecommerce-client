@@ -10,4 +10,5 @@ export const CLIENTS_MESSAGES = {
   INVALID_PASSWORD: 'Contraseña actual incorrecta',
   EMAIL_ALREADY_EXISTS: 'El correo electrónico ya está registrado',
   PASSWORD_CHANGED_SUCCESS: 'Contraseña cambiada correctamente',
+  DEACTIVATE_SUCCESS: 'Cuenta desactivada correctamente',
 };

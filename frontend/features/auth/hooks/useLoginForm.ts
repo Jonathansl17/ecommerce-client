@@ -52,7 +52,7 @@ export function useLoginForm() {
       if (apiError.errors && apiError.errors.length > 0) {
         setErrors(apiError.errors);
       } else if (apiError.error) {
-        setErrors([{ field: 'general', message: AUTH_STRINGS.errors.invalidCredentials }]);
+        setErrors([{ field: 'general', message: apiError.error }]);
       } else {
         setErrors([{ field: 'general', message: AUTH_STRINGS.errors.connectionError }]);
       }
