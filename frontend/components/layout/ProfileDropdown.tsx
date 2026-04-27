@@ -2,10 +2,8 @@
 
 import { useProfileDropdown } from '@/features/clients/hooks/useProfileDropdown';
 import { ProfileDropdownView } from './ProfileDropdownView';
+import { ProfileDropdownProps } from '@/features/clients/types/profile.interface';
 
-interface ProfileDropdownProps {
-  initials: string;
-}
 
 export function ProfileDropdown({ initials }: ProfileDropdownProps) {
   const { isOpen, dropdownRef, toggleDropdown, closeDropdown, handleLogout } = useProfileDropdown();

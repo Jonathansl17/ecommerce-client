@@ -1,4 +1,4 @@
-import { EMAIL_CONFIG, NOTIFICATION_MESSAGES } from './notifications.constants.js';
+import { EMAIL_CONFIG, NOTIFICATION_MESSAGES } from '../notifications.constants.js';
 
 const CRC_CURRENCY_FORMATTER = new Intl.NumberFormat('es-CR', {
   style: 'currency',

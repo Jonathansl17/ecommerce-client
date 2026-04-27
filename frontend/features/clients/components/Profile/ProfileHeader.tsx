@@ -1,10 +1,5 @@
 import { PROFILE_STRINGS, PROFILE_AVATAR_SIZE } from '@/features/clients/constants/clients.constants';
-
-interface ProfileHeaderProps {
-  initials: string;
-  fullName: string;
-  accountStatus: string;
-}
+import { ProfileHeaderProps } from '@/features/clients/types/profile.interface';
 
 export function ProfileHeader({ initials, fullName, accountStatus }: ProfileHeaderProps) {
   return (

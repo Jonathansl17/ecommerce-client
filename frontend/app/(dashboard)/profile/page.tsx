@@ -12,15 +12,9 @@ export default function ProfilePage() {
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  if (isLoading) {
-    return <ProfileLoadingState />;
-  }
-
-  if (!user) {
-    return null;
-  }
-
-  return (
+  return isLoading ? (
+    <ProfileLoadingState />
+  ) : !user ? null : (
     <ProfilePageView
       initials={getInitials(user.fullName)}
       fullName={user.fullName}

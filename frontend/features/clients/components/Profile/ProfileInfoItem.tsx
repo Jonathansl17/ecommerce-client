@@ -1,10 +1,4 @@
-interface ProfileInfoItemProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  isBordered?: boolean;
-  isMonospace?: boolean;
-}
+import { ProfileInfoItemProps } from '@/features/clients/types/profile.interface';
 
 export function ProfileInfoItem({ icon, label, value, isBordered = false, isMonospace = false }: ProfileInfoItemProps) {
   return (
