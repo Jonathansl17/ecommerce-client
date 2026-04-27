@@ -1,4 +1,4 @@
-import { ORDER_STATUS_NOTIFICATION_STATUS_LABELS } from './notifications.constants.js';
+import { ORDER_STATUS_NOTIFICATION_STATUS_LABELS } from '../notifications.constants.js';
 import {
   calcularFechaEstimadaEntrega,
   escaparHtml,
