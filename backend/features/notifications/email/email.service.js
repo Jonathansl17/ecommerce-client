@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { EMAIL_CONFIG, NOTIFICATION_MESSAGES } from './notifications.constants.js';
+import { EMAIL_CONFIG, NOTIFICATION_MESSAGES } from '../notifications.constants.js';
 import {
   construirPlantillaCambioEstadoPedido,
   construirPlantillaConfirmacionPedido,
