@@ -1,12 +1,7 @@
 import { Mail, User, Calendar } from 'lucide-react';
 import { PROFILE_STRINGS } from '@/features/clients/constants/clients.constants';
 import { ProfileInfoItem } from './ProfileInfoItem';
-
-interface ProfileDetailsProps {
-  email: string;
-  createdAt?: string;
-  userId?: string;
-}
+import { ProfileDetailsProps } from '@/features/clients/types/profile.interface';
 
 export function ProfileDetails({ email, createdAt, userId }: ProfileDetailsProps) {
   return (

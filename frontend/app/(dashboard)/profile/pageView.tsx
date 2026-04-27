@@ -2,15 +2,7 @@
 
 import { Profile } from '@/features/clients/components/Profile';
 import { PROFILE_STRINGS } from '@/features/clients/constants/clients.constants';
-
-interface ProfilePageViewProps {
-  initials: string;
-  fullName: string;
-  email: string;
-  accountStatus: string;
-  formattedCreatedAt: string;
-  userId: string;
-}
+import { ProfilePageViewProps } from '@/features/clients/types/profile.interface';
 
 export function ProfilePageView({
   initials,

@@ -4,16 +4,7 @@ import Link from 'next/link';
 import { LogOut, User } from 'lucide-react';
 import { PROFILE_STRINGS } from '@/features/clients/constants/clients.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
-
-interface ProfileDropdownViewProps {
-  initials: string;
-  isOpen: boolean;
-  dropdownRef: React.RefObject<HTMLDivElement | null>;
-  toggleDropdown: () => void;
-  closeDropdown: () => void;
-  handleLogout: () => void;
-}
-
+import { ProfileDropdownViewProps } from '@/features/clients/types/profile.interface';
 export function ProfileDropdownView({
   initials,
   isOpen,
