@@ -1,32 +1,16 @@
-import { PRODUCT_REVIEW_STRINGS } from '../constants/product-reviews.constants';
+import {
+  DATE_OPTIONS,
+  HELPFUL_OPTIONS,
+  PRODUCT_REVIEW_STRINGS,
+  RATING_OPTIONS,
+  SELECT_BASE,
+} from '../constants/product-reviews.constants';
 import type {
   DateFilter,
   HelpfulFilter,
   RatingFilter,
   ReviewFiltersBarProps,
 } from '../types/product-reviews.types';
-
-const DATE_OPTIONS: { value: DateFilter; label: string }[] = [
-  { value: 'recent', label: PRODUCT_REVIEW_STRINGS.filters.date.recent },
-  { value: 'oldest', label: PRODUCT_REVIEW_STRINGS.filters.date.oldest },
-];
-
-const RATING_OPTIONS: { value: RatingFilter; label: string }[] = [
-  { value: 'all', label: PRODUCT_REVIEW_STRINGS.filters.rating.all },
-  { value: '5', label: PRODUCT_REVIEW_STRINGS.filters.rating['5'] },
-  { value: '4', label: PRODUCT_REVIEW_STRINGS.filters.rating['4'] },
-  { value: '3', label: PRODUCT_REVIEW_STRINGS.filters.rating['3'] },
-  { value: '2', label: PRODUCT_REVIEW_STRINGS.filters.rating['2'] },
-  { value: '1', label: PRODUCT_REVIEW_STRINGS.filters.rating['1'] },
-];
-
-const HELPFUL_OPTIONS: { value: HelpfulFilter; label: string }[] = [
-  { value: 'none', label: PRODUCT_REVIEW_STRINGS.filters.helpful.none },
-  { value: 'most_helpful', label: PRODUCT_REVIEW_STRINGS.filters.helpful.most_helpful },
-];
-
-const SELECT_BASE =
-  'rounded-md border border-foreground/15 bg-background px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50';
 
 export function ReviewFiltersBar({
   filters,
