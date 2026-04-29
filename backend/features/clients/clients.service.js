@@ -106,6 +106,29 @@ export const actualizarPerfilUsuario = async (userId, { fullName, email, passwor
   return clienteActualizado;
 };
 
+export const desactivarCuenta = async (userId, { password }) => {
+  const usuario = await prisma.clientUser.findUnique({
+    where: { id: BigInt(userId) },
+    select: { id: true, passwordHash: true },
+  });
+
+  if (!usuario) {
+    throw crearError(CLIENTS_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  const valid = await bcrypt.compare(password, usuario.passwordHash);
+  if (!valid) {
+    throw crearError(CLIENTS_MESSAGES.INVALID_PASSWORD, HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  await prisma.clientUser.update({
+    where: { id: BigInt(userId) },
+    data: { accountStatus: 'inactive' },
+  });
+
+  return { message: CLIENTS_MESSAGES.DEACTIVATE_SUCCESS };
+};
+
 export const cambiarContrasenaUsuario = async (userId, { currentPassword, newPassword }) => {
   const usuario = await prisma.clientUser.findUnique({
     where: { id: BigInt(userId) },
