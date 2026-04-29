@@ -1,6 +1,7 @@
 import { StarRatingDisplay } from '@/features/reviews/components/StarRatingDisplay';
 import { ReviewVotes } from '@/features/reviews/components/ReviewVotes';
 import { VerifiedBuyerBadge } from '@/features/reviews/components/VerifiedBuyerBadge';
+import { AuthorAvatar } from './AuthorAvatar';
 import {
   PRODUCT_REVIEW_STRINGS,
   PRODUCT_REVIEW_DATE_FORMAT,
@@ -11,18 +12,6 @@ function formatDate(isoString: string): string {
   return new Date(isoString).toLocaleDateString(
     PRODUCT_REVIEW_DATE_FORMAT.LOCALE,
     PRODUCT_REVIEW_DATE_FORMAT.OPTIONS,
-  );
-}
-
-function AuthorAvatar({ name }: { name: string }) {
-  const initial = name.charAt(0).toUpperCase();
-  return (
-    <div
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
-      aria-hidden="true"
-    >
-      {initial}
-    </div>
   );
 }
 
