@@ -51,3 +51,13 @@ export interface NotificationTypeTagProps {
 export interface ViewOrderLinkProps {
   orderId: string;
 }
+
+export interface DownloadReceiptLinkProps {
+  paymentId: string;
+}
+
+export interface UseDownloadPaymentReceiptResult {
+  descargar: () => Promise<void>;
+  descargando: boolean;
+  error: string | null;
+}
