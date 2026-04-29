@@ -8,6 +8,10 @@ export const ORDERS_MESSAGES = {
   STATUS_UNCHANGED: 'El pedido ya tiene ese estado',
 };
 
+export const PAYMENT_STATUSES = {
+  APPROVED: 'approved',
+};
+
 export const PAYMENT_MESSAGES = {
   NOT_FOUND: 'Pago no encontrado para este pedido',
   ALREADY_APPROVED: 'El pago ya estaba aprobado',
