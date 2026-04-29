@@ -36,6 +36,7 @@ export const NOTIFICATION_MESSAGES = {
 export const NOTIFICATION_ENTITY_TYPES = {
   ONBOARDING: 'onboarding',
   ORDER: 'order',
+  PAYMENT: 'payment',
 };
 
 export const NOTIFICATION_TYPES = {
@@ -55,6 +56,36 @@ export const EMAIL_CONFIG = {
   SMTP_SECURE_PORT: 465,
   DELIVERY_ESTIMATE_DAYS: 7,
   REQUIRED_ENV_VARS: ['EMAIL_HOST', 'EMAIL_PORT', 'EMAIL_USER', 'EMAIL_PASS', 'EMAIL_FROM'],
+};
+
+export const PAYMENT_NOTIFICATION = {
+  TRIGGER_DEADLINE_MS: 15 * 1000,
+};
+
+export const PAYMENT_NOTIFICATION_MESSAGES = {
+  APPROVED_TITLE: (orderId) => `Pago aprobado — Pedido #${orderId}`,
+  APPROVED_CONTENT: ({ amount, method, reference, chargedAt }) =>
+    `Monto cobrado: ${amount}. Método: ${method}. Referencia: ${reference}. Fecha del cargo: ${chargedAt}.`,
+  EMAIL_PAYMENT_DATA_REQUIRED: 'Los datos del pago son requeridos para enviar la notificación',
+  EMAIL_PAYMENT_ID_REQUIRED: 'El id del pago es requerido para la notificación de pago aprobado',
+  EMAIL_PAYMENT_AMOUNT_REQUIRED: 'El monto del pago es requerido para la notificación de pago aprobado',
+  EMAIL_SUBJECT: (orderId, brandName) => `Pago aprobado — Pedido #${orderId} | ${brandName}`,
+  TIMEOUT_ERROR: 'Timeout de notificación de pago excedido',
+};
+
+export const PAYMENT_NOTIFICATION_LOG_PREFIXES = {
+  EMAIL_FAILURE: '[PAYMENT_EMAIL_FAILURE] Fallo permanente al enviar correo de pago aprobado.',
+  EMAIL_RETRY_WARN: '[PAYMENT_EMAIL_RETRY] No se pudo actualizar sendAttempts en DB.',
+  EMAIL_RETRY_ATTEMPT: (intentos, max, paymentId) =>
+    `[PAYMENT_EMAIL_RETRY] Intento ${intentos}/${max} fallido para pago #${paymentId}.`,
+  TRIGGER_ERROR: '[PAYMENT_NOTIF_TRIGGER] Error al procesar notificación de pago aprobado.',
+};
+
+export const PAYMENT_METHOD_LABELS = {
+  SINPE: 'SINPE Móvil',
+  cash: 'Efectivo',
+  card: 'Tarjeta',
+  other: 'Otro',
 };
 
 export const ORDER_STATUS_NOTIFICATION_DELIVERY_STATUS = {
