@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   actualizarEstadoPedido,
+  aprobarPago,
   checkout,
   obtenerMisPedidos,
   obtenerPedidoPorId,
@@ -21,6 +22,9 @@ router.post('/checkout', validateCheckout, checkout);
 // TODO(order_status_notification): this provisional route exists because the admin/backoffice
 // order-management flow is not implemented yet. Replace it with the future privileged trigger.
 router.patch('/:id/status', validateUpdateOrderStatus, actualizarEstadoPedido);
+
+// TODO(payment_gateway): replace with webhook handler from payment gateway once integrated.
+router.patch('/:orderId/payments/:paymentId/approve', aprobarPago);
 
 // GET  /api/orders         → lista todos los pedidos del usuario autenticado
 router.get('/', obtenerMisPedidos);

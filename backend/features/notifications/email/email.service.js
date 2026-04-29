@@ -3,7 +3,9 @@ import { EMAIL_CONFIG, NOTIFICATION_MESSAGES } from '../notifications.constants.
 import {
   construirPlantillaCambioEstadoPedido,
   construirPlantillaConfirmacionPedido,
+  construirPlantillaPagoAprobado,
 } from './email-template.service.js';
+import { PAYMENT_NOTIFICATION_MESSAGES } from '../notifications.constants.js';
 
 let transporterInstance = null;
 
@@ -90,6 +92,17 @@ export async function enviarCorreoConfirmacionPedido(order, clientUser) {
       order.id,
       EMAIL_CONFIG.BRAND_NAME,
     ),
+    html,
+  });
+}
+
+export async function enviarCorreoPagoAprobado({ order, clientUser, payment }) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaPagoAprobado({ order, clientUser, payment });
+
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: PAYMENT_NOTIFICATION_MESSAGES.EMAIL_SUBJECT(order.id, EMAIL_CONFIG.BRAND_NAME),
     html,
   });
 }
