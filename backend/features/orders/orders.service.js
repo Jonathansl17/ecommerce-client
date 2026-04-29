@@ -5,8 +5,9 @@ import {
   registrarOrderStatusNotification,
   serializarOrderStatusNotification,
 } from '../notifications/order-status-notification.service.js';
+import { triggerNotificacionPagoAprobado } from '../notifications/payment-notification.service.js';
 import { NOTIFICATION_MESSAGES } from '../notifications/notifications.constants.js';
-import { ORDERS_MESSAGES, TAX_RATE } from './orders.constants.js';
+import { ORDERS_MESSAGES, PAYMENT_MESSAGES, PAYMENT_STATUSES, TAX_RATE } from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 
 const ORDER_STATUS_NOTIFICATION_SELECT = {
@@ -281,6 +282,81 @@ export const obtenerPedidoPorId = async (userId, orderId) => {
   }
 
   return serializarPedido(orden);
+};
+
+export const aprobarPago = async (orderId, paymentId) => {
+  const parsedOrderId = BigInt(orderId);
+  const parsedPaymentId = BigInt(paymentId);
+
+  const payment = await prisma.payment.findFirst({
+    where: { id: parsedPaymentId, orderId: parsedOrderId },
+    select: {
+      id: true,
+      method: true,
+      externalReference: true,
+      amount: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!payment) {
+    throw crearError(PAYMENT_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (payment.status === PAYMENT_STATUSES.APPROVED) {
+    return { message: PAYMENT_MESSAGES.ALREADY_APPROVED };
+  }
+
+  const approvedAt = new Date();
+
+  const [pagoActualizado, orden] = await prisma.$transaction(async (tx) => {
+    const pago = await tx.payment.update({
+      where: { id: parsedPaymentId },
+      data: { status: PAYMENT_STATUSES.APPROVED, updatedAt: approvedAt },
+      select: {
+        id: true,
+        method: true,
+        externalReference: true,
+        amount: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const pedido = await tx.order.findUnique({
+      where: { id: parsedOrderId },
+      select: {
+        id: true,
+        clientUser: {
+          select: { id: true, fullName: true, email: true },
+        },
+      },
+    });
+
+    return [pago, pedido];
+  });
+
+  triggerNotificacionPagoAprobado({
+    order: { id: orden.id },
+    clientUser: orden.clientUser,
+    payment: pagoActualizado,
+  });
+
+  return {
+    message: PAYMENT_MESSAGES.APPROVE_SUCCESS,
+    payment: {
+      id: pagoActualizado.id.toString(),
+      method: pagoActualizado.method,
+      externalReference: pagoActualizado.externalReference,
+      amount: Number(pagoActualizado.amount),
+      status: pagoActualizado.status,
+      createdAt: pagoActualizado.createdAt,
+      updatedAt: pagoActualizado.updatedAt,
+    },
+  };
 };
 
 export const actualizarEstadoPedido = async (orderId, { status: newStatus }) => {

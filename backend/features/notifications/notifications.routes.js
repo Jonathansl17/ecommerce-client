@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { obtenerNotificaciones, marcarComoLeida } from './notifications.controller.js';
+import {
+  descargarComprobantePago,
+  marcarComoLeida,
+  obtenerNotificaciones,
+} from './notifications.controller.js';
 import { requireAuth } from '../../shared/middleware/authMiddleware.js';
 
 const router = Router();
@@ -9,5 +13,6 @@ router.use(requireAuth);
 
 router.get('/', obtenerNotificaciones);
 router.patch('/:id/read', marcarComoLeida);
+router.get('/payments/:paymentId/receipt', descargarComprobantePago);
 
 export default router;

@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 import { formatearFecha } from '../utils/formatDate';
 import type { NotificationItemProps } from '../types/notifications.types';
+import { DownloadReceiptLink } from './ui/DownloadReceiptLink';
 import { NotificationTypeTag } from './ui/NotificationTypeTag';
 import { UnreadDot } from './ui/UnreadDot';
 import { ViewOrderLink } from './ui/ViewOrderLink';
@@ -12,6 +13,8 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
   const fecha = notification.sentAt ?? notification.createdAt;
   const mostrarLinkPedido =
     notification.entityType === 'order' && notification.entityId != null;
+  const mostrarLinkComprobante =
+    notification.entityType === 'payment' && notification.entityId != null;
 
   const borderClass =
     notification.entityType === 'onboarding'
@@ -64,6 +67,9 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
           </p>
           <p className="mt-1 text-xs text-muted-foreground/80">{formatearFecha(fecha)}</p>
           {mostrarLinkPedido && <ViewOrderLink orderId={notification.entityId as string} />}
+          {mostrarLinkComprobante && (
+            <DownloadReceiptLink paymentId={notification.entityId as string} />
+          )}
         </div>
         {!notification.read && <UnreadDot />}
       </div>
