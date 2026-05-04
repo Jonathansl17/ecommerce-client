@@ -11,6 +11,8 @@ import {
   construirPlantillaPagoAprobado,
 } from './email-template.service.js';
 import { construirPlantillaPagoRechazado } from './email-template.payment-rejected.service.js';
+import { construirPlantillaProductoPersonalizadoTerminado } from './email-template.product-customization.service.js';
+import { PRODUCT_CUSTOMIZATION_MESSAGES } from '../product-customization-notification.constants.js';
 
 function validarPayloadBaseCorreo({ to, subject, html }) {
   if (!to) throw new Error(NOTIFICATION_MESSAGES.EMAIL_RECIPIENT_REQUIRED);
@@ -67,6 +69,17 @@ export async function enviarCorreoPagoRechazado({ order, clientUser, payment }) 
   await enviarCorreo({
     to: clientUser.email,
     subject: PAYMENT_REJECTED_MESSAGES.EMAIL_SUBJECT(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoProductoPersonalizadoTerminado({ order, clientUser, images, message }) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaProductoPersonalizadoTerminado({ order, clientUser, images, message });
+
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: PRODUCT_CUSTOMIZATION_MESSAGES.EMAIL_SUBJECT(order.id, EMAIL_CONFIG.BRAND_NAME),
     html,
   });
 }
