@@ -1,7 +1,7 @@
 import {
   PAYMENT_REJECTION_REASONS,
   PAYMENT_RETRY_ALTERNATIVES,
-} from '../payment-rejected-notification.constants.js';
+} from '../payment/rejected-notification.constants.js';
 import { escaparHtml } from './email-template.utils.js';
 import { renderHeader, renderFooter, renderSupportBlock } from './email-template.sections.js';
 

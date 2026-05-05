@@ -39,6 +39,13 @@ enum OrderStatus {
   cancelled
 }
 
+enum ProductCustomizationApprovalStatus {
+  pending
+  approved
+  adjustments_requested
+  auto_approved
+}
+
 enum OrderStatusNotificationDeliveryStatus {
   pending
   sent
@@ -95,14 +102,15 @@ model ClientUser {
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp()
 
-  recoveryTokens ClientRecoveryToken[]
-  notifications  ClientNotification[]
-  carts          Cart[]
-  favorites      Favorite[]
-  orders         Order[]
-  orderStatusNotifications OrderStatusNotification[]
-  reviews        Review[]
-  reviewVotes    ReviewVote[]
+  recoveryTokens                  ClientRecoveryToken[]
+  notifications                   ClientNotification[]
+  carts                           Cart[]
+  favorites                       Favorite[]
+  orders                          Order[]
+  orderStatusNotifications        OrderStatusNotification[]
+  productCustomizationApprovals   ProductCustomizationApproval[]
+  reviews                         Review[]
+  reviewVotes                     ReviewVote[]
 
   @@map("client_users")
 }
@@ -194,8 +202,9 @@ model Order {
   clientUser ClientUser  @relation(fields: [clientUserId], references: [id])
   cart       Cart        @relation(fields: [cartId], references: [id])
   orderItems OrderItem[]
-  orderStatusNotifications OrderStatusNotification[]
-  payments   Payment[]
+  orderStatusNotifications        OrderStatusNotification[]
+  productCustomizationApprovals   ProductCustomizationApproval[]
+  payments                        Payment[]
 
   @@map("orders")
 }
@@ -249,6 +258,27 @@ model OrderStatusNotification {
   @@index([orderId, changedAt])
   @@index([clientUserId, changedAt])
   @@map("order_status_notifications")
+}
+
+// Requires migration: prisma migrate dev --name add_product_customization_approval
+model ProductCustomizationApproval {
+  id              BigInt                             @id @default(autoincrement())
+  orderId         BigInt                             @map("order_id")
+  clientUserId    BigInt                             @map("client_user_id")
+  status          ProductCustomizationApprovalStatus @default(pending)
+  adjustmentNotes String?                            @map("adjustment_notes") @db.Text
+  notifiedAt      DateTime                           @map("notified_at") @db.Timestamp()
+  respondedAt     DateTime?                          @map("responded_at") @db.Timestamp()
+  autoApprovedAt  DateTime?                          @map("auto_approved_at") @db.Timestamp()
+  createdAt       DateTime                           @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt       DateTime                           @updatedAt @map("updated_at") @db.Timestamp()
+
+  order      Order      @relation(fields: [orderId], references: [id])
+  clientUser ClientUser @relation(fields: [clientUserId], references: [id])
+
+  @@index([orderId])
+  @@index([clientUserId, status])
+  @@map("product_customization_approvals")
 }
 
 model Category {

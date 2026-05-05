@@ -1,4 +1,4 @@
-import { PRODUCT_CUSTOMIZATION_MESSAGES } from '../product-customization-notification.constants.js';
+import { PRODUCT_CUSTOMIZATION_MESSAGES } from '../product-customization/notification.constants.js';
 import {
   obtenerBrandingEmail,
   validarTemplateConfirmationInput,

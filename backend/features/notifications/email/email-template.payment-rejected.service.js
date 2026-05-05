@@ -1,5 +1,5 @@
 import { PAYMENT_METHOD_LABELS } from '../notifications.constants.js';
-import { PAYMENT_REJECTED_MESSAGES } from '../payment-rejected-notification.constants.js';
+import { PAYMENT_REJECTED_MESSAGES } from '../payment/rejected-notification.constants.js';
 import {
   formatearFechaHora,
   formatearMoneda,

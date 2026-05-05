@@ -1,24 +1,19 @@
-import prisma from '../../shared/db/prisma.js';
+import prisma from '../../../shared/db/prisma.js';
 import {
   EMAIL_RETRY,
   NOTIFICATION_ENTITY_TYPES,
   NOTIFICATION_MESSAGES,
   NOTIFICATION_TYPES,
   PAYMENT_METHOD_LABELS,
-} from './notifications.constants.js';
-import {
-  PAYMENT_REJECTED_LOG_PREFIXES,
-  PAYMENT_REJECTED_MESSAGES,
-  PAYMENT_REJECTED_NOTIFICATION,
-  PAYMENT_REJECTION_REASONS,
-  PAYMENT_RETRY_ALTERNATIVES,
-} from './payment-rejected-notification.constants.js';
-import { formatearMoneda } from './email/email-template.utils.js';
-import { enviarCorreoPagoRechazado } from './email/email.service.js';
-import { registrarEnHistorialFinanciero } from './payment-rejected-financial-history.service.js';
+  PAYMENT_NOTIFICATION,
+  PAYMENT_NOTIFICATION_LOG_PREFIXES,
+  PAYMENT_NOTIFICATION_MESSAGES,
+} from '../notifications.constants.js';
+import { formatearFechaHora, formatearMoneda } from '../email/email-template.utils.js';
+import { enviarCorreoPagoAprobado } from '../email/email.service.js';
 
-function notificarAdminFalloPagoRechazadoEmail(paymentId, clientEmail, error) {
-  console.error(PAYMENT_REJECTED_LOG_PREFIXES.EMAIL_FAILURE, {
+function notificarAdminFalloPagoEmail(paymentId, clientEmail, error) {
+  console.error(PAYMENT_NOTIFICATION_LOG_PREFIXES.EMAIL_FAILURE, {
     paymentId: paymentId.toString(),
     clientEmail,
     errorMessage: error?.message ?? NOTIFICATION_MESSAGES.EMAIL_UNKNOWN_ERROR,
@@ -26,21 +21,12 @@ function notificarAdminFalloPagoRechazadoEmail(paymentId, clientEmail, error) {
   });
 }
 
-function construirContenidoNotificacion({ amount, method }) {
-  return PAYMENT_REJECTED_MESSAGES.REJECTED_CONTENT({
-    amount: formatearMoneda(amount),
-    method: PAYMENT_METHOD_LABELS[method] ?? method,
-    reason: PAYMENT_REJECTION_REASONS.GENERIC,
-    alternatives: PAYMENT_RETRY_ALTERNATIVES.join('. '),
-  });
-}
-
-async function crearRegistroNotificacionPagoRechazado({ clientUserId, paymentId, orderId, content }) {
+async function crearRegistroNotificacionPago({ clientUserId, paymentId, orderId, content }) {
   return prisma.clientNotification.create({
     data: {
       clientUserId,
       type: NOTIFICATION_TYPES.BOTH,
-      title: PAYMENT_REJECTED_MESSAGES.REJECTED_TITLE(orderId),
+      title: PAYMENT_NOTIFICATION_MESSAGES.APPROVED_TITLE(orderId),
       content,
       entityType: NOTIFICATION_ENTITY_TYPES.PAYMENT,
       entityId: paymentId,
@@ -49,12 +35,21 @@ async function crearRegistroNotificacionPagoRechazado({ clientUserId, paymentId,
   });
 }
 
+function construirContenidoNotificacion({ amount, method, externalReference, chargedAt }) {
+  return PAYMENT_NOTIFICATION_MESSAGES.APPROVED_CONTENT({
+    amount: formatearMoneda(amount),
+    method: PAYMENT_METHOD_LABELS[method] ?? method,
+    reference: externalReference,
+    chargedAt: formatearFechaHora(chargedAt),
+  });
+}
+
 async function intentarEnvioEmailConReintentos(order, clientUser, payment, notificationId) {
   let intentos = 0;
 
   while (intentos < EMAIL_RETRY.MAX_ATTEMPTS) {
     try {
-      await enviarCorreoPagoRechazado({ order, clientUser, payment });
+      await enviarCorreoPagoAprobado({ order, clientUser, payment });
 
       await prisma.clientNotification.update({
         where: { id: notificationId },
@@ -71,13 +66,17 @@ async function intentarEnvioEmailConReintentos(order, clientUser, payment, notif
           data: { sendAttempts: intentos },
         });
       } catch (dbError) {
-        console.warn(PAYMENT_REJECTED_LOG_PREFIXES.EMAIL_RETRY_WARN, {
+        console.warn(PAYMENT_NOTIFICATION_LOG_PREFIXES.EMAIL_RETRY_WARN, {
           errorMessage: dbError?.message,
         });
       }
 
       console.warn(
-        PAYMENT_REJECTED_LOG_PREFIXES.EMAIL_RETRY_ATTEMPT(intentos, EMAIL_RETRY.MAX_ATTEMPTS, payment.id),
+        PAYMENT_NOTIFICATION_LOG_PREFIXES.EMAIL_RETRY_ATTEMPT(
+          intentos,
+          EMAIL_RETRY.MAX_ATTEMPTS,
+          payment.id,
+        ),
         { errorMessage: error?.message },
       );
 
@@ -92,20 +91,20 @@ async function intentarEnvioEmailConReintentos(order, clientUser, payment, notif
   return false;
 }
 
-export async function enviarNotificacionPagoRechazado({ order, clientUser, payment }) {
+export async function enviarNotificacionPagoAprobado({ order, clientUser, payment }) {
   const content = construirContenidoNotificacion({
     amount: payment.amount,
     method: payment.method,
+    externalReference: payment.externalReference,
+    chargedAt: payment.updatedAt ?? payment.createdAt,
   });
 
-  const notificacion = await crearRegistroNotificacionPagoRechazado({
+  const notificacion = await crearRegistroNotificacionPago({
     clientUserId: clientUser.id,
     paymentId: payment.id,
     orderId: order.id,
     content,
   });
-
-  await registrarEnHistorialFinanciero({ order, payment, clientUser });
 
   const enviado = await intentarEnvioEmailConReintentos(
     order,
@@ -115,7 +114,7 @@ export async function enviarNotificacionPagoRechazado({ order, clientUser, payme
   );
 
   if (!enviado) {
-    notificarAdminFalloPagoRechazadoEmail(
+    notificarAdminFalloPagoEmail(
       payment.id,
       clientUser.email,
       new Error(NOTIFICATION_MESSAGES.EMAIL_RETRY_EXHAUSTED),
@@ -123,17 +122,17 @@ export async function enviarNotificacionPagoRechazado({ order, clientUser, payme
   }
 }
 
-export function triggerNotificacionPagoRechazado({ order, clientUser, payment }) {
+export function triggerNotificacionPagoAprobado({ order, clientUser, payment }) {
   void Promise.race([
-    enviarNotificacionPagoRechazado({ order, clientUser, payment }),
+    enviarNotificacionPagoAprobado({ order, clientUser, payment }),
     new Promise((_, reject) =>
       setTimeout(
-        () => reject(new Error(PAYMENT_REJECTED_MESSAGES.TIMEOUT_ERROR)),
-        PAYMENT_REJECTED_NOTIFICATION.TRIGGER_DEADLINE_MS,
+        () => reject(new Error(PAYMENT_NOTIFICATION_MESSAGES.TIMEOUT_ERROR)),
+        PAYMENT_NOTIFICATION.TRIGGER_DEADLINE_MS,
       ),
     ),
   ]).catch((error) => {
-    console.error(PAYMENT_REJECTED_LOG_PREFIXES.TRIGGER_ERROR, {
+    console.error(PAYMENT_NOTIFICATION_LOG_PREFIXES.TRIGGER_ERROR, {
       orderId: order.id?.toString(),
       paymentId: payment.id?.toString(),
       errorMessage: error?.message,
