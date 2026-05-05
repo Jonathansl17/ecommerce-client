@@ -1,6 +1,6 @@
 import {
   PRODUCT_CUSTOMIZATION_MESSAGES,
-} from '../product-customization-notification.constants.js';
+} from '../product-customization/notification.constants.js';
 import { escaparHtml } from './email-template.utils.js';
 import { renderHeader, renderFooter, renderSupportBlock } from './email-template.sections.js';
 

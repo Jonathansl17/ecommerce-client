@@ -1,17 +1,17 @@
-import prisma from '../../shared/db/prisma.js';
+import prisma from '../../../shared/db/prisma.js';
 import {
   EMAIL_RETRY,
   NOTIFICATION_ENTITY_TYPES,
   NOTIFICATION_MESSAGES,
   NOTIFICATION_TYPES,
-} from './notifications.constants.js';
+} from '../notifications.constants.js';
 import {
   PRODUCT_CUSTOMIZATION_LOG_PREFIXES,
   PRODUCT_CUSTOMIZATION_MESSAGES,
   PRODUCT_CUSTOMIZATION_NOTIFICATION,
   PRODUCT_CUSTOMIZATION_VALIDATION,
-} from './product-customization-notification.constants.js';
-import { enviarCorreoProductoPersonalizadoTerminado } from './email/email.service.js';
+} from './notification.constants.js';
+import { enviarCorreoProductoPersonalizadoTerminado } from '../email/email.service.js';
 
 function validarImagenes(images) {
   if (!Array.isArray(images) || images.length < PRODUCT_CUSTOMIZATION_VALIDATION.MIN_IMAGES) {

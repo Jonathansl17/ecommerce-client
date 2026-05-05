@@ -3,7 +3,7 @@ import {
   NOTIFICATION_MESSAGES,
   PAYMENT_NOTIFICATION_MESSAGES,
 } from '../notifications.constants.js';
-import { PAYMENT_REJECTED_MESSAGES } from '../payment-rejected-notification.constants.js';
+import { PAYMENT_REJECTED_MESSAGES } from '../payment/rejected-notification.constants.js';
 import { obtenerTransporte } from './email-transporter.service.js';
 import {
   construirPlantillaCambioEstadoPedido,
@@ -12,7 +12,14 @@ import {
 } from './email-template.service.js';
 import { construirPlantillaPagoRechazado } from './email-template.payment-rejected.service.js';
 import { construirPlantillaProductoPersonalizadoTerminado } from './email-template.product-customization.service.js';
-import { PRODUCT_CUSTOMIZATION_MESSAGES } from '../product-customization-notification.constants.js';
+import { PRODUCT_CUSTOMIZATION_MESSAGES } from '../product-customization/notification.constants.js';
+import {
+  construirPlantillaAjustesSolicitados,
+  construirPlantillaAutoAprobado,
+  construirPlantillaProductoAprobado,
+  construirPlantillaSolicitudAprobacion,
+} from './email-template.product-customization-approval.service.js';
+import { PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES } from '../product-customization-approval/constants.js';
 
 function validarPayloadBaseCorreo({ to, subject, html }) {
   if (!to) throw new Error(NOTIFICATION_MESSAGES.EMAIL_RECIPIENT_REQUIRED);
@@ -80,6 +87,46 @@ export async function enviarCorreoProductoPersonalizadoTerminado({ order, client
   await enviarCorreo({
     to: clientUser.email,
     subject: PRODUCT_CUSTOMIZATION_MESSAGES.EMAIL_SUBJECT(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoSolicitudAprobacion({ order, clientUser, images, message }) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaSolicitudAprobacion({ order, clientUser, images, message });
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.EMAIL_SUBJECT_APPROVAL_REQUEST(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoProductoAprobado({ order, clientUser }) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaProductoAprobado({ order, clientUser });
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.EMAIL_SUBJECT_CLIENT_APPROVED(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoAjustesSolicitados({ order, clientUser, adjustmentNotes }) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaAjustesSolicitados({ order, clientUser, adjustmentNotes });
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.EMAIL_SUBJECT_ADJUSTMENT_REQUESTED(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoAutoAprobado({ order, clientUser }) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaAutoAprobado({ order, clientUser });
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.EMAIL_SUBJECT_AUTO_APPROVED(order.id, EMAIL_CONFIG.BRAND_NAME),
     html,
   });
 }
