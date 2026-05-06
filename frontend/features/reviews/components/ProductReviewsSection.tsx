@@ -1,11 +1,13 @@
 'use client';
 
+import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { useProductReviews } from '../hooks/useProductReviews';
 import { ProductRatingsHeader } from './ProductRatingsHeader';
 import { ReviewFiltersBar } from './ReviewFiltersBar';
 import { PublicReviewCard } from './PublicReviewCard';
 import { EmptyReviewsState } from './EmptyReviewsState';
 import { PRODUCT_REVIEW_STRINGS } from '../constants/product-reviews.constants';
+import { Pagination } from '@/components/ui/Pagination';
 import type {
   DateFilter,
   HelpfulFilter,
@@ -27,8 +29,18 @@ function ReviewsSkeleton() {
 }
 
 export function ProductReviewsSection({ productId }: ProductReviewsSectionProps) {
-  const { summary, reviews, loading, error, filters, dispatch } =
-    useProductReviews(productId);
+  const { user, isAuthenticated } = useAuth();
+  const {
+    summary,
+    reviews,
+    pagination,
+    myVotes,
+    loading,
+    error,
+    filters,
+    dispatch,
+    vote,
+  } = useProductReviews(productId);
 
   const hasRawReviews = summary.totalReviews > 0;
   const isFiltered = filters.rating !== 'all';
@@ -81,13 +93,31 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
           {reviews.length === 0 ? (
             <EmptyReviewsState filtered={isFiltered} />
           ) : (
-            <ul className="space-y-4" aria-label={PRODUCT_REVIEW_STRINGS.sectionTitle}>
-              {reviews.map((review) => (
-                <li key={review.id}>
-                  <PublicReviewCard review={review} />
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="space-y-4" aria-label={PRODUCT_REVIEW_STRINGS.sectionTitle}>
+                {reviews.map((review) => (
+                  <li key={review.id}>
+                    <PublicReviewCard
+                      review={review}
+                      currentUserVote={myVotes[review.id] ?? null}
+                      isOwnReview={user?.id === review.clientUserId}
+                      isAuthenticated={isAuthenticated}
+                      onVote={vote}
+                    />
+                  </li>
+                ))}
+              </ul>
+
+              <Pagination
+                page={pagination.page}
+                limit={pagination.limit}
+                total={pagination.total}
+                itemLabelSingular="reseña"
+                itemLabelPlural="reseñas"
+                onPageChange={(page) => dispatch({ type: 'SET_PAGE', payload: page })}
+                disabled={loading}
+              />
+            </>
           )}
         </>
       )}

@@ -1,4 +1,4 @@
-import { ProductReviewsSection } from '@/features/reviews/public/components/ProductReviewsSection';
+import { ProductReviewsSection } from '@/features/reviews/components/ProductReviewsSection';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;

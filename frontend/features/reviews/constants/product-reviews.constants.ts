@@ -78,6 +78,8 @@ export const HELPFUL_OPTIONS: { value: HelpfulFilter; label: string }[] = [
 export const SELECT_BASE =
   'rounded-md border border-foreground/15 bg-background px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50';
 
+export const PRODUCT_REVIEWS_PAGE_SIZE = 5;
+
 export const INITIAL_FILTERS: ProductReviewFilters = {
   date: 'recent',
   rating: 'all',
@@ -85,7 +87,10 @@ export const INITIAL_FILTERS: ProductReviewFilters = {
 };
 
 export const INITIAL_REVIEWS_STATE: ProductReviewsState = {
-  rawReviews: [],
+  reviews: [],
+  summary: null,
+  pagination: { page: 1, limit: PRODUCT_REVIEWS_PAGE_SIZE, total: 0 },
+  myVotes: {},
   loading: false,
   error: null,
   filters: INITIAL_FILTERS,

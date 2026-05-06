@@ -6,6 +6,7 @@ import {
   PRODUCT_REVIEW_STRINGS,
   PRODUCT_REVIEW_DATE_FORMAT,
 } from '../constants/product-reviews.constants';
+import type { VoteType } from '../types/reviews.types';
 import type { PublicReviewCardProps } from '../types/product-reviews.types';
 
 function formatDate(isoString: string): string {
@@ -15,10 +16,20 @@ function formatDate(isoString: string): string {
   );
 }
 
-export function PublicReviewCard({ review }: PublicReviewCardProps) {
+export function PublicReviewCard({
+  review,
+  currentUserVote = null,
+  isOwnReview = false,
+  isAuthenticated = false,
+  onVote,
+}: PublicReviewCardProps) {
   const dateLabel = PRODUCT_REVIEW_STRINGS.reviewedOn(
     formatDate(review.edited ? review.updatedAt : review.createdAt),
   );
+
+  const handleVote = onVote
+    ? (voteType: VoteType) => onVote(review.id, voteType)
+    : undefined;
 
   return (
     <article className="rounded-md border border-foreground/10 bg-muted/30 p-4 space-y-3">
@@ -46,6 +57,10 @@ export function PublicReviewCard({ review }: PublicReviewCardProps) {
       <ReviewVotes
         helpfulVotes={review.helpfulVotes}
         unhelpfulVotes={review.unhelpfulVotes}
+        currentUserVote={currentUserVote}
+        isOwnReview={isOwnReview}
+        isAuthenticated={isAuthenticated}
+        onVote={handleVote}
       />
     </article>
   );
