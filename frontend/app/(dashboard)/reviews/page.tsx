@@ -7,15 +7,23 @@ import { useReviews } from '@/features/reviews/hooks/useReviews';
 import { PurchasedProductCard } from '@/features/reviews/components/PurchasedProductCard';
 import { ReviewToast } from '@/features/reviews/components/ReviewToast';
 import { REVIEW_STRINGS } from '@/features/reviews/constants/reviews.constants';
-import { REVIEWS_MOCK } from '@/features/reviews/shared/reviews.mock';
+import { Pagination } from '@/components/ui/Pagination';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import type { ReviewFormData } from '@/features/reviews/types/reviews.types';
 
 export default function ReviewsPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { items, loading, error, submitReview, updateReview, deleteReview } =
-    useReviews();
+  const {
+    items,
+    pagination,
+    loading,
+    error,
+    setPage,
+    submitReview,
+    updateReview,
+    deleteReview,
+  } = useReviews();
 
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [submittingProductId, setSubmittingProductId] = useState<string | null>(null);
@@ -23,13 +31,12 @@ export default function ReviewsPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (REVIEWS_MOCK.enabled) return;
     if (!authLoading && !isAuthenticated) {
       router.replace(ROUTES.LOGIN);
     }
   }, [authLoading, isAuthenticated, router]);
 
-  if (!REVIEWS_MOCK.enabled && (authLoading || !isAuthenticated)) {
+  if (authLoading || !isAuthenticated) {
     return (
       <p className="text-sm text-muted-foreground">{REVIEW_STRINGS.loading}</p>
     );
@@ -58,7 +65,7 @@ export default function ReviewsPage() {
 
     setDeletingProductId(productId);
     try {
-      await deleteReview(productId, item.review.id);
+      await deleteReview(item.review.id);
       setToastMessage(REVIEW_STRINGS.successDeleted);
       if (editingProductId === productId) {
         setEditingProductId(null);
@@ -110,6 +117,16 @@ export default function ReviewsPage() {
               onDelete={() => handleDelete(item.product.itemId)}
             />
           ))}
+
+          <Pagination
+            page={pagination.page}
+            limit={pagination.limit}
+            total={pagination.total}
+            itemLabelSingular="producto"
+            itemLabelPlural="productos"
+            onPageChange={setPage}
+            disabled={loading}
+          />
         </section>
       )}
 

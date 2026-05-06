@@ -83,13 +83,26 @@ export interface PurchasedProductWithReview {
   review: ProductReview | null;
 }
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: PaginationMeta;
+}
+
 export interface UseReviewsResult {
   items: PurchasedProductWithReview[];
+  pagination: PaginationMeta;
   loading: boolean;
   error: string | null;
+  setPage: (page: number) => void;
   submitReview: (productId: string, data: ReviewFormData) => Promise<ProductReview>;
   updateReview: (reviewId: string, data: ReviewFormData) => Promise<ProductReview>;
-  deleteReview: (productId: string, reviewId: string) => Promise<void>;
+  deleteReview: (reviewId: string) => Promise<void>;
 }
 
 export interface StarRatingProps {
