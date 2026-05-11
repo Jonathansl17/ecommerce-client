@@ -8,13 +8,15 @@ import {
   actualizarPerfil,
   cambiarContrasena,
   desactivarCuenta,
+  reactivarCuenta,
 } from './clients.controller.js';
 import { requireAuth } from '../../shared/middleware/authMiddleware.js';
-import { validateUpdateProfile, validateChangePassword, validateDeactivateAccount } from './clients.validator.js';
+import { validateUpdateProfile, validateChangePassword, validateDeactivateAccount, validateReactivateAccount } from './clients.validator.js';
 
 const router = Router();
 
 router.get('/', obtenerTodos);
+router.post('/reactivate', validateReactivateAccount, reactivarCuenta);
 router.get('/me', requireAuth, obtenerPerfil);
 router.put('/me', requireAuth, validateUpdateProfile, actualizarPerfil);
 router.put('/me/password', requireAuth, validateChangePassword, cambiarContrasena);

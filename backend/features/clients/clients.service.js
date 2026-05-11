@@ -129,6 +129,29 @@ export const desactivarCuenta = async (userId, { password }) => {
   return { message: CLIENTS_MESSAGES.DEACTIVATE_SUCCESS };
 };
 
+export const reactivarCuenta = async (email, password) => {
+  const usuario = await prisma.clientUser.findUnique({
+    where: { email: email.toLowerCase().trim() },
+    select: { id: true, passwordHash: true, accountStatus: true },
+  });
+
+  const credencialesValidas = usuario && await bcrypt.compare(password, usuario.passwordHash);
+  if (!credencialesValidas) {
+    throw crearError(CLIENTS_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  if (usuario.accountStatus !== 'inactive') {
+    throw crearError(CLIENTS_MESSAGES.ACCOUNT_NOT_INACTIVE, HTTP_STATUS.BAD_REQUEST);
+  }
+
+  await prisma.clientUser.update({
+    where: { id: usuario.id },
+    data: { accountStatus: 'active' },
+  });
+
+  return { message: CLIENTS_MESSAGES.REACTIVATE_SUCCESS };
+};
+
 export const cambiarContrasenaUsuario = async (userId, { currentPassword, newPassword }) => {
   const usuario = await prisma.clientUser.findUnique({
     where: { id: BigInt(userId) },
