@@ -7,10 +7,13 @@ export interface ProfilePageViewProps {
   userId: string;
   isEditDialogOpen: boolean;
   isPasswordDialogOpen: boolean;
+  isDeactivateDialogOpen: boolean;
   onOpenEditDialog: () => void;
   onOpenPasswordDialog: () => void;
+  onOpenDeactivateDialog: () => void;
   onCloseEditDialog: () => void;
   onClosePasswordDialog: () => void;
+  onCloseDeactivateDialog: () => void;
   onProfileUpdated: () => void;
 }
 export interface ProfileDropdownProps {

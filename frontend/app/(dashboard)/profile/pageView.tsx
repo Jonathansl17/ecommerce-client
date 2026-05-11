@@ -3,6 +3,7 @@
 import { Profile } from '@/features/clients/components/Profile';
 import { ProfileEditDialog } from '@/features/clients/components/ProfileEditDialog';
 import { ChangePasswordDialog } from '@/features/clients/components/ChangePasswordDialog';
+import { DeactivateAccountDialog } from '@/features/clients/components/DeactivateAccountDialog';
 import { PROFILE_STRINGS } from '@/features/clients/constants/clients.constants';
 import { ProfilePageViewProps } from '@/features/clients/types/profile.interface';
 
@@ -15,10 +16,13 @@ export function ProfilePageView({
   userId,
   isEditDialogOpen,
   isPasswordDialogOpen,
+  isDeactivateDialogOpen,
   onOpenEditDialog,
   onOpenPasswordDialog,
+  onOpenDeactivateDialog,
   onCloseEditDialog,
   onClosePasswordDialog,
+  onCloseDeactivateDialog,
   onProfileUpdated,
 }: ProfilePageViewProps) {
   return (
@@ -57,6 +61,22 @@ export function ProfilePageView({
         </div>
       </div>
 
+      {/* Zona de peligro */}
+      <div className="mt-6 border border-destructive/40 rounded-lg bg-destructive/5 p-6">
+        <h2 className="text-base font-semibold text-destructive mb-1">
+          {PROFILE_STRINGS.dangerZone.title}
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          {PROFILE_STRINGS.dangerZone.description}
+        </p>
+        <button
+          onClick={onOpenDeactivateDialog}
+          className="px-4 py-2 text-sm font-medium text-destructive border border-destructive rounded-md hover:bg-destructive/10 transition-colors"
+        >
+          {PROFILE_STRINGS.dangerZone.deactivateButton}
+        </button>
+      </div>
+
       {/* Info extra */}
       <div className="mt-6 p-4 bg-accent/5 border border-border rounded-lg">
         <p className="text-sm text-muted-foreground">{PROFILE_STRINGS.page.supportMessage}</p>
@@ -74,6 +94,11 @@ export function ProfilePageView({
         isOpen={isPasswordDialogOpen}
         onClose={onClosePasswordDialog}
         onSuccess={onProfileUpdated}
+      />
+
+      <DeactivateAccountDialog
+        isOpen={isDeactivateDialogOpen}
+        onClose={onCloseDeactivateDialog}
       />
     </div>
   );
