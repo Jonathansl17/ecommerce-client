@@ -150,6 +150,15 @@ export const ORDER_STATUS_NOTIFICATION_DELIVERY_STATUS = {
   FAILED: 'failed',
 };
 
+export const ACCOUNT_CHANGE_NOTIFICATION_MESSAGES = {
+  PASSWORD_CHANGED_SUBJECT: (brandName) => `Tu contraseña fue cambiada — ${brandName}`,
+  EMAIL_CHANGED_SUBJECT: (brandName) => `Tu correo electrónico fue actualizado — ${brandName}`,
+  CLIENT_DATA_REQUIRED: 'Los datos del cliente son requeridos para enviar la notificación de cambio de cuenta',
+  CLIENT_EMAIL_REQUIRED: 'El correo del cliente es requerido para enviar la notificación de cambio de cuenta',
+  PREVIOUS_EMAIL_REQUIRED: 'El correo anterior es requerido para la notificación de cambio de correo',
+  NEW_EMAIL_REQUIRED: 'El nuevo correo es requerido para la notificación de cambio de correo',
+};
+
 export const ORDER_STATUS_NOTIFICATION_STATUS_LABELS = {
   pending_payment: 'Pago pendiente',
   confirmed: 'Confirmado',

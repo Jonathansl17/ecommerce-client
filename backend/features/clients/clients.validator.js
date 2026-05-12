@@ -71,3 +71,22 @@ export const validateDeactivateAccount = (req, res, next) => {
   req.body = resultado.data;
   next();
 };
+
+const reactivateAccountSchema = z.object({
+  email: z
+    .string({ required_error: 'El correo electrónico es requerido' })
+    .trim()
+    .email('Debe ingresar un correo electrónico válido'),
+  password: z
+    .string({ required_error: 'La contraseña es requerida' })
+    .min(1, 'La contraseña es requerida'),
+});
+
+export const validateReactivateAccount = (req, res, next) => {
+  const resultado = reactivateAccountSchema.safeParse(req.body);
+  if (!resultado.success) {
+    return responderErrores(res, resultado);
+  }
+  req.body = resultado.data;
+  next();
+};
