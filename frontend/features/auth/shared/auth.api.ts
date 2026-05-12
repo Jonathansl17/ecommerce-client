@@ -6,6 +6,7 @@ import type {
   LoginFormData,
   LoginResponse,
   AuthUser,
+  ReactivateAccountData,
 } from '@/features/auth/types/auth.types';
 
 export async function registerUser(data: RegisterFormData): Promise<ApiErrorResponse | null> {
@@ -50,6 +51,22 @@ export async function logoutUser(): Promise<void> {
     });
   } catch {
     // best-effort: el contexto limpia el estado local de todos modos
+  }
+}
+
+export async function reactivateAccount(data: ReactivateAccountData): Promise<void> {
+  try {
+    await apiFetch('/clients/reactivate', {
+      method: 'POST',
+      body: data as unknown as Record<string, unknown>,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      skipAuthRetry: true,
+    });
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw (err.body ?? {}) as ApiErrorResponse;
+    }
+    throw err;
   }
 }
 
