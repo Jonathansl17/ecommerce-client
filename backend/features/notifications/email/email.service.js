@@ -1,11 +1,17 @@
 import nodemailer from 'nodemailer';
-import { EMAIL_CONFIG, NOTIFICATION_MESSAGES } from '../notifications.constants.js';
 import {
+  ACCOUNT_CHANGE_NOTIFICATION_MESSAGES,
+  EMAIL_CONFIG,
+  NOTIFICATION_MESSAGES,
+  PAYMENT_NOTIFICATION_MESSAGES,
+} from '../notifications.constants.js';
+import {
+  construirPlantillaCambioContrasena,
+  construirPlantillaCambioEmail,
   construirPlantillaCambioEstadoPedido,
   construirPlantillaConfirmacionPedido,
   construirPlantillaPagoAprobado,
 } from './email-template.service.js';
-import { PAYMENT_NOTIFICATION_MESSAGES } from '../notifications.constants.js';
 
 let transporterInstance = null;
 
@@ -103,6 +109,37 @@ export async function enviarCorreoPagoAprobado({ order, clientUser, payment }) {
   await enviarCorreo({
     to: clientUser.email,
     subject: PAYMENT_NOTIFICATION_MESSAGES.EMAIL_SUBJECT(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoCambioContrasena(clientUser, changedAt) {
+  if (!clientUser?.email) {
+    throw new Error(ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.CLIENT_EMAIL_REQUIRED);
+  }
+
+  const html = construirPlantillaCambioContrasena({ clientUser, changedAt });
+
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.PASSWORD_CHANGED_SUBJECT(EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoCambioEmail({ clientUser, previousEmail, newEmail, changedAt }) {
+  if (!previousEmail) {
+    throw new Error(ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.PREVIOUS_EMAIL_REQUIRED);
+  }
+  if (!newEmail) {
+    throw new Error(ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.NEW_EMAIL_REQUIRED);
+  }
+
+  const html = construirPlantillaCambioEmail({ clientUser, previousEmail, newEmail, changedAt });
+
+  await enviarCorreo({
+    to: previousEmail,
+    subject: ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.EMAIL_CHANGED_SUBJECT(EMAIL_CONFIG.BRAND_NAME),
     html,
   });
 }
