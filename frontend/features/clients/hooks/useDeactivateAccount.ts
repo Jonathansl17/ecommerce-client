@@ -1,22 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import { apiFetch, ApiError } from '@/lib/http/apiFetch';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 
 interface DeactivateAccountData {
   password: string;
 }
 
-function extractErrorMessage(body: Record<string, unknown>, fallback: string): string {
-  if (body.errors && Array.isArray(body.errors)) {
-    const first = (body.errors as { message?: string }[])[0];
-    return first?.message ?? fallback;
+function extractErrorMessage(body: unknown, fallback: string): string {
+  if (body && typeof body === 'object') {
+    const record = body as Record<string, unknown>;
+    if (Array.isArray(record.errors)) {
+      const first = (record.errors as { message?: string }[])[0];
+      if (first?.message) return first.message;
+    }
+    if (typeof record.error === 'string') return record.error;
   }
-  return (body.error as string) || fallback;
+  return fallback;
 }
 
 export function useDeactivateAccount() {
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,28 +30,19 @@ export function useDeactivateAccount() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/clients/me`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-          signal: AbortSignal.timeout(10_000),
-        },
-      );
-
-      const body = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(extractErrorMessage(body, 'Error al desactivar la cuenta'));
-      }
+      await apiFetch('/clients/me', {
+        method: 'DELETE',
+        body: data as unknown as Record<string, unknown>,
+        signal: AbortSignal.timeout(10_000),
+      });
 
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      if (err instanceof ApiError) {
+        setError(extractErrorMessage(err.body, 'Error al desactivar la cuenta'));
+      } else {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+      }
       return false;
     } finally {
       setIsLoading(false);

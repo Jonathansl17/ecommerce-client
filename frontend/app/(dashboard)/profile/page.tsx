@@ -9,6 +9,7 @@ export default function ProfilePage() {
   const { isLoading, user, getInitials, getFormattedCreatedAt } = useProfile();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   return isLoading ? (
@@ -24,10 +25,13 @@ export default function ProfilePage() {
       userId={user.id}
       isEditDialogOpen={isEditDialogOpen}
       isPasswordDialogOpen={isPasswordDialogOpen}
+      isDeactivateDialogOpen={isDeactivateDialogOpen}
       onOpenEditDialog={() => setIsEditDialogOpen(true)}
       onOpenPasswordDialog={() => setIsPasswordDialogOpen(true)}
+      onOpenDeactivateDialog={() => setIsDeactivateDialogOpen(true)}
       onCloseEditDialog={() => setIsEditDialogOpen(false)}
       onClosePasswordDialog={() => setIsPasswordDialogOpen(false)}
+      onCloseDeactivateDialog={() => setIsDeactivateDialogOpen(false)}
       onProfileUpdated={() => {
         setIsEditDialogOpen(false);
         setIsPasswordDialogOpen(false);
