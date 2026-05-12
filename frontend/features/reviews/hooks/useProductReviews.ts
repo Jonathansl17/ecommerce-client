@@ -53,15 +53,19 @@ export function useProductReviews(productId: string): UseProductReviewsResult {
   }, [productId, page, limit, rating, date, helpful]);
 
   // Fetch de "mis votos" para los IDs de la página actual: solo si autenticado.
-  // Se ejecuta tras cambios en la lista renderizada o el estado de auth.
+  // IMPORTANTE: depender SOLO de reviewIdsKey (no de state.reviews), porque el reducer
+  // recrea state.reviews en cada APPLY_VOTE. Si dependiera de state.reviews, cada voto
+  // optimista re-dispararía este fetch en paralelo al POST y el SET_MY_VOTES con datos
+  // pre-commit sobrescribiría el voto optimista → al siguiente click se contaba doble
+  // (votos fantasma).
   const reviewIdsKey = state.reviews.map((r) => r.id).join(',');
   useEffect(() => {
-    if (!isAuthenticated || state.reviews.length === 0) {
+    if (!isAuthenticated || reviewIdsKey === '') {
       dispatch({ type: 'SET_MY_VOTES', payload: {} });
       return;
     }
     let cancelled = false;
-    fetchMyVotes(state.reviews.map((r) => r.id))
+    fetchMyVotes(reviewIdsKey.split(','))
       .then((votes) => {
         if (!cancelled) dispatch({ type: 'SET_MY_VOTES', payload: votes });
       })
@@ -71,7 +75,7 @@ export function useProductReviews(productId: string): UseProductReviewsResult {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, reviewIdsKey, state.reviews]);
+  }, [isAuthenticated, reviewIdsKey]);
 
   // Wrapper genérico para optimistic update + rollback ante fallo.
   const runWithOptimisticUpdate = useCallback(

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { REVIEW_STRINGS } from '../constants/reviews.constants';
 import type { VoteType } from '../types/reviews.types';
 
@@ -23,16 +23,22 @@ export function ReviewVotes({
   onVote,
 }: ReviewVotesProps) {
   const [submitting, setSubmitting] = useState(false);
+  // Guard síncrono: setSubmitting no se refleja antes del próximo render, así que
+  // clicks rapidísimos en el mismo tick burlaban el flag de useState y disparaban
+  // múltiples POST → la UI rollbackeaba al chocar con la unique constraint en DB.
+  const inFlightRef = useRef(false);
 
   // Modo solo-lectura: si no hay onVote, o el visitante es el autor → contadores estáticos.
   const interactive = Boolean(onVote) && !isOwnReview;
 
   const handleClick = async (voteType: VoteType) => {
-    if (!onVote || submitting || !isAuthenticated) return;
+    if (!onVote || inFlightRef.current || !isAuthenticated) return;
+    inFlightRef.current = true;
     setSubmitting(true);
     try {
       await onVote(voteType);
     } finally {
+      inFlightRef.current = false;
       setSubmitting(false);
     }
   };
