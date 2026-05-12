@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { AuthField } from '@/components/auth/AuthField';
 import { FormGeneralError } from '@/components/auth/FormGeneralError';
@@ -8,6 +9,7 @@ import { ROUTES } from '@/lib/constants/routes.constants';
 import type { LoginFormProps } from '@/features/auth/types/auth.types';
 
 const strings = AUTH_STRINGS.login;
+const inactiveStrings = AUTH_STRINGS.inactiveAccount;
 
 export function LoginForm({
   formData,
@@ -15,9 +17,52 @@ export function LoginForm({
   handleChange,
   handleSubmit,
   fieldError,
+  isAccountInactive,
+  reactivating,
+  reactivationSuccess,
+  onReactivate,
+  onCancelReactivation,
 }: LoginFormProps) {
   return (
     <AuthLayout title={strings.title} subtitle={strings.subtitle}>
+      {/* Panel de cuenta reactivada con éxito */}
+      {reactivationSuccess && (
+        <div className="flex items-start gap-3 p-4 mb-4 bg-green-500/10 border border-green-500 rounded-md">
+          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-green-700 font-medium">{inactiveStrings.successMessage}</p>
+        </div>
+      )}
+
+      {/* Panel de cuenta inactiva */}
+      {isAccountInactive && (
+        <div className="mb-4 border border-destructive/40 rounded-md bg-destructive/5 p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-destructive">{inactiveStrings.title}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{inactiveStrings.description}</p>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onCancelReactivation}
+              className="flex-1 px-3 py-2 text-sm font-medium text-foreground border border-input rounded-md hover:bg-accent transition-colors"
+            >
+              {inactiveStrings.cancelButton}
+            </button>
+            <button
+              type="button"
+              onClick={onReactivate}
+              disabled={reactivating}
+              className="flex-1 px-3 py-2 text-sm font-medium text-white bg-destructive rounded-md hover:opacity-90 disabled:opacity-50 transition-opacity"
+            >
+              {reactivating ? inactiveStrings.reactivatingButton : inactiveStrings.reactivateButton}
+            </button>
+          </div>
+        </div>
+      )}
+
       <FormGeneralError message={fieldError('general')} />
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
