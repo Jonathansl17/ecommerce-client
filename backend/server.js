@@ -6,6 +6,7 @@ BigInt.prototype.toJSON = function () { return this.toString(); };
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { limpiarTokensExpirados } from './features/auth/auth.tokens.service.js';
+import { iniciarMonitorInventarioBajo } from './features/notifications/low-stock/scheduler.service.js';
 import authRoutes from './features/auth/auth.routes.js';
 import passwordRecoveryRoutes from './features/password-recovery/password-recovery.routes.js';
 import clientsRoutes from './features/clients/clients.routes.js';
@@ -43,6 +44,7 @@ const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
+  iniciarMonitorInventarioBajo();
 
   setInterval(async () => {
     try {
