@@ -4,6 +4,7 @@ import { despacharOrderStatusNotification } from '../notifications/order-status/
 import { registrarOrderStatusNotification } from '../notifications/order-status/registrar.service.js';
 import { serializarOrderStatusNotification } from '../notifications/order-status/serializar.service.js';
 import { triggerNotificacionPagoAprobado } from '../notifications/payment/notification.service.js';
+import { triggerNotificacionCancelacionPedido } from '../notifications/order-cancellation/trigger.service.js';
 import { NOTIFICATION_MESSAGES } from '../notifications/notifications.constants.js';
 import { ORDERS_MESSAGES, PAYMENT_MESSAGES, PAYMENT_STATUSES, TAX_RATE } from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
@@ -357,7 +358,7 @@ export const aprobarPago = async (orderId, paymentId) => {
   };
 };
 
-export const actualizarEstadoPedido = async (orderId, { status: newStatus }) => {
+export const actualizarEstadoPedido = async (orderId, { status: newStatus, cancelationReason }) => {
   const parsedOrderId = BigInt(orderId);
   const changedAt = new Date();
 
@@ -465,6 +466,15 @@ export const actualizarEstadoPedido = async (orderId, { status: newStatus }) => 
         errorMessage: error?.message ?? NOTIFICATION_MESSAGES.EMAIL_UNKNOWN_ERROR,
       });
     });
+
+    if (newStatus === 'cancelled') {
+      triggerNotificacionCancelacionPedido({
+        order: { id: order.id },
+        clientUser: order.clientUser,
+        cancelationReason,
+        cancelledAt: changedAt,
+      });
+    }
   }
 
   const responseOrder =

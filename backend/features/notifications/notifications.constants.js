@@ -1,6 +1,5 @@
 export const NOTIFICATION_MESSAGES = {
   NOT_FOUND: 'Notificación no encontrada',
-  ALREADY_READ: 'La notificación ya estaba marcada como leída',
   MARKED_AS_READ: 'Notificación marcada como leída',
   EMAIL_UNKNOWN_ERROR: 'Error desconocido',
   EMAIL_RETRY_EXHAUSTED: 'Se agotaron los reintentos de envío',
@@ -88,76 +87,3 @@ export const PAYMENT_METHOD_LABELS = {
   other: 'Otro',
 };
 
-export const PAYMENT_RECEIPT_PDF = {
-  MIME_TYPE: 'application/pdf',
-  FILENAME: (orderId) => `comprobante-pago-pedido-${orderId}.pdf`,
-  CONTENT_DISPOSITION: (filename) => `attachment; filename="${filename}"`,
-};
-
-export const PAYMENT_RECEIPT_STRINGS = {
-  TITLE: 'Comprobante de Pago',
-  SUBTITLE: (orderId) => `Pedido #${orderId}`,
-  SECTION_PAYMENT: 'Datos del Pago',
-  SECTION_ORDER: 'Datos del Pedido',
-  LABEL_AMOUNT: 'Monto cobrado',
-  LABEL_METHOD: 'Método de pago',
-  LABEL_REFERENCE: 'Número de referencia',
-  LABEL_DATE: 'Fecha del cargo',
-  LABEL_ORDER_ID: 'Número de pedido',
-  LABEL_ORDER_DATE: 'Fecha del pedido',
-  LABEL_TOTAL: 'Total del pedido',
-  LABEL_CLIENT: 'Cliente',
-  FOOTER: (brandName) => `Este documento fue generado automáticamente por ${brandName}.`,
-  GENERATED_AT: (date) => `Generado el: ${date}`,
-  NOT_FOUND_ERROR: 'Comprobante no disponible: pago no encontrado o no aprobado',
-};
-
-export const PAYMENT_RECEIPT_PDF_LAYOUT = {
-  MARGIN: 50,
-  HEADER_HEIGHT: 100,
-  HEADER_PADDING_TOP: 22,
-  SECTION_GAP: 24,
-  FIELD_GAP: 14,
-  DIVIDER_MARGIN_V: 16,
-  PAGE_SIZE: 'A4',
-};
-
-export const PAYMENT_RECEIPT_PDF_STYLES = {
-  FONT_BOLD: 'Helvetica-Bold',
-  FONT_REGULAR: 'Helvetica',
-  FONT_SIZE_BRAND: 18,
-  FONT_SIZE_TITLE: 13,
-  FONT_SIZE_SUBTITLE: 10,
-  FONT_SIZE_SECTION: 10,
-  FONT_SIZE_LABEL: 8,
-  FONT_SIZE_VALUE: 11,
-  FONT_SIZE_FOOTER: 8,
-  COLOR_HEADER_BG: '#111827',
-  COLOR_HEADER_TEXT: '#FFFFFF',
-  COLOR_DIVIDER: '#E5E7EB',
-  COLOR_LABEL: '#6B7280',
-  COLOR_VALUE: '#111827',
-  COLOR_SECTION: '#374151',
-};
-
-export const PAYMENT_RECEIPT_LOG_PREFIXES = {
-  GENERATION_ERROR: '[PAYMENT_RECEIPT] Error al generar comprobante de pago.',
-};
-
-export const ORDER_STATUS_NOTIFICATION_DELIVERY_STATUS = {
-  PENDING: 'pending',
-  SENT: 'sent',
-  FAILED: 'failed',
-};
-
-export const ORDER_STATUS_NOTIFICATION_STATUS_LABELS = {
-  pending_payment: 'Pago pendiente',
-  confirmed: 'Confirmado',
-  in_preparation: 'En preparación',
-  customization_in_progress: 'Personalización en proceso',
-  ready_shipment: 'Listo para envío',
-  shipped: 'Enviado',
-  in_transit: 'En tránsito',
-  delivered: 'Entregado',
-  cancelled: 'Cancelado',
-};
