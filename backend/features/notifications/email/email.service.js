@@ -22,6 +22,8 @@ import {
 import { PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES } from '../product-customization-approval/constants.js';
 import { construirPlantillaCancelacionPedido } from './email-template.order-cancellation.service.js';
 import { CANCELLATION_NOTIFICATION_MESSAGES } from '../order-cancellation/constants.js';
+import { construirPlantillaAlertaInventarioBajo } from './email-template.low-stock.service.js';
+import { LOW_STOCK_MESSAGES } from '../low-stock/constants.js';
 
 function validarPayloadBaseCorreo({ to, subject, html }) {
   if (!to) throw new Error(NOTIFICATION_MESSAGES.EMAIL_RECIPIENT_REQUIRED);
@@ -149,4 +151,19 @@ export async function enviarCorreoCambioEstadoPedido({ order, clientUser, previo
   const html = construirPlantillaCambioEstadoPedido({ order, clientUser, previousStatus, newStatus, changedAt });
 
   await enviarCorreo({ to: clientUser.email, subject, html });
+}
+
+export async function enviarCorreoAlertaInventarioBajo({ variante, metricas, adminEmail }) {
+  if (!variante) throw new Error(LOW_STOCK_MESSAGES.VARIANT_REQUIRED);
+  if (variante.id == null) throw new Error(LOW_STOCK_MESSAGES.VARIANT_ID_REQUIRED);
+  if (!adminEmail) throw new Error(LOW_STOCK_MESSAGES.ADMIN_EMAIL_MISSING);
+
+  const productName = variante.product?.item?.name ?? 'Producto';
+  const html = construirPlantillaAlertaInventarioBajo({ variante, metricas });
+
+  await enviarCorreo({
+    to: adminEmail,
+    subject: LOW_STOCK_MESSAGES.EMAIL_SUBJECT(productName, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
 }
