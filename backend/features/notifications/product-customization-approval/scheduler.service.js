@@ -13,9 +13,9 @@ import {
   PRODUCT_CUSTOMIZATION_APPROVAL_LOG_PREFIXES,
   PRODUCT_CUSTOMIZATION_APPROVAL_SCHEDULER,
 } from './constants.js';
-import { obtenerAprobacionesPendientesVencidas } from './obtener-vencidas.service.js';
-import { marcarComoAutoAprobado } from './marcar-auto-aprobado.service.js';
-import { triggerAutoAprobado } from './trigger-auto.service.js';
+import { obtenerAprobacionesPendientesVencidas } from './obtener/vencidas.service.js';
+import { marcarComoAutoAprobado } from './marcar/auto-aprobado.service.js';
+import { triggerAutoAprobado } from './triggers/auto.service.js';
 
 export async function procesarAutoAprobacionesVencidas() {
   const vencidas = await obtenerAprobacionesPendientesVencidas();

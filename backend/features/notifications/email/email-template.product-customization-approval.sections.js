@@ -1,7 +1,7 @@
 import {
   PRODUCT_CUSTOMIZATION_APPROVAL_DEADLINE,
   PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES,
-} from '../product-customization-approval.constants.js';
+} from '../product-customization-approval/constants.js';
 import { escaparHtml } from './email-template.utils.js';
 import { renderHeader, renderFooter, renderSupportBlock } from './email-template.sections.js';
 

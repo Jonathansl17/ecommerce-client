@@ -1,9 +1,9 @@
 import {
   PRODUCT_CUSTOMIZATION_APPROVAL_EVENTS,
   PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES,
-} from './constants.js';
-import { enviarCorreoProductoAprobado } from '../email/email.service.js';
-import { enviarNotificacionAprobacion, disparar } from './notification.utils.js';
+} from '../constants.js';
+import { enviarCorreoProductoAprobado } from '../../email/email.service.js';
+import { enviarNotificacionAprobacion, disparar } from '../notification.utils.js';
 
 async function procesarProductoAprobado({ orderId }) {
   await enviarNotificacionAprobacion({

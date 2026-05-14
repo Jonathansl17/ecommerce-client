@@ -3,7 +3,7 @@ import {
   PAYMENT_RECEIPT_PDF_LAYOUT as LAYOUT,
   PAYMENT_RECEIPT_PDF_STYLES as STYLES,
   PAYMENT_RECEIPT_STRINGS as STRINGS,
-} from '../notifications.constants.js';
+} from '../payment/receipt.constants.js';
 
 function dibujarDivider(doc) {
   const x = LAYOUT.MARGIN;

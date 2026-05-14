@@ -1,14 +1,14 @@
 import { obtenerNotificaciones as obtenerNotificacionesService } from './obtener-notificaciones.service.js';
 import { marcarComoLeida as marcarComoLeidaService } from './marcar-notificacion-leida.service.js';
 import { obtenerComprobantePago as obtenerComprobantePagoService } from './payment/receipt.service.js';
-import { PAYMENT_RECEIPT_PDF } from './notifications.constants.js';
+import { PAYMENT_RECEIPT_PDF } from './payment/receipt.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 import { crearError } from '../../shared/middleware/errorHandler.js';
-import { obtenerAprobacionPendiente } from './product-customization-approval/obtener-pendiente.service.js';
-import { marcarComoAprobado } from './product-customization-approval/marcar-aprobado.service.js';
-import { marcarAjustesSolicitados } from './product-customization-approval/marcar-ajustes.service.js';
-import { triggerProductoAprobado } from './product-customization-approval/trigger-aprobado.service.js';
-import { triggerAjustesSolicitados } from './product-customization-approval/trigger-ajustes.service.js';
+import { obtenerAprobacionPendiente } from './product-customization-approval/obtener/pendiente.service.js';
+import { marcarComoAprobado } from './product-customization-approval/marcar/aprobado.service.js';
+import { marcarAjustesSolicitados } from './product-customization-approval/marcar/ajustes.service.js';
+import { triggerProductoAprobado } from './product-customization-approval/triggers/aprobado.service.js';
+import { triggerAjustesSolicitados } from './product-customization-approval/triggers/ajustes.service.js';
 import {
   PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES,
   PRODUCT_CUSTOMIZATION_APPROVAL_VALIDATION,
