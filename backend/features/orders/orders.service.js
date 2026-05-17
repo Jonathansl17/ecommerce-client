@@ -1,11 +1,9 @@
 import prisma from '../../shared/db/prisma.js';
 import { crearError } from '../../shared/middleware/errorHandler.js';
-import {
-  despacharOrderStatusNotification,
-  registrarOrderStatusNotification,
-  serializarOrderStatusNotification,
-} from '../notifications/order-status-notification.service.js';
-import { triggerNotificacionPagoAprobado } from '../notifications/payment-notification.service.js';
+import { despacharOrderStatusNotification } from '../notifications/order-status/despachar.service.js';
+import { registrarOrderStatusNotification } from '../notifications/order-status/registrar.service.js';
+import { serializarOrderStatusNotification } from '../notifications/order-status/serializar.service.js';
+import { triggerNotificacionPagoAprobado } from '../notifications/payment/notification.service.js';
 import { NOTIFICATION_MESSAGES } from '../notifications/notifications.constants.js';
 import { ORDERS_MESSAGES, PAYMENT_MESSAGES, PAYMENT_STATUSES, TAX_RATE } from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
