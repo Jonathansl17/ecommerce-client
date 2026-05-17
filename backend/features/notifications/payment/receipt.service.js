@@ -1,19 +1,18 @@
-import prisma from '../../shared/db/prisma.js';
-import { crearError } from '../../shared/middleware/errorHandler.js';
-import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
-import { PAYMENT_STATUSES } from '../orders/orders.constants.js';
+import prisma from '../../../shared/db/prisma.js';
+import { crearError } from '../../../shared/middleware/errorHandler.js';
+import { HTTP_STATUS } from '../../../shared/constants/http.constants.js';
+import { PAYMENT_STATUSES } from '../../orders/orders.constants.js';
+import { EMAIL_CONFIG, PAYMENT_METHOD_LABELS } from '../notifications.constants.js';
 import {
-  EMAIL_CONFIG,
-  PAYMENT_METHOD_LABELS,
   PAYMENT_RECEIPT_PDF,
   PAYMENT_RECEIPT_STRINGS,
-} from './notifications.constants.js';
+} from './receipt.constants.js';
 import {
   formatearFechaHora,
   formatearFechaLarga,
   formatearMoneda,
-} from './email/email-template.utils.js';
-import { generarComprobantePagoPDF } from './pdf/payment-receipt.pdf.service.js';
+} from '../email/email-template.utils.js';
+import { generarComprobantePagoPDF } from '../pdf/payment-receipt.pdf.service.js';
 
 const PAYMENT_RECEIPT_SELECT = {
   id: true,
