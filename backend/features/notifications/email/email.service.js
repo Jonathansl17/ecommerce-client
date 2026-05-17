@@ -1,4 +1,5 @@
 import {
+  ACCOUNT_CHANGE_NOTIFICATION_MESSAGES,
   EMAIL_CONFIG,
   NOTIFICATION_MESSAGES,
   PAYMENT_NOTIFICATION_MESSAGES,
@@ -9,7 +10,11 @@ import {
   construirPlantillaConfirmacionPedido,
   construirPlantillaCambioEstadoPedido,
 } from './email-template.order.service.js';
-import { construirPlantillaPagoAprobado } from './email-template.service.js';
+import {
+  construirPlantillaCambioContrasena,
+  construirPlantillaCambioEmail,
+  construirPlantillaPagoAprobado,
+} from './email-template.service.js';
 import { construirPlantillaPagoRechazado } from './email-template.payment-rejected.service.js';
 import { construirPlantillaProductoPersonalizadoTerminado } from './email-template.product-customization.service.js';
 import { PRODUCT_CUSTOMIZATION_MESSAGES } from '../product-customization/notification.constants.js';
@@ -69,6 +74,37 @@ export async function enviarCorreoPagoAprobado({ order, clientUser, payment }) {
   await enviarCorreo({
     to: clientUser.email,
     subject: PAYMENT_NOTIFICATION_MESSAGES.EMAIL_SUBJECT(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoCambioContrasena(clientUser, changedAt) {
+  if (!clientUser?.email) {
+    throw new Error(ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.CLIENT_EMAIL_REQUIRED);
+  }
+
+  const html = construirPlantillaCambioContrasena({ clientUser, changedAt });
+
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.PASSWORD_CHANGED_SUBJECT(EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoCambioEmail({ clientUser, previousEmail, newEmail, changedAt }) {
+  if (!previousEmail) {
+    throw new Error(ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.PREVIOUS_EMAIL_REQUIRED);
+  }
+  if (!newEmail) {
+    throw new Error(ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.NEW_EMAIL_REQUIRED);
+  }
+
+  const html = construirPlantillaCambioEmail({ clientUser, previousEmail, newEmail, changedAt });
+
+  await enviarCorreo({
+    to: previousEmail,
+    subject: ACCOUNT_CHANGE_NOTIFICATION_MESSAGES.EMAIL_CHANGED_SUBJECT(EMAIL_CONFIG.BRAND_NAME),
     html,
   });
 }
