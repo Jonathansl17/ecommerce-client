@@ -3,21 +3,8 @@
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { apiFetch, ApiError } from '@/lib/http/apiFetch';
+import { UpdateProfileData, UpdateProfileResponse } from '../types/profile.interface';
 
-interface UpdateProfileData {
-  fullName?: string;
-  email?: string;
-  password: string;
-}
-
-interface UpdateProfileResponse {
-  message: string;
-  cliente: {
-    id: string;
-    fullName: string;
-    email: string;
-  };
-}
 
 function extractErrorMessage(body: unknown, fallback: string): string {
   if (body && typeof body === 'object') {
