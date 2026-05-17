@@ -8,6 +8,10 @@ export const CLIENTS_MESSAGES = {
   DELETED_SUCCESS: 'Cliente eliminado correctamente',
   PROFILE_UPDATED: 'Perfil actualizado correctamente',
   INVALID_PASSWORD: 'Contraseña actual incorrecta',
+  INVALID_CREDENTIALS: 'Credenciales incorrectas',
   EMAIL_ALREADY_EXISTS: 'El correo electrónico ya está registrado',
   PASSWORD_CHANGED_SUCCESS: 'Contraseña cambiada correctamente',
+  DEACTIVATE_SUCCESS: 'Cuenta desactivada correctamente',
+  REACTIVATE_SUCCESS: 'Cuenta reactivada correctamente',
+  ACCOUNT_NOT_INACTIVE: 'La cuenta no está desactivada',
 };

@@ -1,10 +1,13 @@
-import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import prisma from '../../shared/db/prisma.js';
 import { crearError } from '../../shared/middleware/errorHandler.js';
 import { CLIENTS_MESSAGES } from './clients.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 import { AUTH_CONFIG } from '../auth/auth.constants.js';
+import {
+  enviarCorreoCambioContrasena,
+  enviarCorreoCambioEmail,
+} from '../notifications/email/email.service.js';
 
 const CAMPOS_PUBLICOS = {
   id: true,
@@ -94,16 +97,75 @@ export const actualizarPerfilUsuario = async (userId, { fullName, email, passwor
     }
   }
 
+  const nuevoEmail = email ? email.toLowerCase().trim() : usuario.email;
+  const emailCambio = nuevoEmail !== usuario.email;
+
   const clienteActualizado = await prisma.clientUser.update({
     where: { id: BigInt(userId) },
     data: {
       fullName: fullName || usuario.fullName,
-      email: email ? email.toLowerCase().trim() : usuario.email,
+      email: nuevoEmail,
     },
     select: CAMPOS_PUBLICOS,
   });
 
+  if (emailCambio) {
+    const changedAt = new Date();
+    enviarCorreoCambioEmail({
+      clientUser: { ...clienteActualizado, fullName: clienteActualizado.fullName },
+      previousEmail: usuario.email,
+      newEmail: nuevoEmail,
+      changedAt,
+    }).catch(() => {});
+  }
+
   return clienteActualizado;
+};
+
+export const desactivarCuenta = async (userId, { password }) => {
+  const usuario = await prisma.clientUser.findUnique({
+    where: { id: BigInt(userId) },
+    select: { id: true, passwordHash: true },
+  });
+
+  if (!usuario) {
+    throw crearError(CLIENTS_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  const valid = await bcrypt.compare(password, usuario.passwordHash);
+  if (!valid) {
+    throw crearError(CLIENTS_MESSAGES.INVALID_PASSWORD, HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  await prisma.clientUser.update({
+    where: { id: BigInt(userId) },
+    data: { accountStatus: 'inactive' },
+  });
+
+  return { message: CLIENTS_MESSAGES.DEACTIVATE_SUCCESS };
+};
+
+export const reactivarCuenta = async (email, password) => {
+  const usuario = await prisma.clientUser.findUnique({
+    where: { email: email.toLowerCase().trim() },
+    select: { id: true, passwordHash: true, accountStatus: true },
+  });
+
+  const credencialesValidas = usuario && await bcrypt.compare(password, usuario.passwordHash);
+  if (!credencialesValidas) {
+    throw crearError(CLIENTS_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  if (usuario.accountStatus !== 'inactive') {
+    throw crearError(CLIENTS_MESSAGES.ACCOUNT_NOT_INACTIVE, HTTP_STATUS.BAD_REQUEST);
+  }
+
+  await prisma.clientUser.update({
+    where: { id: usuario.id },
+    data: { accountStatus: 'active' },
+  });
+
+  return { message: CLIENTS_MESSAGES.REACTIVATE_SUCCESS };
 };
 
 export const cambiarContrasenaUsuario = async (userId, { currentPassword, newPassword }) => {
@@ -128,16 +190,11 @@ export const cambiarContrasenaUsuario = async (userId, { currentPassword, newPas
     data: { passwordHash: newHash },
   });
 
-  // Generar link de confirmación
-  const confirmationToken = crypto.randomUUID();
-  const confirmationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/profile?passwordChanged=true&token=${confirmationToken}`;
-  
-  // Mostrar en terminal para desarrollo
-  console.log(`\n✅ Contraseña cambiada exitosamente para ${usuario.email}`);
-  console.log(`Enlace de confirmación: ${confirmationLink}\n`);
+  const changedAt = new Date();
+  enviarCorreoCambioContrasena(
+    { email: usuario.email, fullName: usuario.fullName },
+    changedAt,
+  ).catch(() => {});
 
-  return { 
-    message: CLIENTS_MESSAGES.PASSWORD_CHANGED_SUCCESS,
-    confirmationLink,
-  };
+  return { message: CLIENTS_MESSAGES.PASSWORD_CHANGED_SUCCESS };
 };
