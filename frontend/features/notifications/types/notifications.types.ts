@@ -56,6 +56,15 @@ export interface DownloadReceiptLinkProps {
   paymentId: string;
 }
 
+export interface ProductCustomizationContent {
+  message: string;
+  images: string[];
+}
+
+export interface ProductCustomizationImagesProps {
+  images: string[];
+}
+
 export interface UseDownloadPaymentReceiptResult {
   descargar: () => Promise<void>;
   descargando: boolean;

@@ -1,27 +1,39 @@
 'use client';
 
 import { useCallback } from 'react';
-import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
+import { NOTIFICATION_ENTITY_TYPES, NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 import { formatearFecha } from '../utils/formatDate';
+import { parseProductCustomizationContent } from '../utils/product-customization-notification.utils';
 import type { NotificationItemProps } from '../types/notifications.types';
 import { DownloadReceiptLink } from './ui/DownloadReceiptLink';
 import { NotificationTypeTag } from './ui/NotificationTypeTag';
+import { ProductCustomizationImages } from './ui/ProductCustomizationImages';
 import { UnreadDot } from './ui/UnreadDot';
 import { ViewOrderLink } from './ui/ViewOrderLink';
 
 export function NotificationItem({ notification, onRead }: NotificationItemProps) {
   const fecha = notification.sentAt ?? notification.createdAt;
   const mostrarLinkPedido =
-    notification.entityType === 'order' && notification.entityId != null;
+    notification.entityType === NOTIFICATION_ENTITY_TYPES.ORDER && notification.entityId != null;
   const mostrarLinkComprobante =
-    notification.entityType === 'payment' && notification.entityId != null;
+    notification.entityType === NOTIFICATION_ENTITY_TYPES.PAYMENT && notification.entityId != null;
+  const esPersonalizado =
+    notification.entityType === NOTIFICATION_ENTITY_TYPES.PRODUCT_CUSTOMIZATION;
+
+  const productCustomizationData = esPersonalizado
+    ? parseProductCustomizationContent(notification.content)
+    : null;
+
+  const contenidoVisible = productCustomizationData?.message ?? notification.content;
 
   const borderClass =
-    notification.entityType === 'onboarding'
+    notification.entityType === NOTIFICATION_ENTITY_TYPES.ONBOARDING
       ? 'border-l-4 border-sky-400 dark:border-sky-500'
-      : notification.entityType === 'order'
+      : notification.entityType === NOTIFICATION_ENTITY_TYPES.ORDER
         ? 'border-l-4 border-primary'
-        : '';
+        : esPersonalizado
+          ? 'border-l-4 border-amber-400 dark:border-amber-500'
+          : '';
 
   const bgClass = notification.read
     ? 'bg-card hover:bg-accent'
@@ -63,12 +75,18 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
             <NotificationTypeTag entityType={notification.entityType} />
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
-            {notification.content}
+            {contenidoVisible}
           </p>
           <p className="mt-1 text-xs text-muted-foreground/80">{formatearFecha(fecha)}</p>
           {mostrarLinkPedido && <ViewOrderLink orderId={notification.entityId as string} />}
           {mostrarLinkComprobante && (
             <DownloadReceiptLink paymentId={notification.entityId as string} />
+          )}
+          {esPersonalizado && notification.entityId != null && (
+            <ViewOrderLink orderId={notification.entityId as string} />
+          )}
+          {esPersonalizado && productCustomizationData && productCustomizationData.images.length > 0 && (
+            <ProductCustomizationImages images={productCustomizationData.images} />
           )}
         </div>
         {!notification.read && <UnreadDot />}
