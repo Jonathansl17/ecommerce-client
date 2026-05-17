@@ -1,6 +1,5 @@
 export const NOTIFICATION_MESSAGES = {
   NOT_FOUND: 'Notificación no encontrada',
-  ALREADY_READ: 'La notificación ya estaba marcada como leída',
   MARKED_AS_READ: 'Notificación marcada como leída',
   EMAIL_UNKNOWN_ERROR: 'Error desconocido',
   EMAIL_RETRY_EXHAUSTED: 'Se agotaron los reintentos de envío',

@@ -2,9 +2,11 @@ import prisma from '../../../shared/db/prisma.js';
 import {
   EMAIL_RETRY,
   NOTIFICATION_MESSAGES,
+} from '../notifications.constants.js';
+import {
   ORDER_STATUS_NOTIFICATION_DELIVERY_STATUS,
   ORDER_STATUS_NOTIFICATION_STATUS_LABELS,
-} from '../notifications.constants.js';
+} from './constants.js';
 import { enviarCorreoCambioEstadoPedido } from '../email/email.service.js';
 
 function formatearFechaCambioEstado(changedAt) {

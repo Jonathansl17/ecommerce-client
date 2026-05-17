@@ -1,8 +1,8 @@
 import {
   NOTIFICATION_ENTITY_TYPES,
   NOTIFICATION_TYPES,
-  ORDER_STATUS_NOTIFICATION_DELIVERY_STATUS,
 } from '../notifications.constants.js';
+import { ORDER_STATUS_NOTIFICATION_DELIVERY_STATUS } from './constants.js';
 import { construirPayloadNotificacion } from './payload.utils.js';
 
 export async function registrarOrderStatusNotification({ tx, order, previousStatus, newStatus, changedAt = new Date() }) {
