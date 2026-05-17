@@ -1,4 +1,4 @@
-import prisma from '../../../shared/db/prisma.js';
+import prisma from '../../../../shared/db/prisma.js';
 
 export async function obtenerOrdenConClienteAprobacion(orderId) {
   const order = await prisma.order.findUniqueOrThrow({

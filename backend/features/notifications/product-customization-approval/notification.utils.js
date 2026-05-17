@@ -3,7 +3,7 @@ import { EMAIL_RETRY, NOTIFICATION_MESSAGES } from '../notifications.constants.j
 import {
   PRODUCT_CUSTOMIZATION_APPROVAL_LOG_PREFIXES,
 } from './constants.js';
-import { obtenerOrdenConClienteAprobacion } from './obtener-orden.service.js';
+import { obtenerOrdenConClienteAprobacion } from './obtener/orden.service.js';
 import { crearClientNotificationAprobacion } from './crear-notificacion.service.js';
 import { registrarAprobacionEnHistorial } from './history.service.js';
 

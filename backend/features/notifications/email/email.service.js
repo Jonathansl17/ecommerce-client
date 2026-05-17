@@ -1,16 +1,18 @@
-import { PAYMENT_REJECTED_MESSAGES } from '../payment/rejected-notification.constants.js';
-import { obtenerTransporte } from './email-transporter.service.js';
 import {
   ACCOUNT_CHANGE_NOTIFICATION_MESSAGES,
   EMAIL_CONFIG,
   NOTIFICATION_MESSAGES,
   PAYMENT_NOTIFICATION_MESSAGES,
 } from '../notifications.constants.js';
+import { PAYMENT_REJECTED_MESSAGES } from '../payment/rejected-notification.constants.js';
+import { obtenerTransporte } from './email-transporter.service.js';
+import {
+  construirPlantillaConfirmacionPedido,
+  construirPlantillaCambioEstadoPedido,
+} from './email-template.order.service.js';
 import {
   construirPlantillaCambioContrasena,
   construirPlantillaCambioEmail,
-  construirPlantillaCambioEstadoPedido,
-  construirPlantillaConfirmacionPedido,
   construirPlantillaPagoAprobado,
 } from './email-template.service.js';
 import { construirPlantillaPagoRechazado } from './email-template.payment-rejected.service.js';
@@ -23,6 +25,8 @@ import {
   construirPlantillaSolicitudAprobacion,
 } from './email-template.product-customization-approval.service.js';
 import { PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES } from '../product-customization-approval/constants.js';
+import { construirPlantillaCancelacionPedido } from './email-template.order-cancellation.service.js';
+import { CANCELLATION_NOTIFICATION_MESSAGES } from '../order-cancellation/constants.js';
 
 function validarPayloadBaseCorreo({ to, subject, html }) {
   if (!to) throw new Error(NOTIFICATION_MESSAGES.EMAIL_RECIPIENT_REQUIRED);
@@ -161,6 +165,17 @@ export async function enviarCorreoAutoAprobado({ order, clientUser }) {
   await enviarCorreo({
     to: clientUser.email,
     subject: PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.EMAIL_SUBJECT_AUTO_APPROVED(order.id, EMAIL_CONFIG.BRAND_NAME),
+    html,
+  });
+}
+
+export async function enviarCorreoCancelacionPedido({ order, clientUser, cancelationReason, cancelledAt }) {
+  validarDatosNotificacionPedido(order, clientUser);
+  const html = construirPlantillaCancelacionPedido({ order, clientUser, cancelationReason, cancelledAt });
+
+  await enviarCorreo({
+    to: clientUser.email,
+    subject: CANCELLATION_NOTIFICATION_MESSAGES.EMAIL_SUBJECT(order.id, EMAIL_CONFIG.BRAND_NAME),
     html,
   });
 }

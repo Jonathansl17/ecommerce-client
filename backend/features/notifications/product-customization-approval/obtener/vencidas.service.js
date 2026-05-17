@@ -1,8 +1,8 @@
-import prisma from '../../../shared/db/prisma.js';
+import prisma from '../../../../shared/db/prisma.js';
 import {
   PRODUCT_CUSTOMIZATION_APPROVAL_DEADLINE,
   PRODUCT_CUSTOMIZATION_APPROVAL_STATUS,
-} from './constants.js';
+} from '../constants.js';
 
 export async function obtenerAprobacionesPendientesVencidas() {
   const deadline = new Date(Date.now() - PRODUCT_CUSTOMIZATION_APPROVAL_DEADLINE.MS);
