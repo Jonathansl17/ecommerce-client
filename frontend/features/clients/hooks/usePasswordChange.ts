@@ -2,16 +2,7 @@
 
 import { useState } from 'react';
 import { apiFetch, ApiError } from '@/lib/http/apiFetch';
-
-interface ChangePasswordData {
-  currentPassword: string;
-  newPassword: string;
-}
-
-interface PasswordChangeResponse {
-  message: string;
-  confirmationLink?: string;
-}
+import { ChangePasswordData , PasswordChangeResponse } from '../types/profile.interface';
 
 function extractErrorMessage(body: unknown, fallback: string): string {
   if (body && typeof body === 'object') {
