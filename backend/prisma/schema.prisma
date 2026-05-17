@@ -333,8 +333,22 @@ model ProductVariant {
   product    Product     @relation(fields: [productId], references: [itemId])
   cartItems  CartItem[]
   orderItems OrderItem[]
+  lowStockAlert LowStockAlert?
 
   @@map("product_variants")
+}
+
+// Requires migration: prisma migrate dev --name add_low_stock_alert
+model LowStockAlert {
+  id          BigInt   @id @default(autoincrement())
+  variantId   BigInt   @unique @map("variant_id")
+  alertSentAt DateTime @map("alert_sent_at") @db.Timestamp()
+  stockAtAlert Int     @map("stock_at_alert")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("low_stock_alerts")
 }
 
 model RatingsSummary {
