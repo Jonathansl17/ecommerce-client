@@ -1,8 +1,8 @@
 // API paths
 export const CART_API_PATHS = {
-  CART: '/api/cart',
-  CART_ITEMS: '/api/cart/items',
-  CART_ITEM: (itemId: string) => `/api/cart/items/${itemId}`,
+  CART: '/cart',
+  CART_ITEMS: '/cart/items',
+  CART_ITEM: (itemId: string) => `/cart/items/${itemId}`,
 } as const;
 
 // Request body keys
