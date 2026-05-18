@@ -57,7 +57,8 @@ function isRawCatalogProduct(value: unknown): value is RawCatalogProduct {
     value.variants.every(isRawCatalogVariant) &&
     (value.ratingsSummary == null ||
       (isRecord(value.ratingsSummary) &&
-        typeof value.ratingsSummary.average === 'number' &&
+        (typeof value.ratingsSummary.average === 'number' ||
+          typeof value.ratingsSummary.average === 'string') &&
         typeof value.ratingsSummary.totalReviews === 'number'))
   );
 }
@@ -100,7 +101,15 @@ function normalizeProduct(raw: RawCatalogProduct): CatalogProduct {
     categoryName: raw.category.name,
     variants,
     priceFrom: computePriceFrom(variants),
-    ratingsSummary: raw.ratingsSummary ?? null,
+    ratingsSummary: raw.ratingsSummary
+      ? {
+          average:
+            typeof raw.ratingsSummary.average === 'string'
+              ? parseFloat(raw.ratingsSummary.average)
+              : raw.ratingsSummary.average,
+          totalReviews: raw.ratingsSummary.totalReviews,
+        }
+      : null,
   };
 }
 

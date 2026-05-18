@@ -29,7 +29,7 @@ export interface RawCatalogProduct {
   };
   variants: RawCatalogVariant[];
   ratingsSummary: {
-    average: number;
+    average: number | string;
     totalReviews: number;
   } | null;
 }
