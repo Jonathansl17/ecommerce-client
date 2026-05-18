@@ -6,8 +6,6 @@ import {
   ShoppingBag,
   ShoppingCart,
   Package,
-  Heart,
-  Bell,
   User,
   HelpCircle,
   Star,
@@ -16,12 +14,10 @@ import { ROUTES } from '@/lib/constants/routes.constants';
 
 const navItems = [
   { href: ROUTES.CATALOG, label: 'Catálogo', icon: ShoppingBag },
-  { href: '/cart', label: 'Carrito', icon: ShoppingCart },
-  { href: '/orders', label: 'Mis pedidos', icon: Package },
-  { href: '/favorites', label: 'Favoritos', icon: Heart },
-  { href: '/reviews', label: 'Reseñas', icon: Star },
-  { href: '/notifications', label: 'Notificaciones', icon: Bell },
-  { href: '/profile', label: 'Mi perfil', icon: User },
+  { href: ROUTES.CART, label: 'Carrito', icon: ShoppingCart },
+  { href: ROUTES.ORDERS, label: 'Mis pedidos', icon: Package },
+  { href: ROUTES.REVIEWS, label: 'Reseñas', icon: Star },
+  { href: ROUTES.PROFILE, label: 'Mi perfil', icon: User },
 ];
 
 export function ClientSidebar() {
