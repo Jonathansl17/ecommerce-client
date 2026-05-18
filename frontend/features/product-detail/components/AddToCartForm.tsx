@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { ROUTES } from '@/lib/constants/routes.constants';
@@ -19,6 +19,18 @@ export function AddToCartForm({ variants, onVariantChange }: AddToCartFormProps)
 
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(PRODUCT_DETAIL_QUANTITY.MIN);
+
+  useEffect(() => {
+    if (selectedVariantId !== null) return;
+    const firstWithStock = variants.find(
+      (v) => v.currentStock - v.reservedStock >= PRODUCT_DETAIL_QUANTITY.MIN,
+    );
+    const fallback = firstWithStock ?? variants[0];
+    if (fallback != null) {
+      setSelectedVariantId(fallback.id);
+      onVariantChange?.(fallback);
+    }
+  }, [variants, selectedVariantId, onVariantChange]);
 
   const selectedVariant = variants.find((v) => v.id === selectedVariantId) ?? null;
   const maxQty = selectedVariant ? getAvailableStock(selectedVariant) : PRODUCT_DETAIL_QUANTITY.MAX;
