@@ -7,7 +7,11 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { addCartItem } from '@/features/cart/api/cart.api';
-import { CATALOG_STRINGS, CATALOG_IMAGE_FALLBACK_ALT } from '../constants/catalog.constants';
+import {
+  CATALOG_STRINGS,
+  CATALOG_IMAGE_FALLBACK_ALT,
+  CART_ADDED_EVENT,
+} from '../constants/catalog.constants';
 import type { CatalogProduct, CatalogVariant } from '../types/catalog.types';
 
 interface ProductCardProps {
@@ -15,6 +19,7 @@ interface ProductCardProps {
 }
 
 const QUICK_BUY_QUANTITY = 1;
+const ADDED_FEEDBACK_MS = 2000;
 
 function pickFirstAvailableVariant(
   variants: CatalogVariant[],
@@ -29,6 +34,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [ejecutando, setEjecutando] = useState(false);
+  const [agregado, setAgregado] = useState(false);
   const availableVariant = pickFirstAvailableVariant(product.variants);
   const outOfStock = availableVariant == null;
 
@@ -44,17 +50,25 @@ export function ProductCard({ product }: ProductCardProps) {
         variantId: Number(availableVariant.id),
         quantity: QUICK_BUY_QUANTITY,
       });
-      router.push(ROUTES.CART);
-    } catch {
+      setAgregado(true);
+      window.setTimeout(() => setAgregado(false), ADDED_FEEDBACK_MS);
+      window.dispatchEvent(
+        new CustomEvent(CART_ADDED_EVENT, {
+          detail: { productName: product.name },
+        }),
+      );
+    } finally {
       setEjecutando(false);
     }
   };
 
   const buyLabel = ejecutando
     ? CATALOG_STRINGS.buying
-    : outOfStock
-      ? CATALOG_STRINGS.outOfStock
-      : CATALOG_STRINGS.buy;
+    : agregado
+      ? CATALOG_STRINGS.added
+      : outOfStock
+        ? CATALOG_STRINGS.outOfStock
+        : CATALOG_STRINGS.buy;
 
   return (
     <article className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
