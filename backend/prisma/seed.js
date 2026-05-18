@@ -381,25 +381,30 @@ async function sembrarCustomizationApprovals(ordenes) {
   }
 }
 
+const REVIEWS_PER_PRODUCT = 4;
+
 async function sembrarReviewsYRatings(usuarios, productos) {
   const reviewsCreadas = [];
-  for (let i = 0; i < RECORDS_PER_TABLE; i++) {
-    const product = productos[i % productos.length].product;
-    const user = usuarios[(i + 3) % usuarios.length];
-    const rating = 1 + (i % 5);
-    const review = await prisma.review.create({
-      data: {
-        productId: product.itemId,
-        clientUserId: user.id,
-        rating,
-        comment: REVIEW_COMMENTS[i % REVIEW_COMMENTS.length],
-        status: REVIEW_STATUSES[i % REVIEW_STATUSES.length],
-        edited: i % 5 === 0,
-        helpfulVotes: i,
-        unhelpfulVotes: i % 3,
-      },
-    });
-    reviewsCreadas.push(review);
+  for (let p = 0; p < productos.length; p++) {
+    const product = productos[p].product;
+    for (let r = 0; r < REVIEWS_PER_PRODUCT; r++) {
+      const user = usuarios[(p + r + 3) % usuarios.length];
+      const rating = 1 + ((p + r) % 5);
+      const commentIndex = (p * REVIEWS_PER_PRODUCT + r) % REVIEW_COMMENTS.length;
+      const review = await prisma.review.create({
+        data: {
+          productId: product.itemId,
+          clientUserId: user.id,
+          rating,
+          comment: REVIEW_COMMENTS[commentIndex],
+          status: 'approved',
+          edited: (p + r) % 5 === 0,
+          helpfulVotes: (p + r) * 2,
+          unhelpfulVotes: r % 3,
+        },
+      });
+      reviewsCreadas.push(review);
+    }
   }
 
   for (let i = 0; i < productos.length; i++) {
