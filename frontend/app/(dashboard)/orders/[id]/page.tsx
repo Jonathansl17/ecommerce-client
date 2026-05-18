@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { OrderStatusTimeline } from '@/features/notifications/components/OrderStatusTimeline';
 import {
   ORDER_STATUS_NOTIFICATION_STATUS_LABELS,
@@ -9,9 +9,11 @@ import {
 } from '@/features/notifications/constants/order-status-notification.constants';
 import { useOrderStatusNotificationDetail } from '@/features/notifications/hooks/useOrderStatusNotificationDetail';
 import { formatearFecha } from '@/features/notifications/utils/formatDate';
+import { CancelOrderButton } from '@/features/orders/components/CancelOrderButton';
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const orderId = typeof params?.id === 'string' ? params.id : null;
   const { pedido, cargando, error } = useOrderStatusNotificationDetail(orderId);
 
@@ -39,9 +41,16 @@ export default function OrderDetailPage() {
               {ORDER_STATUS_NOTIFICATION_STRINGS.orderDate}: {formatearFecha(pedido.createdAt)}
             </p>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
-            {ORDER_STATUS_NOTIFICATION_STATUS_LABELS[pedido.status]}
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+              {ORDER_STATUS_NOTIFICATION_STATUS_LABELS[pedido.status]}
+            </span>
+            <CancelOrderButton
+              orderId={pedido.id}
+              currentStatus={pedido.status}
+              onCancelled={() => router.refresh()}
+            />
+          </div>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">

@@ -9,5 +9,9 @@ export const ROUTES = {
   CATALOG_NEW: '/catalogo?categoria=nuevos',
   CATALOG_OFFERS: '/catalogo?categoria=ofertas',
   ORDER_DETAIL: (id: string) => `/orders/${id}`,
+  ORDERS: '/orders',
+  CART: '/cart',
+  CHECKOUT: '/checkout',
+  PRODUCT_DETAIL: (id: string) => `/productos/${id}`,
   REVIEWS: '/reviews',
 } as const;
