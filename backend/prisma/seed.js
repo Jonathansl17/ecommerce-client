@@ -22,8 +22,31 @@ const TEST_USER = {
 const SALT_ROUNDS = 10;
 const TAX_RATE = 0.13;
 const RECORDS_PER_TABLE = 20;
-const PLACEHOLDER_IMAGE = (label) =>
-  `https://placehold.co/600x600?text=${encodeURIComponent(label)}`;
+const UNSPLASH_PHOTO_IDS = [
+  '1548036328-c9fa89d128fa',
+  '1584917865442-de89df76afd3',
+  '1547949003-9792a18a2601',
+  '1591561954557-26941169b49e',
+  '1590874103328-eac38a683ce7',
+  '1553062407-98eeb64c6a62',
+  '1601924994987-69e26d50dc26',
+  '1559563458-527698bf5295',
+  '1566150905458-1bf1fc113f0d',
+  '1622560480605-d83c853bc5c3',
+  '1553545204-4f7d339aa06a',
+  '1606522754091-a3bbf9ad4cb3',
+  '1551488831-00ddcb6c6bd3',
+  '1605733513597-a8f8341084e6',
+  '1589782182703-2aaa69037b5b',
+  '1597393353415-b3730f3719fe',
+  '1605733160314-4fc7dac4bb16',
+  '1595950653106-6c9ebd614d3a',
+  '1620625515032-6ed0c1790c75',
+  '1594223274512-ad4803739b7c',
+];
+const UNSPLASH_IMAGE_PARAMS = 'w=600&h=600&fit=crop&auto=format';
+const productImageForIndex = (i) =>
+  `https://images.unsplash.com/photo-${UNSPLASH_PHOTO_IDS[i % UNSPLASH_PHOTO_IDS.length]}?${UNSPLASH_IMAGE_PARAMS}`;
 
 const CATEGORIES = [
   'Bolsos artesanales', 'Carteras de cuero', 'Mochilas', 'Riñoneras',
@@ -129,7 +152,7 @@ async function sembrarProductos(categorias) {
         itemId: item.id,
         categoryId: categorias[i % categorias.length].id,
         description: `${name}. Pieza artesanal con acabados premium, hecha a mano en Costa Rica.`,
-        imageUrl: PLACEHOLDER_IMAGE(name),
+        imageUrl: productImageForIndex(i),
         type: i % 4 === 0 ? 'custom' : 'standard',
       },
     });
