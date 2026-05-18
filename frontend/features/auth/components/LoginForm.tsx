@@ -114,7 +114,7 @@ export function LoginForm({
           </Link>
         </p>
         <p>
-          <Link href={ROUTES.DASHBOARD} className="font-medium text-foreground/50 hover:text-foreground underline transition-colors">
+          <Link href={ROUTES.CATALOG} className="font-medium text-foreground/50 hover:text-foreground underline transition-colors">
             {strings.backToStore}
           </Link>
         </p>
