@@ -44,10 +44,10 @@ export function CartItemRow({
   return (
     <article
       aria-label={productName}
-      className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-card sm:gap-5"
+      className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:gap-5"
     >
       {/* Product image */}
-      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 sm:h-24 sm:w-24">
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100 sm:h-24 sm:w-24">
         {variant.product.imageUrl != null ? (
           <Image
             src={variant.product.imageUrl}
@@ -57,7 +57,7 @@ export function CartItemRow({
             className="object-cover"
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-xs text-slate-400 dark:text-slate-500">
+          <span className="flex h-full w-full items-center justify-center text-xs text-slate-400">
             {CART_STRINGS.noImage}
           </span>
         )}
@@ -67,11 +67,11 @@ export function CartItemRow({
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-950 dark:text-slate-50">
+            <p className="truncate text-sm font-semibold text-slate-950">
               {productName}
             </p>
             {(variant.color != null || variant.size != null) && (
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-0.5 text-xs text-slate-500">
                 {variant.color != null && (
                   <span>
                     {CART_STRINGS.colorLabel}: {variant.color}
@@ -87,7 +87,7 @@ export function CartItemRow({
                 )}
               </p>
             )}
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-xs text-slate-500">
               {CART_STRINGS.unitPrice}: {formatCurrency(unitPrice)}
             </p>
           </div>
@@ -98,7 +98,7 @@ export function CartItemRow({
             onClick={handleRemove}
             disabled={ejecutando}
             aria-label={CART_STRINGS.removeItemAriaLabel(productName)}
-            className="shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-red-950 dark:hover:text-red-400"
+            className="shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -119,14 +119,14 @@ export function CartItemRow({
           <div
             role="group"
             aria-label={CART_STRINGS.quantityAriaLabel}
-            className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+            className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50"
           >
             <button
               type="button"
               onClick={handleDecrease}
               disabled={!canDecrease}
               aria-label={CART_STRINGS.decreaseQuantity}
-              className="flex h-8 w-8 items-center justify-center rounded-l-xl text-slate-600 transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-700"
+              className="flex h-8 w-8 items-center justify-center rounded-l-xl text-slate-600 transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -144,7 +144,7 @@ export function CartItemRow({
             <span
               aria-live="polite"
               aria-atomic="true"
-              className="min-w-[2rem] text-center text-sm font-semibold text-slate-950 dark:text-slate-50"
+              className="min-w-[2rem] text-center text-sm font-semibold text-slate-950"
             >
               {item.quantity}
             </span>
@@ -154,7 +154,7 @@ export function CartItemRow({
               onClick={handleIncrease}
               disabled={!canIncrease}
               aria-label={CART_STRINGS.increaseQuantity}
-              className="flex h-8 w-8 items-center justify-center rounded-r-xl text-slate-600 transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-700"
+              className="flex h-8 w-8 items-center justify-center rounded-r-xl text-slate-600 transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -174,7 +174,7 @@ export function CartItemRow({
             </button>
           </div>
 
-          <p className="text-sm font-bold text-slate-950 dark:text-slate-50">
+          <p className="text-sm font-bold text-slate-950">
             {formatCurrency(lineTotal)}
           </p>
         </div>
