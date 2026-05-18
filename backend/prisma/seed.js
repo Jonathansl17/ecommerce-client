@@ -54,7 +54,7 @@ const ORDER_STATUSES = [
   'pending_payment', 'confirmed', 'in_preparation', 'customization_in_progress',
   'ready_shipment', 'shipped', 'in_transit', 'delivered', 'cancelled',
 ];
-const PAYMENT_STATUSES = ['pending', 'approved', 'rejected', 'voided'];
+const PAYMENT_STATUSES = ['pending', 'approved', 'rejected'];
 const REVIEW_STATUSES = ['pending', 'approved', 'rejected'];
 const VOTE_TYPES = ['helpful', 'unhelpful'];
 const NOTIFICATION_TYPES = ['internal', 'email', 'both'];
