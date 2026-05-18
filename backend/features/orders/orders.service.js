@@ -6,8 +6,15 @@ import { serializarOrderStatusNotification } from '../notifications/order-status
 import { triggerNotificacionPagoAprobado } from '../notifications/payment/notification.service.js';
 import { triggerNotificacionCancelacionPedido } from '../notifications/order-cancellation/trigger.service.js';
 import { NOTIFICATION_MESSAGES } from '../notifications/notifications.constants.js';
-import { ORDERS_MESSAGES, PAYMENT_MESSAGES, PAYMENT_STATUSES, TAX_RATE } from './orders.constants.js';
+import {
+  ORDERS_MESSAGES,
+  PAYMENT_MESSAGES,
+  PAYMENT_STATUSES,
+  CANCELLABLE_ORDER_STATUS,
+  CANCELLED_ORDER_STATUS,
+} from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
+import { TAX_RATE } from '../../shared/constants/tax.constants.js';
 
 const ORDER_STATUS_NOTIFICATION_SELECT = {
   id: true,
@@ -355,6 +362,149 @@ export const aprobarPago = async (orderId, paymentId) => {
       createdAt: pagoActualizado.createdAt,
       updatedAt: pagoActualizado.updatedAt,
     },
+  };
+};
+
+export const cancelarPedido = async (userId, orderId) => {
+  const parsedOrderId = BigInt(orderId);
+  const parsedUserId = BigInt(userId);
+  const changedAt = new Date();
+
+  const currentOrder = await prisma.order.findUnique({
+    where: { id: parsedOrderId },
+    select: {
+      id: true,
+      status: true,
+      clientUserId: true,
+      subtotal: true,
+      taxes: true,
+      totalAmount: true,
+      shippingAddress: true,
+      createdAt: true,
+      updatedAt: true,
+      clientUser: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
+      orderItems: {
+        select: {
+          id: true,
+          variantId: true,
+          quantity: true,
+          unitPriceSnap: true,
+          variant: {
+            select: {
+              id: true,
+              color: true,
+              size: true,
+              product: {
+                select: {
+                  itemId: true,
+                  imageUrl: true,
+                  item: { select: { name: true } },
+                },
+              },
+            },
+          },
+        },
+      },
+      payments: ORDER_SELECT.payments,
+    },
+  });
+
+  if (!currentOrder || currentOrder.clientUserId !== parsedUserId) {
+    throw crearError(ORDERS_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (currentOrder.status !== CANCELLABLE_ORDER_STATUS) {
+    throw crearError(
+      ORDERS_MESSAGES.CANCEL_ONLY_PENDING_PAYMENT,
+      HTTP_STATUS.CONFLICT,
+    );
+  }
+
+  const previousStatus = currentOrder.status;
+  const newStatus = CANCELLED_ORDER_STATUS;
+
+  const { order, orderStatusNotification } = await prisma.$transaction(async (tx) => {
+    const updatedOrderCount = await tx.order.updateMany({
+      where: {
+        id: parsedOrderId,
+        status: CANCELLABLE_ORDER_STATUS,
+      },
+      data: {
+        status: newStatus,
+      },
+    });
+
+    if (updatedOrderCount.count === 0) {
+      throw crearError(
+        ORDERS_MESSAGES.CANCEL_ONLY_PENDING_PAYMENT,
+        HTTP_STATUS.CONFLICT,
+      );
+    }
+
+    for (const item of currentOrder.orderItems) {
+      await tx.productVariant.update({
+        where: { id: item.variantId },
+        data: { reservedStock: { decrement: item.quantity } },
+      });
+    }
+
+    const updatedOrder = await tx.order.findUnique({
+      where: { id: parsedOrderId },
+      select: ORDER_WITH_CLIENT_SELECT,
+    });
+
+    const createdOrderStatusNotification = await registrarOrderStatusNotification({
+      tx,
+      order: updatedOrder,
+      previousStatus,
+      newStatus,
+      changedAt,
+    });
+
+    return {
+      order: updatedOrder,
+      orderStatusNotification: createdOrderStatusNotification,
+    };
+  });
+
+  if (orderStatusNotification) {
+    despacharOrderStatusNotification({
+      orderStatusNotificationId: orderStatusNotification.id,
+      order,
+      previousStatus,
+      newStatus,
+      changedAt,
+    }).catch((error) => {
+      console.error('[ORDER_STATUS_NOTIFICATION] Unexpected async delivery error.', {
+        orderId: order.id.toString(),
+        errorMessage: error?.message ?? NOTIFICATION_MESSAGES.EMAIL_UNKNOWN_ERROR,
+      });
+    });
+
+    triggerNotificacionCancelacionPedido({
+      order: { id: order.id },
+      clientUser: order.clientUser,
+      cancelledAt: changedAt,
+    });
+  }
+
+  const responseOrder =
+    order?.clientUser != null
+      ? (() => {
+          const { clientUser, ...orderWithoutClientUser } = order;
+          return orderWithoutClientUser;
+        })()
+      : order;
+
+  return {
+    order: serializarPedido(responseOrder),
+    message: ORDERS_MESSAGES.CANCEL_SUCCESS,
   };
 };
 
