@@ -8,6 +8,7 @@ export const CATALOG_STRINGS = {
   buy: 'Agregar al carrito',
   buying: 'Agregando...',
   added: 'Agregado al carrito',
+  alreadyInCart: 'Ya en el carrito',
   viewCart: 'Ver carrito',
   outOfStock: 'Agotado',
   priceFrom: 'Desde',
