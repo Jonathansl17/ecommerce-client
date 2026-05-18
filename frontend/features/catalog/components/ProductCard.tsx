@@ -16,6 +16,7 @@ import type { CatalogProduct, CatalogVariant } from '../types/catalog.types';
 
 interface ProductCardProps {
   product: CatalogProduct;
+  cartVariantIds?: ReadonlySet<string>;
 }
 
 const QUICK_BUY_QUANTITY = 1;
@@ -30,13 +31,17 @@ function pickFirstAvailableVariant(
   );
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, cartVariantIds }: ProductCardProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [ejecutando, setEjecutando] = useState(false);
   const [agregado, setAgregado] = useState(false);
   const availableVariant = pickFirstAvailableVariant(product.variants);
   const outOfStock = availableVariant == null;
+  const inCart =
+    isAuthenticated &&
+    cartVariantIds != null &&
+    product.variants.some((v) => cartVariantIds.has(v.id));
 
   const handleBuy = async () => {
     if (!isAuthenticated) {
@@ -68,7 +73,9 @@ export function ProductCard({ product }: ProductCardProps) {
       ? CATALOG_STRINGS.added
       : outOfStock
         ? CATALOG_STRINGS.outOfStock
-        : CATALOG_STRINGS.buy;
+        : inCart
+          ? CATALOG_STRINGS.alreadyInCart
+          : CATALOG_STRINGS.buy;
 
   return (
     <article className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
@@ -106,14 +113,23 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleBuy}
-            disabled={ejecutando || outOfStock}
-            className="flex-1 rounded-xl bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {buyLabel}
-          </button>
+          {inCart ? (
+            <Link
+              href={ROUTES.CART}
+              className="flex-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white text-center hover:bg-emerald-700 transition-colors"
+            >
+              {buyLabel}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={handleBuy}
+              disabled={ejecutando || outOfStock}
+              className="flex-1 rounded-xl bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {buyLabel}
+            </button>
+          )}
 
           <Link
             href={ROUTES.PRODUCT_DETAIL(product.itemId)}
