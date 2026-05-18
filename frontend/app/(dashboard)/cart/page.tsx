@@ -31,7 +31,7 @@ export default function CartPage() {
   if (cargando) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-slate-500 dark:text-slate-400">{CART_STRINGS.loading}</p>
+        <p className="text-sm text-slate-500">{CART_STRINGS.loading}</p>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export default function CartPage() {
   if (error != null) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-sm text-red-600">{error}</p>
       </div>
     );
   }
@@ -50,10 +50,10 @@ export default function CartPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-bold text-slate-950 dark:text-slate-50">
+        <h1 className="text-3xl font-bold text-slate-950">
           {CART_STRINGS.pageTitle}
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-2 max-w-3xl text-sm text-slate-600">
           {CART_STRINGS.pageSubtitle}
         </p>
       </header>
@@ -62,7 +62,7 @@ export default function CartPage() {
         <div
           role="alert"
           aria-live="assertive"
-          className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
+          className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
         >
           {mutationError}
         </div>

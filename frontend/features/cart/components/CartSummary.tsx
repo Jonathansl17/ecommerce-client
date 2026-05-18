@@ -24,8 +24,8 @@ function SummaryRow({ label, value, bold = false }: SummaryRowProps) {
       <span
         className={
           bold
-            ? 'text-sm font-bold text-slate-950 dark:text-slate-50'
-            : 'text-sm text-slate-600 dark:text-slate-400'
+            ? 'text-sm font-bold text-slate-950'
+            : 'text-sm text-slate-600'
         }
       >
         {label}
@@ -33,8 +33,8 @@ function SummaryRow({ label, value, bold = false }: SummaryRowProps) {
       <span
         className={
           bold
-            ? 'text-sm font-bold text-slate-950 dark:text-slate-50'
-            : 'text-sm font-medium text-slate-950 dark:text-slate-50'
+            ? 'text-sm font-bold text-slate-950'
+            : 'text-sm font-medium text-slate-950'
         }
       >
         {value}
@@ -47,9 +47,9 @@ export function CartSummary({ subtotal, taxes, total }: CartSummaryProps) {
   return (
     <aside
       aria-label={CART_STRINGS.summaryTitle}
-      className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-card"
+      className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
     >
-      <h2 className="text-base font-bold text-slate-950 dark:text-slate-50">
+      <h2 className="text-base font-bold text-slate-950">
         {CART_STRINGS.summaryTitle}
       </h2>
 
@@ -57,14 +57,14 @@ export function CartSummary({ subtotal, taxes, total }: CartSummaryProps) {
         <SummaryRow label={CART_STRINGS.subtotalLabel} value={formatCurrency(subtotal)} />
         <SummaryRow label={CART_STRINGS.taxesLabel} value={formatCurrency(taxes)} />
 
-        <div className="border-t border-slate-200 pt-3 dark:border-slate-700">
+        <div className="border-t border-slate-200 pt-3">
           <SummaryRow label={CART_STRINGS.totalLabel} value={formatCurrency(total)} bold />
         </div>
       </div>
 
       <Link
         href={ROUTES.CHECKOUT}
-        className="mt-6 flex w-full items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:bg-slate-50 dark:text-slate-950 dark:hover:bg-slate-200"
+        className="mt-6 flex w-full items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {CART_STRINGS.checkoutCta}
       </Link>
