@@ -105,4 +105,5 @@ export interface VariantSelectorProps {
 
 export interface AddToCartFormProps {
   variants: ProductDetailVariant[];
+  onVariantChange?: (variant: ProductDetailVariant | null) => void;
 }
