@@ -2,6 +2,7 @@ import prisma from '../../shared/db/prisma.js';
 import { crearError } from '../../shared/middleware/errorHandler.js';
 import { CART_MESSAGES } from './cart.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
+import { TAX_RATE } from '../../shared/constants/tax.constants.js';
 
 const CART_ITEM_SELECT = {
   id: true,
@@ -51,7 +52,7 @@ export const obtenerCarrito = async (userId) => {
     (acc, item) => acc + Number(item.unitPriceSnap) * item.quantity,
     0
   );
-  const taxes = subtotal * 0.13;
+  const taxes = subtotal * TAX_RATE;
 
   return {
     id: carrito.id,
