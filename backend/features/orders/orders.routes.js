@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   actualizarEstadoPedido,
   aprobarPago,
+  cancelarPedido,
   checkout,
   obtenerMisPedidos,
   obtenerPedidoPorId,
@@ -18,6 +19,9 @@ router.use(requireAuth);
 //   Body: { shippingAddress, paymentMethod, externalReference? }
 //   Operación atómica: crea Order + OrderItems + Payment, actualiza stock y carrito
 router.post('/checkout', validateCheckout, checkout);
+
+// POST /api/orders/:id/cancel → el cliente cancela su propio pedido (solo si está en pending_payment)
+router.post('/:id/cancel', cancelarPedido);
 
 // TODO(order_status_notification): this provisional route exists because the admin/backoffice
 // order-management flow is not implemented yet. Replace it with the future privileged trigger.

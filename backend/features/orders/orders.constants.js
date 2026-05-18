@@ -6,7 +6,12 @@ export const ORDERS_MESSAGES = {
   CHECKOUT_SUCCESS: 'Pedido creado exitosamente',
   STATUS_UPDATED_SUCCESS: 'Estado del pedido actualizado exitosamente',
   STATUS_UNCHANGED: 'El pedido ya tiene ese estado',
+  CANCEL_ONLY_PENDING_PAYMENT: 'Solo puedes cancelar un pedido pendiente de pago',
+  CANCEL_SUCCESS: 'Pedido cancelado exitosamente',
 };
+
+export const CANCELLABLE_ORDER_STATUS = 'pending_payment';
+export const CANCELLED_ORDER_STATUS = 'cancelled';
 
 export const PAYMENT_STATUSES = {
   APPROVED: 'approved',
@@ -17,8 +22,6 @@ export const PAYMENT_MESSAGES = {
   ALREADY_APPROVED: 'El pago ya estaba aprobado',
   APPROVE_SUCCESS: 'Pago aprobado exitosamente',
 };
-
-export const TAX_RATE = 0.13; // IVA Costa Rica 13%
 
 export const ORDER_STATUS_VALUES = [
   'pending_payment',
