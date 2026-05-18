@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/http/apiFetch';
 import { CART_API_PATHS, CART_STRINGS } from '../constants/cart.constants';
-import type { Cart, CartResponse, AddCartItemBody, UpdateCartItemBody } from '../types/cart.types';
+import type { Cart, AddCartItemBody, UpdateCartItemBody } from '../types/cart.types';
 
 function parseCartDecimals(cart: Cart): Cart {
   return {
@@ -27,8 +27,8 @@ function parseCartDecimals(cart: Cart): Cart {
 
 export async function fetchCart(): Promise<Cart> {
   try {
-    const response = await apiFetch<CartResponse>(CART_API_PATHS.CART);
-    return parseCartDecimals(response.cart);
+    const response = await apiFetch<Cart>(CART_API_PATHS.CART);
+    return parseCartDecimals(response);
   } catch {
     throw new Error(CART_STRINGS.fetchError);
   }
