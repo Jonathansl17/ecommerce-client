@@ -252,7 +252,7 @@ export const crear = async (userId, { productId, rating, comment }) => {
       clientUserId: userIdBig,
       rating,
       comment,
-      status: REVIEW_STATUS.PENDING,
+      status: REVIEW_STATUS.APPROVED,
     },
     include: { clientUser: { select: { fullName: true } } },
   });

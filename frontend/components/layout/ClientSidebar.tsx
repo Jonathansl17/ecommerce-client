@@ -11,9 +11,13 @@ import {
   Star,
 } from 'lucide-react';
 import { ROUTES } from '@/lib/constants/routes.constants';
+import { useAuth } from '@/features/auth/hooks/AuthContext';
 
-const navItems = [
+const PUBLIC_NAV_ITEMS = [
   { href: ROUTES.CATALOG, label: 'Catálogo', icon: ShoppingBag },
+];
+
+const AUTHENTICATED_NAV_ITEMS = [
   { href: ROUTES.CART, label: 'Carrito', icon: ShoppingCart },
   { href: ROUTES.ORDERS, label: 'Mis pedidos', icon: Package },
   { href: ROUTES.REVIEWS, label: 'Reseñas', icon: Star },
@@ -22,6 +26,10 @@ const navItems = [
 
 export function ClientSidebar() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+  const navItems = isAuthenticated
+    ? [...PUBLIC_NAV_ITEMS, ...AUTHENTICATED_NAV_ITEMS]
+    : PUBLIC_NAV_ITEMS;
 
   return (
     <aside className="fixed left-0 top-16 z-40 hidden h-[calc(100vh-4rem)] w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { REVIEW_STRINGS } from '../constants/reviews.constants';
@@ -40,7 +41,19 @@ export function PurchasedProductCard({
     <article className="rounded-lg border border-foreground/10 bg-background p-5 space-y-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex gap-4">
-          <div className="h-16 w-16 shrink-0 rounded-md bg-foreground/5" aria-hidden="true" />
+          {product.imageUrl ? (
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-foreground/5">
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="h-16 w-16 shrink-0 rounded-md bg-foreground/5" aria-hidden="true" />
+          )}
           <div className="space-y-1">
             <h3 className="text-base font-semibold text-foreground">{product.name}</h3>
             <p className="text-xs text-muted-foreground">

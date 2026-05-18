@@ -2,7 +2,7 @@
 // Database seed — populates every table with realistic data for local development.
 //
 // Test credentials seeded by this script:
-//   email:    cliente@gmail.com
+//   email:    yarield252@gmail.com
 //   password: Cliente12345
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 const TEST_USER = {
-  email: 'cliente@gmail.com',
+  email: 'yarield252@gmail.com',
   password: 'Cliente12345',
   fullName: 'Usuario de Prueba',
 };
@@ -397,7 +397,7 @@ async function sembrarReviewsYRatings(usuarios, productos) {
           clientUserId: user.id,
           rating,
           comment: REVIEW_COMMENTS[commentIndex],
-          status: 'approved',
+          status: REVIEW_STATUSES[(p + r) % REVIEW_STATUSES.length],
           edited: (p + r) % 5 === 0,
           helpfulVotes: (p + r) * 2,
           unhelpfulVotes: r % 3,
