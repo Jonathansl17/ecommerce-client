@@ -5,6 +5,12 @@ export const CATALOG_STRINGS = {
   empty: 'No hay productos disponibles en este momento.',
   errorFallback: 'No se pudo cargar el catálogo',
   viewDetail: 'Ver detalle',
+  buy: 'Agregar al carrito',
+  buying: 'Agregando...',
+  added: 'Agregado al carrito',
+  alreadyInCart: 'Ya en el carrito',
+  viewCart: 'Ver carrito',
+  outOfStock: 'Agotado',
   priceFrom: 'Desde',
   category: 'Categoría',
   noImage: 'Sin imagen',
@@ -35,3 +41,5 @@ export const CATALOG_API_PATHS = {
 } as const;
 
 export const CATALOG_IMAGE_FALLBACK_ALT = 'Producto sin imagen';
+
+export const CART_ADDED_EVENT = 'catalog:cart-added';

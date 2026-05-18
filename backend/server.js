@@ -15,6 +15,7 @@ import notificationsRoutes from './features/notifications/notifications.routes.j
 import cartRoutes from './features/cart/cart.routes.js';
 import ordersRoutes from './features/orders/orders.routes.js';
 import reviewsRoutes from './features/reviews/reviews.routes.js';
+import internalRoutes from './features/internal/internal.routes.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
 import { requireFetchHeader } from './shared/middleware/csrfMiddleware.js';
 
@@ -39,6 +40,7 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/reviews', reviewsRoutes);
+app.use('/api/internal', internalRoutes);
 
 app.use(errorHandler);
 
