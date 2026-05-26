@@ -116,7 +116,7 @@ export const actualizarPerfilUsuario = async (userId, { fullName, email, passwor
       previousEmail: usuario.email,
       newEmail: nuevoEmail,
       changedAt,
-    }).catch(() => {});
+    }).catch((err) => console.error(CLIENTS_MESSAGES.EMAIL_SEND_ERROR_EMAIL, err.message));
   }
 
   return clienteActualizado;
@@ -194,7 +194,7 @@ export const cambiarContrasenaUsuario = async (userId, { currentPassword, newPas
   enviarCorreoCambioContrasena(
     { email: usuario.email, fullName: usuario.fullName },
     changedAt,
-  ).catch(() => {});
+  ).catch((err) => console.error(CLIENTS_MESSAGES.EMAIL_SEND_ERROR_PASSWORD, err.message));
 
   return { message: CLIENTS_MESSAGES.PASSWORD_CHANGED_SUCCESS };
 };

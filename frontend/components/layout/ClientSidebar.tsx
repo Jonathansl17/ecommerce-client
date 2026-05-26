@@ -12,16 +12,17 @@ import {
 } from 'lucide-react';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
+import { SIDEBAR_NAV_LABELS, SIDEBAR_SUPPORT_STRINGS } from './layout.constants';
 
 const PUBLIC_NAV_ITEMS = [
-  { href: ROUTES.CATALOG, label: 'Catálogo', icon: ShoppingBag },
+  { href: ROUTES.CATALOG, label: SIDEBAR_NAV_LABELS.catalog, icon: ShoppingBag },
 ];
 
 const AUTHENTICATED_NAV_ITEMS = [
-  { href: ROUTES.CART, label: 'Carrito', icon: ShoppingCart },
-  { href: ROUTES.ORDERS, label: 'Mis pedidos', icon: Package },
-  { href: ROUTES.REVIEWS, label: 'Reseñas', icon: Star },
-  { href: ROUTES.PROFILE, label: 'Mi perfil', icon: User },
+  { href: ROUTES.CART, label: SIDEBAR_NAV_LABELS.cart, icon: ShoppingCart },
+  { href: ROUTES.ORDERS, label: SIDEBAR_NAV_LABELS.orders, icon: Package },
+  { href: ROUTES.REVIEWS, label: SIDEBAR_NAV_LABELS.reviews, icon: Star },
+  { href: ROUTES.PROFILE, label: SIDEBAR_NAV_LABELS.profile, icon: User },
 ];
 
 export function ClientSidebar() {
@@ -64,12 +65,12 @@ export function ClientSidebar() {
               <HelpCircle className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-sidebar-foreground">¿Necesitas ayuda?</p>
-              <p className="text-xs text-muted-foreground">Disponible 24/7</p>
+              <p className="text-sm font-medium text-sidebar-foreground">{SIDEBAR_SUPPORT_STRINGS.title}</p>
+              <p className="text-xs text-muted-foreground">{SIDEBAR_SUPPORT_STRINGS.availability}</p>
             </div>
           </div>
           <button className="w-full rounded-md border border-border px-3 py-1.5 text-sm text-sidebar-foreground transition-colors hover:bg-background">
-            Contactar soporte
+            {SIDEBAR_SUPPORT_STRINGS.button}
           </button>
         </div>
       </div>

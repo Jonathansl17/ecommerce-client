@@ -2,19 +2,9 @@
 
 import { useState } from 'react';
 import { apiFetch, ApiError } from '@/lib/http/apiFetch';
-import { ChangePasswordData , PasswordChangeResponse } from '../types/profile.interface';
-
-function extractErrorMessage(body: unknown, fallback: string): string {
-  if (body && typeof body === 'object') {
-    const record = body as Record<string, unknown>;
-    if (Array.isArray(record.errors)) {
-      const first = (record.errors as { message?: string }[])[0];
-      if (first?.message) return first.message;
-    }
-    if (typeof record.error === 'string') return record.error;
-  }
-  return fallback;
-}
+import { extractErrorMessage } from '@/lib/http/extractErrorMessage';
+import { ChangePasswordData, PasswordChangeResponse } from '../types/profile.interface';
+import { CLIENT_API, PROFILE_ERROR_MESSAGES } from '../constants/clients.constants';
 
 export function usePasswordChange() {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +17,7 @@ export function usePasswordChange() {
     setConfirmationLink(null);
 
     try {
-      const result = await apiFetch<PasswordChangeResponse>('/clients/me/password', {
+      const result = await apiFetch<PasswordChangeResponse>(CLIENT_API.password, {
         method: 'PUT',
         body: data as unknown as Record<string, unknown>,
         signal: AbortSignal.timeout(10_000),
@@ -40,9 +30,9 @@ export function usePasswordChange() {
       return true;
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(extractErrorMessage(err.body, 'Error al cambiar contraseña'));
+        setError(extractErrorMessage(err.body, PROFILE_ERROR_MESSAGES.changePassword));
       } else {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
+        setError(err instanceof Error ? err.message : PROFILE_ERROR_MESSAGES.unknown);
       }
       return false;
     } finally {

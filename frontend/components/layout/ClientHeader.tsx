@@ -8,18 +8,15 @@ import { ProfileDropdown } from '@/components/layout/ProfileDropdown';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { DASHBOARD_NAV_STRINGS } from '@/features/auth/constants/auth.constants';
-
-interface ClientHeaderProps {
-  onMenuOpen: () => void;
-}
+import { getInitials } from '@/lib/utils/string.utils';
+import { HEADER_STRINGS } from './layout.constants';
+import { ClientHeaderProps } from './layout.interface';
 
 export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const initials = user?.fullName
-    ? user.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
-    : '';
+  const initials = user?.fullName ? getInitials(user.fullName) : '';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur">
@@ -36,10 +33,10 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
         <Link
           href={ROUTES.HOME}
           className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          title="Ir a inicio"
+          title={HEADER_STRINGS.homeTitle}
         >
           <Home className="h-5 w-5" />
-          <span className="hidden sm:inline">Home</span>
+          <span className="hidden sm:inline">{HEADER_STRINGS.homeLabel}</span>
         </Link>
 
         {/* Buscador desktop */}
@@ -48,7 +45,7 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
-              placeholder="Buscar productos artesanales..."
+              placeholder={HEADER_STRINGS.searchPlaceholder}
               className="w-full rounded-md border border-input bg-secondary py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -94,7 +91,7 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
-              placeholder="Buscar productos..."
+              placeholder={HEADER_STRINGS.searchPlaceholderMobile}
               autoFocus
               className="w-full rounded-md border border-input bg-secondary py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
