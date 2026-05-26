@@ -3,20 +3,9 @@
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { apiFetch, ApiError } from '@/lib/http/apiFetch';
+import { extractErrorMessage } from '@/lib/http/extractErrorMessage';
 import { UpdateProfileData, UpdateProfileResponse } from '../types/profile.interface';
-
-
-function extractErrorMessage(body: unknown, fallback: string): string {
-  if (body && typeof body === 'object') {
-    const record = body as Record<string, unknown>;
-    if (Array.isArray(record.errors)) {
-      const first = (record.errors as { message?: string }[])[0];
-      if (first?.message) return first.message;
-    }
-    if (typeof record.error === 'string') return record.error;
-  }
-  return fallback;
-}
+import { CLIENT_API, PROFILE_ERROR_MESSAGES } from '../constants/clients.constants';
 
 export function useProfileEdit() {
   const { login, user } = useAuth();
@@ -28,7 +17,7 @@ export function useProfileEdit() {
     setError(null);
 
     try {
-      const result = await apiFetch<UpdateProfileResponse>('/clients/me', {
+      const result = await apiFetch<UpdateProfileResponse>(CLIENT_API.me, {
         method: 'PUT',
         body: data as unknown as Record<string, unknown>,
         signal: AbortSignal.timeout(10_000),
@@ -45,9 +34,9 @@ export function useProfileEdit() {
       return true;
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(extractErrorMessage(err.body, 'Error al actualizar perfil'));
+        setError(extractErrorMessage(err.body, PROFILE_ERROR_MESSAGES.updateProfile));
       } else {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
+        setError(err instanceof Error ? err.message : PROFILE_ERROR_MESSAGES.unknown);
       }
       return false;
     } finally {

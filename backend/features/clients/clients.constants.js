@@ -14,4 +14,6 @@ export const CLIENTS_MESSAGES = {
   DEACTIVATE_SUCCESS: 'Cuenta desactivada correctamente',
   REACTIVATE_SUCCESS: 'Cuenta reactivada correctamente',
   ACCOUNT_NOT_INACTIVE: 'La cuenta no está desactivada',
+  EMAIL_SEND_ERROR_PASSWORD: '[email] cambio de contraseña:',
+  EMAIL_SEND_ERROR_EMAIL: '[email] cambio de email:',
 };
