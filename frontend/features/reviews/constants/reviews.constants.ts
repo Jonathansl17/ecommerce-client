@@ -5,6 +5,12 @@ export const REVIEW_LIMITS = {
   MAX_COMMENT: 1000,
 } as const;
 
+
+export const LENGHT = {
+  ZERO: 0,
+  ONE: 1
+}
+
 export const PURCHASED_PRODUCTS_PAGE_SIZE = 5;
 
 export const REVIEW_STRINGS = {
