@@ -17,7 +17,21 @@ const REVIEW_INCLUDE = {
       item: { select: { name: true } },
     },
   },
+  response: true,
 };
+
+function serializarResponse(response) {
+  if (!response) return null;
+  return {
+    id: response.id.toString(),
+    reviewId: response.reviewId.toString(),
+    adminUserId: response.adminUserId != null ? response.adminUserId.toString() : null,
+    content: response.content,
+    edited: response.createdAt.getTime() !== response.updatedAt.getTime(),
+    createdAt: response.createdAt.toISOString(),
+    updatedAt: response.updatedAt.toISOString(),
+  };
+}
 
 function serializarReview(review) {
   if (!review) return review;
@@ -47,6 +61,7 @@ function serializarReview(review) {
           imageUrl: review.product.imageUrl,
         }
       : null,
+    response: serializarResponse(review.response),
   };
 }
 

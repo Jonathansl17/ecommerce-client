@@ -19,6 +19,17 @@ function toBigIntOrThrow(value, message) {
   }
 }
 
+// Mapea la respuesta oficial del administrador a su DTO público (US-REV-005).
+function mapReviewResponse(response) {
+  if (!response) return null;
+  return {
+    content: response.content,
+    edited: response.createdAt.getTime() !== response.updatedAt.getTime(),
+    createdAt: response.createdAt.toISOString(),
+    updatedAt: response.updatedAt.toISOString(),
+  };
+}
+
 // Único punto de transformación Review → DTO público.
 function mapReview(review) {
   return {
@@ -34,6 +45,7 @@ function mapReview(review) {
     unhelpfulVotes: review.unhelpfulVotes,
     createdAt: review.createdAt.toISOString(),
     updatedAt: review.updatedAt.toISOString(),
+    response: mapReviewResponse(review.response),
   };
 }
 
@@ -224,7 +236,7 @@ export const obtenerPorProducto = async (
   const [reviews, total, summary] = await Promise.all([
     prisma.review.findMany({
       where,
-      include: { clientUser: { select: { fullName: true } } },
+      include: { clientUser: { select: { fullName: true } }, response: true },
       orderBy,
       skip,
       take,
@@ -285,6 +297,73 @@ export const eliminar = async (userId, reviewId) => {
     prisma.reviewVote.deleteMany({ where: { reviewId: reviewIdBig } }),
     prisma.review.delete({ where: { id: reviewIdBig } }),
   ]);
+};
+
+
+
+// Asegura que la reseña exista; devuelve su id y la respuesta actual (o null).
+async function obtenerReviewConRespuesta(reviewId) {
+  const review = await prisma.review.findUnique({
+    where: { id: reviewId },
+    select: { id: true, response: { select: { id: true } } },
+  });
+
+  if (!review) {
+    throw crearError(REVIEWS_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  return review;
+}
+
+// Recupera la respuesta mapeada de una reseña tras crear/actualizar.
+async function obtenerRespuestaMapeada(reviewId) {
+  const response = await prisma.reviewResponse.findUnique({
+    where: { reviewId },
+  });
+  return mapReviewResponse(response);
+}
+
+export const responderReview = async (userId, reviewId, { content }) => {
+  const userIdBig = toBigIntOrThrow(userId, REVIEWS_MESSAGES.UPDATE_FAILED);
+  const reviewIdBig = toBigIntOrThrow(reviewId, REVIEWS_MESSAGES.INVALID_REVIEW_ID);
+
+  const review = await obtenerReviewConRespuesta(reviewIdBig);
+  if (review.response) {
+    throw crearError(REVIEWS_MESSAGES.RESPONSE_ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
+  }
+
+  await prisma.reviewResponse.create({
+    data: { reviewId: reviewIdBig, adminUserId: userIdBig, content },
+  });
+
+  return obtenerRespuestaMapeada(reviewIdBig);
+};
+
+export const actualizarRespuesta = async (userId, reviewId, { content }) => {
+  const reviewIdBig = toBigIntOrThrow(reviewId, REVIEWS_MESSAGES.INVALID_REVIEW_ID);
+
+  const review = await obtenerReviewConRespuesta(reviewIdBig);
+  if (!review.response) {
+    throw crearError(REVIEWS_MESSAGES.RESPONSE_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  await prisma.reviewResponse.update({
+    where: { reviewId: reviewIdBig },
+    data: { content },
+  });
+
+  return obtenerRespuestaMapeada(reviewIdBig);
+};
+
+export const eliminarRespuesta = async (userId, reviewId) => {
+  const reviewIdBig = toBigIntOrThrow(reviewId, REVIEWS_MESSAGES.INVALID_REVIEW_ID);
+
+  const review = await obtenerReviewConRespuesta(reviewIdBig);
+  if (!review.response) {
+    throw crearError(REVIEWS_MESSAGES.RESPONSE_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  await prisma.reviewResponse.delete({ where: { reviewId: reviewIdBig } });
 };
 
 // ─── Votación de reseñas (US-REV-003) ──────────────────────────────────────

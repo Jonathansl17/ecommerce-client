@@ -23,6 +23,7 @@ const serializarUsuario = (usuario) => ({
   fullName: usuario.fullName,
   accountStatus: usuario.accountStatus,
   createdAt: usuario.createdAt?.toISOString(),
+  isAdmin: usuario.admin?.admin === true,
 });
 
 const obtenerNotificacionesNoLeidas = (clientUserId) =>
@@ -72,6 +73,7 @@ export const iniciarSesion = async ({ email, password }) => {
       passwordHash: true,
       accountStatus: true,
       createdAt: true,
+      admin: { select: { admin: true } },
     },
   });
 
@@ -138,7 +140,14 @@ export const rotarRefresh = async (rawRefresh) => {
 
   const usuario = await prisma.clientUser.findUnique({
     where: { id: registro.userId },
-    select: { id: true, email: true, fullName: true, accountStatus: true, createdAt: true },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      accountStatus: true,
+      createdAt: true,
+      admin: { select: { admin: true } },
+    },
   });
 
   if (!usuario || usuario.accountStatus !== 'active') {
@@ -161,7 +170,14 @@ export const revocarSesion = async ({ rawRefresh, accessJti, accessExp }) => {
 export const obtenerUsuarioActivo = async (id) => {
   const usuario = await prisma.clientUser.findUnique({
     where: { id: BigInt(id) },
-    select: { id: true, email: true, fullName: true, accountStatus: true, createdAt: true },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      accountStatus: true,
+      createdAt: true,
+      admin: { select: { admin: true } },
+    },
   });
   if (!usuario || usuario.accountStatus !== 'active') return null;
   return serializarUsuario(usuario);
