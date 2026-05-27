@@ -11,6 +11,7 @@ import {
 import {
   PURCHASED_PRODUCTS_PAGE_SIZE,
   REVIEW_STRINGS,
+  LENGHT
 } from '../constants/reviews.constants';
 import type {
   PaginationMeta,
@@ -21,16 +22,16 @@ import type {
 } from '../types/reviews.types';
 
 const INITIAL_PAGINATION: PaginationMeta = {
-  page: 1,
+  page: LENGHT.ONE,
   limit: PURCHASED_PRODUCTS_PAGE_SIZE,
-  total: 0,
+  total: LENGHT.ZERO,
 };
 
 export function useReviews(): UseReviewsResult {
   const { isAuthenticated } = useAuth();
   const [items, setItems] = useState<PurchasedProductWithReview[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta>(INITIAL_PAGINATION);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(LENGHT.ONE);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

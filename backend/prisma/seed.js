@@ -1,10 +1,85 @@
 import 'dotenv/config';
 import pkg from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
+// Usuario real de prueba — con contraseña usable para iniciar sesión.
+const TEST_USER = {
+  fullName: 'Usuario Test',
+  email: 'test1@mail.com',
+  password: 'Test1234',
+};
+
+const TEST_USER_PRODUCTS = [
+  {
+    name: 'Billetera artesanal de cuero',
+    description:
+      'Billetera compacta hecha a mano en cuero curtido vegetal, con seis ranuras para tarjetas y bolsillo para billetes.',
+    imageUrl: 'https://placehold.co/600x600?text=Billetera+Cuero',
+    variant: {
+      color: 'Negro',
+      size: 'Único',
+      price: 18000,
+      currentStock: 30,
+      minThreshold: 5,
+      reservedStock: 0,
+    },
+    ownerReview: {
+      rating: 5,
+      comment:
+        'Excelente billetera, el cuero es suave y las costuras están muy bien hechas. La uso a diario y se ve impecable.',
+      edited: false,
+      helpfulVotes: 4,
+      unhelpfulVotes: 0,
+      createdAt: '2026-05-10T10:00:00.000Z',
+      updatedAt: '2026-05-10T10:00:00.000Z',
+    },
+  },
+  {
+    name: 'Cinturón trenzado de cuero',
+    description:
+      'Cinturón trenzado a mano en cuero genuino con hebilla de bronce envejecido. Ajustable a varias tallas.',
+    imageUrl: 'https://placehold.co/600x600?text=Cinturon+Trenzado',
+    variant: {
+      color: 'Café claro',
+      size: 'M',
+      price: 22000,
+      currentStock: 20,
+      minThreshold: 4,
+      reservedStock: 0,
+    },
+    ownerReview: {
+      rating: 4,
+      comment:
+        'Muy buen cinturón, el trenzado es prolijo y la hebilla se siente sólida. Le quito una estrella porque tardé en encontrar la talla justa.',
+      edited: false,
+      helpfulVotes: 2,
+      unhelpfulVotes: 0,
+      createdAt: '2026-05-12T15:30:00.000Z',
+      updatedAt: '2026-05-12T15:30:00.000Z',
+    },
+  },
+  {
+    name: 'Estuche minimalista para gafas',
+    description:
+      'Estuche rígido forrado en cuero, con cierre magnético interno e interior aterciopelado que protege las gafas de rayones.',
+    imageUrl: 'https://placehold.co/600x600?text=Estuche+Gafas',
+    variant: {
+      color: 'Camel',
+      size: 'Único',
+      price: 12000,
+      currentStock: 35,
+      minThreshold: 6,
+      reservedStock: 0,
+    },
+    ownerReview: null, // este producto queda sin reseñas
+  },
+];
+
 const SEED_CATEGORY_NAME = 'Bolsos artesanales';
+const TEST_USER_SHIPPING_ADDRESS = 'San José, Costa Rica — dirección de prueba';
 
 // Hash bcrypt placeholder ($2b$10$...) — los usuarios sembrados son solo para mostrar
 // reseñas, no para iniciar sesión. No representa una contraseña usable real.
@@ -358,6 +433,95 @@ async function ensureReview(productId, userId, seedReview) {
   return { review, created: true };
 }
 
+async function ensureTestUser() {
+  const passwordHash = await bcrypt.hash(TEST_USER.password, 10);
+  return prisma.clientUser.upsert({
+    where: { email: TEST_USER.email },
+    update: { passwordHash, accountStatus: 'active' },
+    create: {
+      fullName: TEST_USER.fullName,
+      email: TEST_USER.email,
+      passwordHash,
+      accountStatus: 'active',
+    },
+  });
+}
+
+// Crea cart + order (status='delivered') + orderItem para la variante dada.
+// Necesario porque /api/reviews/me solo muestra productos comprados en órdenes entregadas.
+async function ensureDeliveredOrderForVariant(userId, variant, productName) {
+  const existente = await prisma.order.findFirst({
+    where: {
+      clientUserId: userId,
+      status: 'delivered',
+      orderItems: { some: { variantId: variant.id } },
+    },
+    select: { id: true },
+  });
+  if (existente) return false;
+
+  const subtotal = Number(variant.price);
+  const taxes = Number((subtotal * 0.13).toFixed(2));
+  const totalAmount = Number((subtotal + taxes).toFixed(2));
+
+  await prisma.$transaction(async (tx) => {
+    const cart = await tx.cart.create({
+      data: { clientUserId: userId, status: 'converted' },
+    });
+    const order = await tx.order.create({
+      data: {
+        clientUserId: userId,
+        cartId: cart.id,
+        status: 'delivered',
+        subtotal,
+        taxes,
+        totalAmount,
+        shippingAddress: TEST_USER_SHIPPING_ADDRESS,
+      },
+    });
+    await tx.orderItem.create({
+      data: {
+        orderId: order.id,
+        variantId: variant.id,
+        quantity: 1,
+        unitPriceSnap: subtotal,
+      },
+    });
+  });
+
+  console.log(`    ✓ Orden 'delivered' creada para "${productName}"`);
+  return true;
+}
+
+async function seedTestUserProducts(categoryId, testUser) {
+  console.log(
+    `\nUsuario de prueba listo: ${TEST_USER.email} (contraseña: ${TEST_USER.password})`,
+  );
+
+  for (const seedProduct of TEST_USER_PRODUCTS) {
+    const product = await ensureProduct(categoryId, seedProduct);
+    console.log(`  Producto: "${seedProduct.name}" id=${product.itemId.toString()}`);
+
+    const variant = await prisma.productVariant.findFirst({
+      where: { productId: product.itemId },
+    });
+    if (!variant) {
+      console.log('    ⚠ No se encontró variante, se omite orden y reseña');
+      continue;
+    }
+
+    await ensureDeliveredOrderForVariant(testUser.id, variant, seedProduct.name);
+
+    if (!seedProduct.ownerReview) {
+      console.log('    (producto comprado sin reseña, por diseño)');
+      continue;
+    }
+
+    const { created } = await ensureReview(product.itemId, testUser.id, seedProduct.ownerReview);
+    console.log(`    Reseña del usuario test: ${created ? 'creada' : 'ya existía'}`);
+  }
+}
+
 async function main() {
   console.log('Sembrando datos de reseñas...');
 
@@ -379,6 +543,9 @@ async function main() {
       `  URL de prueba: http://localhost:3001/api/reviews/product/${product.itemId.toString()}`,
     );
   }
+
+  const testUser = await ensureTestUser();
+  await seedTestUserProducts(category.id, testUser);
 }
 
 main()
