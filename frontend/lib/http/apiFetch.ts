@@ -47,6 +47,13 @@ export async function apiFetch<T = unknown>(
 ): Promise<T> {
   const { body, skipAuthRetry, headers: callerHeaders, ...rest } = options;
   const { body: serializedBody, headers: bodyHeaders } = buildBody(body);
+  if (path.startsWith('http')) {
+    const parsed = new URL(path);
+    const allowed = new URL(API_BASE_URL);
+    if (parsed.origin !== allowed.origin) {
+      throw new Error(`apiFetch: host no permitido: ${parsed.origin}`);
+    }
+  }
   const url = path.startsWith('http') ? path : `${API_BASE_URL}${path}`;
 
   const doRequest = () =>
