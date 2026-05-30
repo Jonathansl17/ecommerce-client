@@ -109,24 +109,34 @@ export const validarTokenRecuperacionPassword = async (token) => {
 
 export const restablecerPassword = async ({ token, password, saltRounds }) => {
   const tokenHash = hashearTokenRecuperacion(token);
-  const recoveryToken = await obtenerRegistroRecuperacionValido(tokenHash);
-
-  if (!recoveryToken || recoveryToken.user.accountStatus !== 'active') {
-    throw crearError(PASSWORD_RECOVERY_MESSAGES.INVALID_TOKEN, HTTP_STATUS.BAD_REQUEST);
-  }
-
+  // Hash antes de la transacción — bcrypt es lento, no debe estar dentro del lock
   const passwordHash = await bcrypt.hash(password, saltRounds);
-  const now = new Date();
 
   await prisma.$transaction(async (tx) => {
+    // Leer Y marcar usedAt en la misma transacción — elimina el TOCTOU
+    const recoveryToken = await tx.clientRecoveryToken.findFirst({
+      where: { tokenHash, usedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true, userId: true, user: { select: { accountStatus: true } } },
+    });
+
+    if (!recoveryToken || recoveryToken.user.accountStatus !== 'active') {
+      throw crearError(PASSWORD_RECOVERY_MESSAGES.INVALID_TOKEN, HTTP_STATUS.BAD_REQUEST);
+    }
+
+    await tx.clientRecoveryToken.update({
+      where: { id: recoveryToken.id },
+      data: { usedAt: new Date() },
+    });
+
     await tx.clientUser.update({
       where: { id: recoveryToken.userId },
       data: { passwordHash },
     });
 
-    await tx.clientRecoveryToken.update({
-      where: { id: recoveryToken.id },
-      data: { usedAt: now },
+    // Revocar todas las sesiones activas — un reset implica que la cuenta fue comprometida
+    await tx.refreshToken.updateMany({
+      where: { userId: recoveryToken.userId, revokedAt: null, rotatedAt: null },
+      data: { revokedAt: new Date() },
     });
   });
 

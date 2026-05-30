@@ -13,7 +13,7 @@ export const AUTH_MESSAGES = {
 
 export const AUTH_CONFIG = {
   SALT_ROUNDS: 10,
-  ACCESS_TOKEN_EXPIRES_IN: '40m',
+  ACCESS_TOKEN_EXPIRES_IN: '15m',
   ACCESS_TOKEN_MAX_AGE_MS: 15 * 60 * 1000,
   REFRESH_TOKEN_EXPIRES_MS: 7 * 24 * 60 * 60 * 1000,
   REFRESH_TOKEN_BYTES: 48,
@@ -29,7 +29,7 @@ export const buildCookieOptions = (maxAgeMs, { forRefresh = false } = {}) => {
   return {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: forRefresh ? '/api/auth' : '/',
     maxAge: maxAgeMs,
   };

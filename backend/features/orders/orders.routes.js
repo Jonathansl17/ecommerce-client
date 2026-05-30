@@ -9,6 +9,7 @@ import {
 } from './orders.controller.js';
 import { validateCheckout, validateUpdateOrderStatus } from './orders.validator.js';
 import { requireAuth } from '../../shared/middleware/authMiddleware.js';
+import { requireInternalApiKey } from '../../shared/middleware/internalApiKey.js';
 
 const router = Router();
 
@@ -23,12 +24,12 @@ router.post('/checkout', validateCheckout, checkout);
 // POST /api/orders/:id/cancel → el cliente cancela su propio pedido (solo si está en pending_payment)
 router.post('/:id/cancel', cancelarPedido);
 
-// TODO(order_status_notification): this provisional route exists because the admin/backoffice
-// order-management flow is not implemented yet. Replace it with the future privileged trigger.
-router.patch('/:id/status', validateUpdateOrderStatus, actualizarEstadoPedido);
+// Admin-only: requires internal API key — not callable by regular authenticated users.
+// Will be replaced by the backoffice trigger once order management is implemented.
+router.patch('/:id/status', requireInternalApiKey, validateUpdateOrderStatus, actualizarEstadoPedido);
 
-// TODO(payment_gateway): replace with webhook handler from payment gateway once integrated.
-router.patch('/:orderId/payments/:paymentId/approve', aprobarPago);
+// Admin-only: requires internal API key — will be replaced by payment gateway webhook.
+router.patch('/:orderId/payments/:paymentId/approve', requireInternalApiKey, aprobarPago);
 
 // GET  /api/orders         → lista todos los pedidos del usuario autenticado
 router.get('/', obtenerMisPedidos);

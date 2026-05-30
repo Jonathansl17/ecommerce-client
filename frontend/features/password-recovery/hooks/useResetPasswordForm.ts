@@ -100,8 +100,8 @@ export function useResetPasswordForm(token: string | null) {
     setLoading(true);
 
     try {
-      const response = await resetPassword({ ...formData, token });
-      setSuccessMessage(response.message);
+      await resetPassword({ ...formData, token });
+      setSuccessMessage(PASSWORD_RECOVERY_STRINGS.resetPassword.successMessage);
       setIsTokenValid(false);
       setGeneralMessage(undefined);
       setFormData(INITIAL_FORM_DATA);

@@ -34,37 +34,29 @@ export async function fetchCart(): Promise<Cart> {
   }
 }
 
+// Las funciones de mutación dejan propagar ApiError sin wrappear
+// para que resolveCartMutationError pueda inspeccionar el cuerpo del error
+// y mapear mensajes específicos (OUT_OF_STOCK, PRODUCT_INACTIVE, etc.)
+
 export async function addCartItem(body: AddCartItemBody): Promise<void> {
-  try {
-    await apiFetch(CART_API_PATHS.CART_ITEMS, {
-      method: 'POST',
-      body: body as unknown as Record<string, unknown>,
-    });
-  } catch {
-    throw new Error(CART_STRINGS.addError);
-  }
+  await apiFetch(CART_API_PATHS.CART_ITEMS, {
+    method: 'POST',
+    body: body as unknown as Record<string, unknown>,
+  });
 }
 
 export async function updateCartItemQuantity(
   itemId: string,
   body: UpdateCartItemBody,
 ): Promise<void> {
-  try {
-    await apiFetch(CART_API_PATHS.CART_ITEM(itemId), {
-      method: 'PUT',
-      body: body as unknown as Record<string, unknown>,
-    });
-  } catch {
-    throw new Error(CART_STRINGS.updateError);
-  }
+  await apiFetch(CART_API_PATHS.CART_ITEM(itemId), {
+    method: 'PUT',
+    body: body as unknown as Record<string, unknown>,
+  });
 }
 
 export async function removeCartItem(itemId: string): Promise<void> {
-  try {
-    await apiFetch(CART_API_PATHS.CART_ITEM(itemId), {
-      method: 'DELETE',
-    });
-  } catch {
-    throw new Error(CART_STRINGS.removeError);
-  }
+  await apiFetch(CART_API_PATHS.CART_ITEM(itemId), {
+    method: 'DELETE',
+  });
 }

@@ -24,7 +24,7 @@ export function useDownloadPaymentReceipt(
       anchor.href = url;
       anchor.download = PAYMENT_RECEIPT_STRINGS.filename(paymentId);
       anchor.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch {
       setError(PAYMENT_RECEIPT_STRINGS.downloadError);
     } finally {
