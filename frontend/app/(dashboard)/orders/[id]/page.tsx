@@ -125,22 +125,22 @@ export default function OrderDetailPage() {
               {ORDER_STATUS_NOTIFICATION_STRINGS.paymentTitle}
             </h2>
           </div>
-          <div className="grid grid-cols-3 divide-x divide-border px-0">
+          <div className="grid grid-cols-3 divide-x divide-border">
             <div className="px-5 py-3">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Método</p>
-              <p className="mt-0.5 text-sm font-semibold text-foreground">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">Método</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">
                 {PAYMENT_METHOD_LABELS[payment.method] ?? payment.method}
               </p>
             </div>
             <div className="px-5 py-3">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Monto</p>
-              <p className="mt-0.5 text-sm font-semibold text-foreground">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">Monto</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">
                 ₡{payment.amount.toLocaleString('es-CR')}
               </p>
             </div>
             <div className="px-5 py-3">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Estado</p>
-              <p className="mt-0.5 text-sm font-semibold text-foreground">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">Estado</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">
                 {PAYMENT_STATUS_LABELS[payment.status] ?? payment.status}
               </p>
             </div>
@@ -157,23 +157,24 @@ export default function OrderDetailPage() {
         </div>
         <div className="divide-y divide-border">
           {pedido.orderItems.map((item) => (
-            <article key={item.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-              <div>
-                <p className="text-sm font-semibold text-foreground">
+            <article key={item.id} className="flex items-center gap-4 px-5 py-3.5">
+              {/* Quantity badge */}
+              <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                ×{item.quantity}
+              </span>
+              {/* Info */}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground truncate">
                   {item.variant?.product?.itemName ?? 'Producto del pedido'}
                 </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="mt-0.5 text-xs text-zinc-400">
                   {item.variant?.color ?? 'Color N/D'} · {item.variant?.size ?? 'Talla N/D'}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">
-                  {ORDER_STATUS_NOTIFICATION_STRINGS.quantity}: {item.quantity}
-                </p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">
-                  ₡{item.unitPriceSnap.toLocaleString('es-CR')}
-                </p>
-              </div>
+              {/* Price */}
+              <p className="shrink-0 text-sm font-semibold text-foreground">
+                ₡{item.unitPriceSnap.toLocaleString('es-CR')}
+              </p>
             </article>
           ))}
         </div>
