@@ -236,17 +236,103 @@ async function sembrarRecoveryTokens(usuarios) {
   }
 }
 
-async function sembrarNotificaciones(usuarios) {
+// Notifications must reference REAL entities so the frontend links work:
+//   - entityType 'order' / 'product_customization' → ViewOrderLink → /orders/:entityId
+//   - entityType 'payment' → DownloadReceiptLink → comprobante del pago :entityId
+//   - entityType 'onboarding' → solo banner de bienvenida, sin link
+// Order detail is scoped by clientUserId in the backend, so the test user's
+// notifications can only point to orders the test user actually owns.
+async function sembrarNotificaciones(usuarios, ordenes) {
+  const testUser = usuarios[0];
+  const pedidosTest = ordenes.filter((o) => o.user.id === testUser.id);
+
+  // Welcome / onboarding (entityId unused by the UI; column is non-null).
+  await prisma.clientNotification.create({
+    data: {
+      clientUserId: testUser.id,
+      type: 'internal',
+      title: '¡Bienvenida a la tienda!',
+      content:
+        'Gracias por registrarte. Explora nuestros bolsos artesanales hechos a mano en Costa Rica.',
+      entityType: 'onboarding',
+      entityId: BigInt(0),
+      read: false,
+      sentAt: daysAgo(0),
+      sendAttempts: 1,
+    },
+  });
+
+  // One order-status notification per real test-user order, plus a payment
+  // notification whenever its payment is approved.
+  for (let i = 0; i < pedidosTest.length; i++) {
+    const { orden, payment } = pedidosTest[i];
+
+    await prisma.clientNotification.create({
+      data: {
+        clientUserId: testUser.id,
+        type: 'both',
+        title: `Tu pedido #${orden.id} cambió de estado`,
+        content: `El estado de tu pedido #${orden.id} ahora es "${orden.status}".`,
+        entityType: 'order',
+        entityId: orden.id,
+        read: false,
+        sentAt: daysAgo(i),
+        sendAttempts: 1,
+      },
+    });
+
+    if (payment.status === 'approved') {
+      await prisma.clientNotification.create({
+        data: {
+          clientUserId: testUser.id,
+          type: 'both',
+          title: `Pago confirmado del pedido #${orden.id}`,
+          content: 'Recibimos tu pago. Ya puedes descargar el comprobante.',
+          entityType: 'payment',
+          entityId: payment.id,
+          read: false,
+          sentAt: daysAgo(i),
+          sendAttempts: 1,
+        },
+      });
+    }
+  }
+
+  // Product-customization notification: JSON content (message + images) parsed
+  // by the UI, with a working "Ver pedido" link to a real owned order.
+  if (pedidosTest.length > 0) {
+    const { orden } = pedidosTest[0];
+    await prisma.clientNotification.create({
+      data: {
+        clientUserId: testUser.id,
+        type: 'internal',
+        title: 'Personalización lista para aprobar',
+        content: JSON.stringify({
+          message:
+            'Tu personalización está lista para revisión. Revisa las fotos del producto antes de aprobar.',
+          images: [productImageForIndex(0), productImageForIndex(1)],
+        }),
+        entityType: 'product_customization',
+        entityId: orden.id,
+        read: false,
+        sentAt: daysAgo(1),
+        sendAttempts: 1,
+      },
+    });
+  }
+
+  // Volume filler for other users — each still points to one of their own real
+  // orders, keeping every link valid for pagination/UX testing.
   for (let i = 0; i < RECORDS_PER_TABLE; i++) {
-    const user = usuarios[i % usuarios.length];
+    const { orden, user } = ordenes[i % ordenes.length];
     await prisma.clientNotification.create({
       data: {
         clientUserId: user.id,
         type: NOTIFICATION_TYPES[i % NOTIFICATION_TYPES.length],
-        title: `Notificación de prueba #${i + 1}`,
-        content: `Contenido de la notificación ${i + 1} para ${user.fullName}.`,
-        entityType: i % 2 === 0 ? 'order' : 'product',
-        entityId: BigInt(i + 1),
+        title: `Actualización de pedido #${orden.id}`,
+        content: `Tu pedido #${orden.id} está en estado "${orden.status}".`,
+        entityType: 'order',
+        entityId: orden.id,
         read: i % 2 === 0,
         sentAt: daysAgo(i),
         sendAttempts: 1,
@@ -284,8 +370,11 @@ async function sembrarCarritoYPedidos(usuarios, productos) {
 
   // 20 converted carts → orders (across all users).
   const ordenes = [];
+  // First 4 orders belong to the test user (varied statuses) so the seeded
+  // notifications can link to real, owned orders. Rest spread across users.
+  const TEST_USER_ORDERS = 4;
   for (let i = 0; i < RECORDS_PER_TABLE; i++) {
-    const user = usuarios[(i + 1) % usuarios.length];
+    const user = i < TEST_USER_ORDERS ? usuarios[0] : usuarios[(i + 1) % usuarios.length];
     const cart = await prisma.cart.create({
       data: { clientUserId: user.id, status: 'converted', createdAt: daysAgo(i + 5) },
     });
@@ -332,17 +421,19 @@ async function sembrarCarritoYPedidos(usuarios, productos) {
       });
     }
 
-    await prisma.payment.create({
+    // First test-user order forced to 'approved' so the payment-receipt
+    // notification flow is always testable.
+    const payment = await prisma.payment.create({
       data: {
         orderId: orden.id,
         method: PAYMENT_METHODS[i % PAYMENT_METHODS.length],
         externalReference: `EXT-REF-${1000 + i}`,
         amount: totalAmount,
-        status: PAYMENT_STATUSES[i % PAYMENT_STATUSES.length],
+        status: i === 1 ? 'approved' : PAYMENT_STATUSES[i % PAYMENT_STATUSES.length],
       },
     });
 
-    ordenes.push({ orden, user });
+    ordenes.push({ orden, user, payment });
   }
   return ordenes;
 }
@@ -492,14 +583,14 @@ async function main() {
   await sembrarRecoveryTokens(usuarios);
   console.log('- Tokens de recuperacion');
 
-  await sembrarNotificaciones(usuarios);
-  console.log('- Notificaciones del cliente');
-
   await sembrarFavoritos(usuarios, productos);
   console.log('- Favoritos');
 
   const ordenes = await sembrarCarritoYPedidos(usuarios, productos);
   console.log(`- ${ordenes.length} pedidos con sus pagos`);
+
+  await sembrarNotificaciones(usuarios, ordenes);
+  console.log('- Notificaciones del cliente (con links reales)');
 
   await sembrarStatusNotifications(ordenes);
   console.log('- Historial de estados de pedidos');
