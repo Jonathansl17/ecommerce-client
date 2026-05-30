@@ -14,6 +14,7 @@ export interface ClientNotification {
   entityType: NotificationEntityType;
   entityId?: string | null;
   read: boolean;
+  dismissedAt: string | null;
   sentAt: string | null;
   sendAttempts: number;
   createdAt: string;
@@ -29,11 +30,13 @@ export interface UseNotificationsResult {
   cargando: boolean;
   error: string | null;
   marcarComoLeida: (id: string) => Promise<void>;
+  descartarNotificacion: (id: string) => Promise<void>;
 }
 
 export interface NotificationItemProps {
   notification: ClientNotification;
   onRead: (id: string) => void;
+  onDismiss: (id: string) => void;
 }
 
 export interface UnreadCountBadgeProps {

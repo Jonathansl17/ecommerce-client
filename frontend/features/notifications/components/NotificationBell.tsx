@@ -14,7 +14,7 @@ import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 export function NotificationBell() {
   const [abierto, setAbierto] = useState(false);
   const [ringing, setRinging] = useState(false);
-  const { notificaciones, noLeidas, cargando, error, marcarComoLeida } = useNotifications();
+  const { notificaciones, noLeidas, cargando, error, marcarComoLeida, descartarNotificacion } = useNotifications();
   const contenedorRef = useRef<HTMLDivElement>(null);
   const ringTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelId = useId();
@@ -96,6 +96,7 @@ export function NotificationBell() {
                   key={notificacion.id}
                   notification={notificacion}
                   onRead={marcarComoLeida}
+                  onDismiss={descartarNotificacion}
                 />
               ))}
             </ul>

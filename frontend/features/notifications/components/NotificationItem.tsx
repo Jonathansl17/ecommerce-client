@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+import { X } from 'lucide-react';
 import { NOTIFICATION_ENTITY_TYPES, NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 import { formatearFecha } from '../utils/formatDate';
 import { parseProductCustomizationContent } from '../utils/product-customization-notification.utils';
@@ -11,7 +12,7 @@ import { ProductCustomizationImages } from './ui/ProductCustomizationImages';
 import { UnreadDot } from './ui/UnreadDot';
 import { ViewOrderLink } from './ui/ViewOrderLink';
 
-export function NotificationItem({ notification, onRead }: NotificationItemProps) {
+export function NotificationItem({ notification, onRead, onDismiss }: NotificationItemProps) {
   const fecha = notification.sentAt ?? notification.createdAt;
   const mostrarLinkPedido =
     notification.entityType === NOTIFICATION_ENTITY_TYPES.ORDER && notification.entityId != null;
@@ -57,7 +58,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
           ? notification.title
           : `${NOTIFICATION_STRINGS.markAsRead}: ${notification.title}`
       }
-      className={`px-4 py-3.5 cursor-pointer select-none animate-tap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${bgClass} ${borderClass}`.trim()}
+      className={`group px-4 py-3.5 cursor-pointer select-none animate-tap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${bgClass} ${borderClass}`.trim()}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0 space-y-1.5">
@@ -93,7 +94,18 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
           )}
 
         </div>
-        {!notification.read && <UnreadDot />}
+        {notification.read ? (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onDismiss(notification.id); }}
+            aria-label={NOTIFICATION_STRINGS.dismissAriaLabel}
+            className="shrink-0 rounded-md p-0.5 text-muted-foreground/40 opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        ) : (
+          <UnreadDot />
+        )}
       </div>
     </li>
   );
