@@ -15,7 +15,7 @@ export function ReviewToast({ message, onClose }: ReviewToastProps) {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-lg"
+      className="fixed bottom-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-lg animate-notif-slide-in"
     >
       <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-500" aria-hidden="true" />
       <p className="flex-1 text-sm text-foreground">{message}</p>

@@ -26,18 +26,11 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
 
   const contenidoVisible = productCustomizationData?.message ?? notification.content;
 
-  const borderClass =
-    notification.entityType === NOTIFICATION_ENTITY_TYPES.ONBOARDING
-      ? 'border-l-4 border-sky-400 dark:border-sky-500'
-      : notification.entityType === NOTIFICATION_ENTITY_TYPES.ORDER
-        ? 'border-l-4 border-primary'
-        : esPersonalizado
-          ? 'border-l-4 border-amber-400 dark:border-amber-500'
-          : '';
+  const borderClass = '';
 
   const bgClass = notification.read
-    ? 'bg-card hover:bg-accent'
-    : 'bg-accent hover:bg-accent/80';
+    ? 'bg-card hover:bg-accent/50'
+    : 'bg-accent/60 hover:bg-accent/80';
 
   const handleClick = useCallback(() => {
     if (!notification.read) onRead(notification.id);
@@ -64,20 +57,30 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
           ? notification.title
           : `${NOTIFICATION_STRINGS.markAsRead}: ${notification.title}`
       }
-      className={`px-4 py-3 cursor-pointer select-none animate-tap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${bgClass} ${borderClass}`.trim()}
+      className={`px-4 py-3.5 cursor-pointer select-none animate-tap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${bgClass} ${borderClass}`.trim()}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-semibold text-foreground truncate">
-              {notification.title}
-            </p>
-            <NotificationTypeTag entityType={notification.entityType} />
+        <div className="flex-1 min-w-0 space-y-1.5">
+
+          {/* Fila 1: título + tag + fecha */}
+          <div className="flex items-start gap-2">
+            <div className="flex-1 min-w-0 flex items-center gap-1.5 flex-wrap">
+              <p className="text-sm font-semibold text-foreground leading-tight">
+                {notification.title}
+              </p>
+              <NotificationTypeTag entityType={notification.entityType} />
+            </div>
+            <span className="shrink-0 text-[10px] text-muted-foreground/50 mt-0.5 whitespace-nowrap">
+              {formatearFecha(fecha)}
+            </span>
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
+
+          {/* Fila 2: contenido */}
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
             {contenidoVisible}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground/80">{formatearFecha(fecha)}</p>
+
+          {/* Fila 3: acciones */}
           {mostrarLinkPedido && <ViewOrderLink orderId={notification.entityId as string} />}
           {mostrarLinkComprobante && (
             <DownloadReceiptLink paymentId={notification.entityId as string} />
@@ -88,6 +91,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
           {esPersonalizado && productCustomizationData && productCustomizationData.images.length > 0 && (
             <ProductCustomizationImages images={productCustomizationData.images} />
           )}
+
         </div>
         {!notification.read && <UnreadDot />}
       </div>

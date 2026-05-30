@@ -4,7 +4,7 @@ import { ORDER_STATUS_NOTIFICATION_STRINGS } from '../../constants/order-status-
 
 export function OrderStatusTimelineEmptyState() {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
+    <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-sm text-muted-foreground">
       {ORDER_STATUS_NOTIFICATION_STRINGS.timelineEmpty}
     </div>
   );
