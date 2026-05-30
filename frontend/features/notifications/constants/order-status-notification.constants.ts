@@ -35,9 +35,9 @@ export const ORDER_STATUS_NOTIFICATION_DELIVERY_LABELS = {
 } as const;
 
 export const ORDER_STATUS_NOTIFICATION_DELIVERY_TONES = {
-  pending: 'bg-secondary text-secondary-foreground',
-  sent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  failed: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  pending: 'border border-border text-muted-foreground',
+  sent:    'border border-emerald-600 text-emerald-600 dark:border-emerald-500 dark:text-emerald-500',
+  failed:  'border border-amber-600 text-amber-600 dark:border-amber-500 dark:text-amber-500',
 } as const;
 
 export const ORDER_STATUS_NOTIFICATION_STRINGS = {
