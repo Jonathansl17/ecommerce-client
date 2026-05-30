@@ -41,7 +41,7 @@ export function OrderStatusStepper({ status }: OrderStatusStepperProps) {
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       {/* Summary header */}
       <div className="flex items-start justify-between gap-4 px-4 py-2.5">
-        <div>
+        <div className="min-w-0">
           <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             Estado del pedido
           </p>
@@ -59,13 +59,13 @@ export function OrderStatusStepper({ status }: OrderStatusStepperProps) {
 
       {/* Circles row */}
       <div className="border-t border-border px-4 py-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           {ORDER_STATUS_PROGRESS.map((step, i) => {
             const done    = i < currentIndex;
             const active  = i === currentIndex;
 
             return (
-              <div key={step} className="flex flex-1 items-center">
+              <div key={step} className="flex flex-1 flex-col items-center gap-1">
                 {/* Connector + circle */}
                 <div className="flex w-full items-center">
                   <div className={`h-0.5 flex-1 ${i === 0 ? 'invisible' : done || active ? 'bg-foreground' : 'bg-muted-foreground/20'}`} />
@@ -78,6 +78,14 @@ export function OrderStatusStepper({ status }: OrderStatusStepperProps) {
                   </div>
                   <div className={`h-0.5 flex-1 ${i === total - 1 ? 'invisible' : done ? 'bg-foreground' : 'bg-muted-foreground/20'}`} />
                 </div>
+                {/* Label */}
+                <p className={`text-center leading-tight max-w-[52px] ${
+                  active ? 'text-[10px] font-semibold text-foreground' :
+                  done   ? 'text-[9px] text-muted-foreground/60' :
+                           'text-[9px] text-muted-foreground/30'
+                }`}>
+                  {ORDER_STATUS_NOTIFICATION_STATUS_LABELS[step]}
+                </p>
               </div>
             );
           })}
