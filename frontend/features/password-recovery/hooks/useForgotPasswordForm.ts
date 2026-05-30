@@ -48,8 +48,8 @@ export function useForgotPasswordForm() {
     setLoading(true);
 
     try {
-      const response = await requestPasswordRecovery(formData);
-      setSuccessMessage(response.message);
+      await requestPasswordRecovery(formData);
+      setSuccessMessage(PASSWORD_RECOVERY_STRINGS.forgotPassword.successMessage);
     } catch (err) {
       const apiError = err as PasswordRecoveryApiErrorResponse;
       if (apiError.errors && apiError.errors.length > 0) {
