@@ -40,15 +40,13 @@ export const descargarComprobantePago = async (req, res, next) => {
     const clientUserId = BigInt(req.user.id);
     const paymentId = parseBigIntParam(req.params.paymentId, 'paymentId');
 
-    const { pdfBuffer, filename } = await obtenerComprobantePagoService({
-      paymentId,
-      clientUserId,
-    });
+    const { pdfBuffer, filename } = await obtenerComprobantePagoService({ paymentId, clientUserId });
 
-    res.setHeader('Content-Type', PAYMENT_RECEIPT_PDF.MIME_TYPE);
-    res.setHeader('Content-Disposition', PAYMENT_RECEIPT_PDF.CONTENT_DISPOSITION(filename));
-    res.setHeader('Content-Length', pdfBuffer.length);
-    res.send(pdfBuffer);
+    res.set({
+      'Content-Type': PAYMENT_RECEIPT_PDF.MIME_TYPE,
+      'Content-Disposition': PAYMENT_RECEIPT_PDF.CONTENT_DISPOSITION(filename),
+    });
+    res.end(pdfBuffer);
   } catch (error) {
     next(error);
   }
