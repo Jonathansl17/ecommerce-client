@@ -40,7 +40,7 @@ export function OrderStatusStepper({ status }: OrderStatusStepperProps) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       {/* Summary header */}
-      <div className="flex items-start justify-between gap-4 px-4 py-3">
+      <div className="flex items-start justify-between gap-4 px-4 py-2.5">
         <div>
           <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             Estado del pedido
@@ -58,14 +58,14 @@ export function OrderStatusStepper({ status }: OrderStatusStepperProps) {
       </div>
 
       {/* Circles row */}
-      <div className="border-t border-border px-4 pb-3 pt-2.5">
-        <div className="flex items-start justify-between overflow-x-auto">
+      <div className="border-t border-border px-4 py-2">
+        <div className="flex items-center justify-between">
           {ORDER_STATUS_PROGRESS.map((step, i) => {
             const done    = i < currentIndex;
             const active  = i === currentIndex;
 
             return (
-              <div key={step} className="flex flex-1 flex-col items-center gap-1 min-w-[40px]">
+              <div key={step} className="flex flex-1 items-center">
                 {/* Connector + circle */}
                 <div className="flex w-full items-center">
                   <div className={`h-0.5 flex-1 ${i === 0 ? 'invisible' : done || active ? 'bg-foreground' : 'bg-muted-foreground/20'}`} />
@@ -78,12 +78,6 @@ export function OrderStatusStepper({ status }: OrderStatusStepperProps) {
                   </div>
                   <div className={`h-0.5 flex-1 ${i === total - 1 ? 'invisible' : done ? 'bg-foreground' : 'bg-muted-foreground/20'}`} />
                 </div>
-                {/* Short label only on active */}
-                {active && (
-                  <p className="text-center text-[9px] font-semibold leading-tight text-foreground max-w-[52px]">
-                    {ORDER_STATUS_NOTIFICATION_STATUS_LABELS[step]}
-                  </p>
-                )}
               </div>
             );
           })}
