@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { CheckCircle2 } from 'lucide-react';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { CATALOG_STRINGS, CART_ADDED_EVENT } from '../constants/catalog.constants';
 
@@ -42,22 +43,23 @@ export function CartAddedToast() {
     <div
       role="status"
       aria-live="polite"
-      className={`fixed bottom-6 right-6 z-50 flex max-w-sm items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-lg transition-opacity duration-300 ${
+      className={`fixed bottom-6 right-6 z-50 flex max-w-sm items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-lg transition-opacity duration-300 animate-notif-slide-in ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-700">
-        ✓
-      </div>
-      <div className="flex flex-col">
-        <p className="text-sm font-semibold text-slate-950">
+      <CheckCircle2
+        className="h-5 w-5 shrink-0 text-emerald-500"
+        aria-hidden="true"
+      />
+      <div className="flex flex-col min-w-0">
+        <p className="text-sm font-semibold text-foreground">
           {CATALOG_STRINGS.added}
         </p>
-        <p className="text-xs text-slate-500">{detail.productName}</p>
+        <p className="text-xs text-muted-foreground truncate">{detail.productName}</p>
       </div>
       <Link
         href={ROUTES.CART}
-        className="ml-2 rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
+        className="ml-2 shrink-0 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {CATALOG_STRINGS.viewCart}
       </Link>

@@ -1,5 +1,6 @@
 import { obtenerNotificaciones as obtenerNotificacionesService } from './obtener-notificaciones.service.js';
 import { marcarComoLeida as marcarComoLeidaService } from './marcar-notificacion-leida.service.js';
+import { descartarNotificacion as descartarNotificacionService } from './descartar-notificacion.service.js';
 import { obtenerComprobantePago as obtenerComprobantePagoService } from './payment/receipt.service.js';
 import { PAYMENT_RECEIPT_PDF } from './payment/receipt.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
@@ -110,6 +111,19 @@ export const marcarComoLeida = async (req, res, next) => {
     const notificacion = await marcarComoLeidaService({ notificationId, clientUserId });
 
     res.status(HTTP_STATUS.OK).json({ notificacion });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const descartarNotificacion = async (req, res, next) => {
+  try {
+    const clientUserId = BigInt(req.user.id);
+    const notificationId = BigInt(req.params.id);
+
+    await descartarNotificacionService({ notificationId, clientUserId });
+
+    res.status(HTTP_STATUS.OK).json({ mensaje: 'Notificación descartada' });
   } catch (error) {
     next(error);
   }
