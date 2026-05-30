@@ -40,13 +40,15 @@ export function CancelOrderButton({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={handleOpenConfirm}
-        className="inline-flex items-center rounded-full bg-red-50 px-4 py-1.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-      >
-        {ORDERS_STRINGS.cancelButton}
-      </button>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={handleOpenConfirm}
+          className="inline-flex items-center rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+        >
+          {ORDERS_STRINGS.cancelButton}
+        </button>
+      </div>
 
       {confirmOpen && (
         <div
@@ -56,16 +58,16 @@ export function CancelOrderButton({
           aria-describedby="cancel-order-dialog-description"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
-          <div className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg">
             <h2
               id="cancel-order-dialog-title"
-              className="text-lg font-bold text-slate-950"
+              className="text-base font-semibold text-foreground"
             >
               {ORDERS_STRINGS.confirmTitle}
             </h2>
             <p
               id="cancel-order-dialog-description"
-              className="mt-2 text-sm text-slate-600"
+              className="mt-2 text-sm text-muted-foreground"
             >
               {ORDERS_STRINGS.confirmDescription}
             </p>
@@ -73,7 +75,7 @@ export function CancelOrderButton({
             {error != null && (
               <p
                 role="alert"
-                className="mt-3 text-sm font-medium text-red-600"
+                className="mt-3 text-sm font-medium text-destructive"
               >
                 {error}
               </p>
@@ -84,7 +86,7 @@ export function CancelOrderButton({
                 type="button"
                 onClick={handleCloseConfirm}
                 disabled={cancelando}
-                className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {ORDERS_STRINGS.confirmCancel}
               </button>
@@ -92,7 +94,7 @@ export function CancelOrderButton({
                 type="button"
                 onClick={handleConfirm}
                 disabled={cancelando}
-                className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {cancelando ? '...' : ORDERS_STRINGS.confirmAccept}
               </button>

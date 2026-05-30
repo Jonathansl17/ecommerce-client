@@ -30,9 +30,43 @@ const PAYMENT_RECEIPT_SELECT = {
       clientUser: {
         select: { fullName: true },
       },
+      orderItems: {
+        select: {
+          quantity: true,
+          unitPriceSnap: true,
+          variant: {
+            select: {
+              color: true,
+              size: true,
+              product: {
+                select: {
+                  item: { select: { name: true } },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   },
 };
+
+function mapearItems(orderItems = []) {
+  return orderItems.map((item) => {
+    const name = item.variant?.product?.item?.name ?? 'Producto';
+    const color = item.variant?.color;
+    const size = item.variant?.size;
+    const descripcion = [name, color, size].filter(Boolean).join(' · ');
+    const quantity = Number(item.quantity) || 1;
+    const unitPrice = Number(item.unitPriceSnap) || 0;
+    return {
+      descripcion,
+      cantidad: quantity,
+      precioUnitario: formatearMoneda(unitPrice),
+      importe: formatearMoneda(unitPrice * quantity),
+    };
+  });
+}
 
 function mapearDatosComprobante({ pago, orden, clientUser }) {
   return {
@@ -48,6 +82,7 @@ function mapearDatosComprobante({ pago, orden, clientUser }) {
       idLabel: orden.id.toString(),
       createdAtLabel: formatearFechaLarga(orden.createdAt),
       totalLabel: formatearMoneda(orden.totalAmount),
+      items: mapearItems(orden.orderItems),
     },
     generatedAtLabel: formatearFechaHora(new Date()),
   };

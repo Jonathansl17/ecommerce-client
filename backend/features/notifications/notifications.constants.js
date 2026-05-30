@@ -1,6 +1,8 @@
 export const NOTIFICATION_MESSAGES = {
   NOT_FOUND: 'Notificación no encontrada',
   MARKED_AS_READ: 'Notificación marcada como leída',
+  DISMISSED_OK: 'Notificación descartada',
+  DISMISS_UNREAD_FORBIDDEN: 'No puedes descartar una notificación sin leer',
   EMAIL_UNKNOWN_ERROR: 'Error desconocido',
   EMAIL_RETRY_EXHAUSTED: 'Se agotaron los reintentos de envío',
   ORDER_CONFIRMED_TITLE: (orderId) => `Pedido #${orderId} confirmado`,
