@@ -3,9 +3,12 @@
 import { useCallback, useEffect, useReducer } from 'react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import {
+  deleteReviewResponse,
   fetchMyVotes,
   fetchProductReviews,
   removeReviewVote,
+  respondToReview,
+  updateReviewResponse,
   voteOnReview,
 } from '../shared/product-reviews.api';
 import { INITIAL_REVIEWS_STATE } from '../constants/product-reviews.constants';
@@ -137,6 +140,23 @@ export function useProductReviews(productId: string): UseProductReviewsResult {
     [runWithOptimisticUpdate],
   );
 
+  // Respuesta del administrador (US-REV-005). Sin optimismo: confirmamos con la
+  // respuesta que devuelve el backend antes de reflejarla en el estado.
+  const respond = useCallback(async (reviewId: string, content: string) => {
+    const response = await respondToReview(reviewId, content);
+    dispatch({ type: 'SET_RESPONSE', payload: { reviewId, response } });
+  }, []);
+
+  const updateResponse = useCallback(async (reviewId: string, content: string) => {
+    const response = await updateReviewResponse(reviewId, content);
+    dispatch({ type: 'SET_RESPONSE', payload: { reviewId, response } });
+  }, []);
+
+  const deleteResponse = useCallback(async (reviewId: string) => {
+    await deleteReviewResponse(reviewId);
+    dispatch({ type: 'SET_RESPONSE', payload: { reviewId, response: null } });
+  }, []);
+
   return {
     reviews: state.reviews,
     summary: state.summary ?? { ...EMPTY_SUMMARY, productId },
@@ -148,5 +168,8 @@ export function useProductReviews(productId: string): UseProductReviewsResult {
     dispatch,
     vote,
     removeVote,
+    respond,
+    updateResponse,
+    deleteResponse,
   };
 }

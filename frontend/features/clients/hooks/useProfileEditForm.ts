@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useProfileEdit } from './useProfileEdit';
 import { ProfileEditDialogProps } from '../types/profile.interface';
-import { PROFILE_STRINGS } from '../constants/clients.constants';
+import { PROFILE_STRINGS, PROFILE_REDIRECT_DELAY_MS } from '../constants/clients.constants';
 
 export function useProfileEditForm({
   isOpen,
@@ -50,7 +50,7 @@ export function useProfileEditForm({
       setTimeout(() => {
         onClose();
         onSuccess?.();
-      }, 1500);
+      }, PROFILE_REDIRECT_DELAY_MS);
     }
   };
 

@@ -1,5 +1,5 @@
 import { API_BASE_URL, REQUEST_TIMEOUT_MS } from '@/lib/constants/api.constants';
-import type { VoteType } from '../types/reviews.types';
+import type { ReviewResponse, VoteType } from '../types/reviews.types';
 import type {
   DateFilter,
   HelpfulFilter,
@@ -115,6 +115,68 @@ export async function voteOnReview(
 export async function removeReviewVote(reviewId: string): Promise<void> {
   await votesFetch<{ message: string }>(
     `/reviews/${encodeURIComponent(reviewId)}/vote`,
+    { method: 'DELETE' },
+  );
+}
+
+
+// Helper para las operaciones de respuesta: lanza con el mensaje del backend.
+async function responseFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'fetch',
+        ...init.headers,
+      },
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      const message =
+        (body && typeof body.error === 'string' && body.error) ||
+        'Error al procesar la respuesta.';
+      throw new Error(message);
+    }
+
+    if (res.status === 204) return undefined as T;
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function respondToReview(
+  reviewId: string,
+  content: string,
+): Promise<ReviewResponse> {
+  const body = await responseFetch<{ message: string; response: ReviewResponse }>(
+    `/reviews/${encodeURIComponent(reviewId)}/response`,
+    { method: 'POST', body: JSON.stringify({ content }) },
+  );
+  return body.response;
+}
+
+export async function updateReviewResponse(
+  reviewId: string,
+  content: string,
+): Promise<ReviewResponse> {
+  const body = await responseFetch<{ message: string; response: ReviewResponse }>(
+    `/reviews/${encodeURIComponent(reviewId)}/response`,
+    { method: 'PUT', body: JSON.stringify({ content }) },
+  );
+  return body.response;
+}
+
+export async function deleteReviewResponse(reviewId: string): Promise<void> {
+  await responseFetch<{ message: string }>(
+    `/reviews/${encodeURIComponent(reviewId)}/response`,
     { method: 'DELETE' },
   );
 }

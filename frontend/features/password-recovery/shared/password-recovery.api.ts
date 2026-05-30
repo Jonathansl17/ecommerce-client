@@ -1,4 +1,5 @@
 import { API_BASE_URL, REQUEST_TIMEOUT_MS } from '@/lib/constants/api.constants';
+import { CSRF_HEADER_NAME, CSRF_HEADER_VALUE } from '@/lib/http/authRefresh';
 import type {
   ForgotPasswordFormData,
   ForgotPasswordResponse,
@@ -19,7 +20,7 @@ export async function requestPasswordRecovery(
 ): Promise<ForgotPasswordResponse> {
   const res = await fetch(`${API_BASE_URL}/password-recovery/request`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', [CSRF_HEADER_NAME]: CSRF_HEADER_VALUE },
     body: JSON.stringify(data),
     signal: AbortSignal.timeout(PASSWORD_RECOVERY_TIMEOUT_MS),
   });
@@ -35,7 +36,7 @@ export async function requestPasswordRecovery(
 export async function validatePasswordRecoveryToken(token: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/password-recovery/validate-token`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', [CSRF_HEADER_NAME]: CSRF_HEADER_VALUE },
     body: JSON.stringify({ token }),
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
@@ -51,7 +52,7 @@ export async function resetPassword(
 ): Promise<ResetPasswordResponse> {
   const res = await fetch(`${API_BASE_URL}/password-recovery/reset`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', [CSRF_HEADER_NAME]: CSRF_HEADER_VALUE },
     body: JSON.stringify(data),
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });

@@ -110,6 +110,7 @@ const daysAgo = (n) => new Date(Date.now() - n * 86_400_000);
 async function limpiarBaseDeDatos() {
   // Order matters: respect FK constraints.
   await prisma.reviewVote.deleteMany();
+  await prisma.reviewResponse.deleteMany();
   await prisma.review.deleteMany();
   await prisma.ratingsSummary.deleteMany();
   await prisma.lowStockAlert.deleteMany();
@@ -129,6 +130,7 @@ async function limpiarBaseDeDatos() {
   await prisma.category.deleteMany();
   await prisma.refreshToken.deleteMany();
   await prisma.revokedToken.deleteMany();
+  await prisma.admin.deleteMany();
   await prisma.clientUser.deleteMany();
 }
 

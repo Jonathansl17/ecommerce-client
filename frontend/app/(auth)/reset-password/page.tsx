@@ -12,6 +12,9 @@ export default function ResetPasswordPage() {
     loading,
     validatingToken,
     isTokenValid,
+    passwordsMatch,
+    requirements,
+    canSubmit,
     successMessage,
     generalMessage,
     handleChange,
@@ -25,6 +28,9 @@ export default function ResetPasswordPage() {
       loading={loading}
       validatingToken={validatingToken}
       isTokenValid={isTokenValid}
+      passwordsMatch={passwordsMatch}
+      requirements={requirements}
+      canSubmit={canSubmit}
       successMessage={successMessage}
       generalMessage={generalMessage}
       handleChange={handleChange}

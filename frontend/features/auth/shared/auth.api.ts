@@ -75,7 +75,7 @@ export async function fetchCurrentUser(signal?: AbortSignal): Promise<AuthUser |
     const data = await apiFetch<{ usuario: AuthUser }>('/auth/me', {
       method: 'GET',
       signal,
-      skipAuthRetry: false,
+      skipAuthRetry: true,
     });
     return data.usuario;
   } catch (err) {

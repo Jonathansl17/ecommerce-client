@@ -1,6 +1,7 @@
 import { StarRatingDisplay } from '@/features/reviews/components/StarRatingDisplay';
 import { ReviewVotes } from '@/features/reviews/components/ReviewVotes';
 import { VerifiedBuyerBadge } from '@/features/reviews/components/VerifiedBuyerBadge';
+import { AdminResponseSection } from './AdminResponseSection';
 import { AuthorAvatar } from './AuthorAvatar';
 import {
   PRODUCT_REVIEW_STRINGS,
@@ -21,7 +22,11 @@ export function PublicReviewCard({
   currentUserVote = null,
   isOwnReview = false,
   isAuthenticated = false,
+  isAdmin = false,
   onVote,
+  onRespond,
+  onUpdateResponse,
+  onDeleteResponse,
 }: PublicReviewCardProps) {
   const dateLabel = PRODUCT_REVIEW_STRINGS.reviewedOn(
     formatDate(review.edited ? review.updatedAt : review.createdAt),
@@ -61,6 +66,14 @@ export function PublicReviewCard({
         isOwnReview={isOwnReview}
         isAuthenticated={isAuthenticated}
         onVote={handleVote}
+      />
+
+      <AdminResponseSection
+        review={review}
+        isAdmin={isAdmin}
+        onRespond={onRespond}
+        onUpdateResponse={onUpdateResponse}
+        onDeleteResponse={onDeleteResponse}
       />
     </article>
   );
