@@ -6,6 +6,7 @@ export function serializarNotificacion(n) {
     entityType: n.entityType,
     entityId: n.entityId?.toString() ?? null,
     read: n.read,
+    dismissedAt: n.dismissedAt ?? null,
     sentAt: n.sentAt,
     createdAt: n.createdAt,
   };

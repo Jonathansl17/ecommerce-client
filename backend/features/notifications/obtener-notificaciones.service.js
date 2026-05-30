@@ -5,6 +5,7 @@ import { serializarNotificacion } from './serializar-notificacion.utils.js';
 export async function obtenerNotificaciones({ clientUserId, soloNoLeidas }) {
   const filtroBase = {
     clientUserId,
+    dismissedAt: null,
     type: {
       in: [NOTIFICATION_TYPES.INTERNAL, NOTIFICATION_TYPES.BOTH],
     },
@@ -24,6 +25,7 @@ export async function obtenerNotificaciones({ clientUserId, soloNoLeidas }) {
       entityType: true,
       entityId: true,
       read: true,
+      dismissedAt: true,
       sentAt: true,
       createdAt: true,
     },

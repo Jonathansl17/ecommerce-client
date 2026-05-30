@@ -1,15 +1,26 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowLeft, MapPin } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { OrderStatusTimeline } from '@/features/notifications/components/OrderStatusTimeline';
+import { OrderStatusStepper } from '@/features/notifications/components/ui/OrderStatusStepper';
+import { OrderStatusBadge } from '@/features/notifications/components/ui/OrderStatusBadge';
 import {
-  ORDER_STATUS_NOTIFICATION_STATUS_LABELS,
   ORDER_STATUS_NOTIFICATION_STRINGS,
 } from '@/features/notifications/constants/order-status-notification.constants';
+import { PAYMENT_STATUS_LABELS } from '@/features/notifications/utils/order-status-style.utils';
 import { useOrderStatusNotificationDetail } from '@/features/notifications/hooks/useOrderStatusNotificationDetail';
 import { formatearFecha } from '@/features/notifications/utils/formatDate';
 import { CancelOrderButton } from '@/features/orders/components/CancelOrderButton';
+import { ROUTES } from '@/lib/constants/routes.constants';
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  SINPE: 'SINPE Móvil',
+  cash:  'Efectivo',
+  card:  'Tarjeta',
+  other: 'Otro',
+};
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
@@ -18,114 +29,174 @@ export default function OrderDetailPage() {
   const { pedido, cargando, error } = useOrderStatusNotificationDetail(orderId);
 
   if (cargando) {
-    return <p className="text-sm text-slate-600">{ORDER_STATUS_NOTIFICATION_STRINGS.loading}</p>;
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="rounded-xl border border-border bg-card p-6 animate-shimmer space-y-3">
+            <div className="h-5 w-1/3 rounded-md bg-muted" />
+            <div className="h-3 w-2/3 rounded-md bg-muted" />
+            <div className="h-12 w-full rounded-md bg-muted" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (error || !pedido) {
-    return <p className="text-sm text-red-600">{error ?? ORDER_STATUS_NOTIFICATION_STRINGS.loadError}</p>;
+    return <p className="text-sm text-destructive">{error ?? ORDER_STATUS_NOTIFICATION_STRINGS.loadError}</p>;
   }
 
+  const payment = pedido.payments[0] ?? null;
+
   return (
-    <div className="space-y-6">
-      <Link href="/orders" className="inline-flex text-sm font-semibold text-sky-700 hover:text-sky-800">
+    <div className="space-y-5">
+
+      {/* Back link */}
+      <Link
+        href={ROUTES.ORDERS}
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
         {ORDER_STATUS_NOTIFICATION_STRINGS.backToOrders}
       </Link>
 
-      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      {/* Header */}
+      <header className="rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-950">
+            <h1 className="text-xl font-bold text-foreground">
               {ORDER_STATUS_NOTIFICATION_STRINGS.orderNumber(pedido.id)}
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="text-xs text-muted-foreground">
               {ORDER_STATUS_NOTIFICATION_STRINGS.orderDate}: {formatearFecha(pedido.createdAt)}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
-              {ORDER_STATUS_NOTIFICATION_STATUS_LABELS[pedido.status]}
-            </span>
-            <CancelOrderButton
-              orderId={pedido.id}
-              currentStatus={pedido.status}
-              onCancelled={() => router.refresh()}
-            />
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-              {ORDER_STATUS_NOTIFICATION_STRINGS.subtotal}
-            </p>
-            <p className="mt-2 text-lg font-bold text-slate-950">₡{pedido.subtotal.toLocaleString('es-CR')}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-              {ORDER_STATUS_NOTIFICATION_STRINGS.taxes}
-            </p>
-            <p className="mt-2 text-lg font-bold text-slate-950">₡{pedido.taxes.toLocaleString('es-CR')}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-              {ORDER_STATUS_NOTIFICATION_STRINGS.totalAmount}
-            </p>
-            <p className="mt-2 text-lg font-bold text-slate-950">
-              ₡{pedido.totalAmount.toLocaleString('es-CR')}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-2xl bg-slate-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-            {ORDER_STATUS_NOTIFICATION_STRINGS.shippingAddress}
-          </p>
-          <p className="mt-2 text-sm text-slate-700">{pedido.shippingAddress}</p>
+          <OrderStatusBadge status={pedido.status} />
         </div>
       </header>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-950">
-          {ORDER_STATUS_NOTIFICATION_STRINGS.productsTitle}
-        </h2>
-        <div className="mt-4 space-y-4">
+      {/* Stepper */}
+      <OrderStatusStepper status={pedido.status} />
+
+      {/* Financial summary */}
+      <section className="grid grid-cols-3 divide-x divide-border rounded-xl border border-border bg-card overflow-hidden">
+        <div className="px-4 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            {ORDER_STATUS_NOTIFICATION_STRINGS.subtotal}
+          </p>
+          <p className="mt-1 text-base font-bold text-foreground">
+            ₡{pedido.subtotal.toLocaleString('es-CR')}
+          </p>
+        </div>
+        <div className="px-4 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            {ORDER_STATUS_NOTIFICATION_STRINGS.taxes}
+          </p>
+          <p className="mt-1 text-base font-bold text-foreground">
+            ₡{pedido.taxes.toLocaleString('es-CR')}
+          </p>
+        </div>
+        <div className="px-4 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            {ORDER_STATUS_NOTIFICATION_STRINGS.totalAmount}
+          </p>
+          <p className="mt-1 text-base font-bold text-foreground">
+            ₡{pedido.totalAmount.toLocaleString('es-CR')}
+          </p>
+        </div>
+      </section>
+
+      {/* Shipping address */}
+      <div className="rounded-xl border border-border bg-card px-5 py-3.5 flex items-start gap-3">
+        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            {ORDER_STATUS_NOTIFICATION_STRINGS.shippingAddress}
+          </p>
+          <p className="mt-0.5 text-sm text-foreground">{pedido.shippingAddress}</p>
+        </div>
+      </div>
+
+      {/* Payment */}
+      {payment && (
+        <section className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="border-b border-border px-5 py-3">
+            <h2 className="text-sm font-semibold text-foreground">
+              {ORDER_STATUS_NOTIFICATION_STRINGS.paymentTitle}
+            </h2>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-border">
+            <div className="px-5 py-3">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">Método</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">
+                {PAYMENT_METHOD_LABELS[payment.method] ?? payment.method}
+              </p>
+            </div>
+            <div className="px-5 py-3">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">Monto</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">
+                ₡{payment.amount.toLocaleString('es-CR')}
+              </p>
+            </div>
+            <div className="px-5 py-3">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">Estado</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">
+                {PAYMENT_STATUS_LABELS[payment.status] ?? payment.status}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Products */}
+      <section className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="text-sm font-semibold text-foreground">
+            {ORDER_STATUS_NOTIFICATION_STRINGS.productsTitle}
+          </h2>
+        </div>
+        <div className="divide-y divide-border">
           {pedido.orderItems.map((item) => (
-            <article key={item.id} className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-slate-950">
-                    {item.variant?.product?.itemName ?? 'Producto del pedido'}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {item.variant?.color ?? 'Color N/D'} / {item.variant?.size ?? 'Talla N/D'}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-slate-500">
-                    {ORDER_STATUS_NOTIFICATION_STRINGS.quantity}: {item.quantity}
-                  </p>
-                  <p className="mt-1 font-semibold text-slate-950">
-                    ₡{item.unitPriceSnap.toLocaleString('es-CR')}
-                  </p>
-                </div>
+            <article key={item.id} className="flex items-center gap-4 px-5 py-3.5">
+              {/* Quantity badge */}
+              <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                ×{item.quantity}
+              </span>
+              {/* Info */}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {item.variant?.product?.itemName ?? 'Producto del pedido'}
+                </p>
+                <p className="mt-0.5 text-xs text-zinc-400">
+                  {item.variant?.color ?? 'Color N/D'} · {item.variant?.size ?? 'Talla N/D'}
+                </p>
               </div>
+              {/* Price */}
+              <p className="shrink-0 text-sm font-semibold text-foreground">
+                ₡{item.unitPriceSnap.toLocaleString('es-CR')}
+              </p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-950">
-          {ORDER_STATUS_NOTIFICATION_STRINGS.timelineTitle}
-        </h2>
-        <div className="mt-4">
-          <OrderStatusTimeline historial={pedido.orderStatusNotifications} />
+      {/* Status history */}
+      <section className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="text-sm font-semibold text-foreground">
+            {ORDER_STATUS_NOTIFICATION_STRINGS.timelineTitle}
+          </h2>
         </div>
+        <OrderStatusTimeline historial={pedido.orderStatusNotifications} />
       </section>
 
-      <p className="text-xs text-slate-500">
-        {ORDER_STATUS_NOTIFICATION_STRINGS.missingIntegrationComment}
-      </p>
+      {/* Cancel — destructive zone at bottom */}
+      <CancelOrderButton
+        orderId={pedido.id}
+        currentStatus={pedido.status}
+        onCancelled={() => router.refresh()}
+      />
+
     </div>
   );
 }
