@@ -16,9 +16,7 @@ const CART_ITEM_SELECT = {
       color: true,
       size: true,
       price: true,
-      currentStock: true,
-      reservedStock: true,
-      minThreshold: true,
+      // currentStock, reservedStock, minThreshold omitidos — son datos internos de inventario
       product: {
         select: {
           itemId: true,
@@ -30,44 +28,62 @@ const CART_ITEM_SELECT = {
   },
 };
 
-// Obtiene el carrito activo del usuario, o crea uno nuevo si no existe
+// Obtiene el carrito activo del usuario, o crea uno nuevo si no existe.
+// Usa transacción Serializable para evitar race condition de doble creación.
 async function obtenerOCrearCarritoActivo(userId) {
-  const carrito = await prisma.cart.findFirst({
-    where: { clientUserId: BigInt(userId), status: 'active' },
-    include: { cartItems: { select: CART_ITEM_SELECT } },
-  });
+  const userBigInt = BigInt(userId);
+  const include = { cartItems: { select: CART_ITEM_SELECT } };
 
-  if (carrito) return carrito;
+  return prisma.$transaction(async (tx) => {
+    const existente = await tx.cart.findFirst({
+      where: { clientUserId: userBigInt, status: 'active' },
+      include,
+    });
 
-  return prisma.cart.create({
-    data: { clientUserId: BigInt(userId), status: 'active' },
-    include: { cartItems: { select: CART_ITEM_SELECT } },
-  });
+    if (existente) return existente;
+
+    return tx.cart.create({
+      data: { clientUserId: userBigInt, status: 'active' },
+      include,
+    });
+  }, { isolationLevel: 'Serializable' });
+}
+
+function calcularTotales(items) {
+  const subtotalCents = items.reduce(
+    (acc, item) => acc + Math.round(Number(item.unitPriceSnap) * 100) * item.quantity,
+    0,
+  );
+  const subtotal = subtotalCents / 100;
+  const taxes = Math.round(subtotalCents * TAX_RATE) / 100;
+  return {
+    subtotal: subtotal.toFixed(2),
+    taxes: taxes.toFixed(2),
+    total: (subtotal + taxes).toFixed(2),
+  };
+}
+
+function parseBigIntParam(value, campo) {
+  try { return BigInt(value); }
+  catch { throw crearError(`Parámetro inválido: ${campo}`, HTTP_STATUS.BAD_REQUEST); }
 }
 
 export const obtenerCarrito = async (userId) => {
   const carrito = await obtenerOCrearCarritoActivo(userId);
-
-  const subtotal = carrito.cartItems.reduce(
-    (acc, item) => acc + Number(item.unitPriceSnap) * item.quantity,
-    0
-  );
-  const taxes = subtotal * TAX_RATE;
+  const totales = calcularTotales(carrito.cartItems);
 
   return {
     id: carrito.id,
     status: carrito.status,
     items: carrito.cartItems,
-    subtotal: subtotal.toFixed(2),
-    taxes: taxes.toFixed(2),
-    total: (subtotal + taxes).toFixed(2),
+    ...totales,
   };
 };
 
 export const agregarItem = async (userId, { variantId, quantity }) => {
   // Verificar que la variante existe y tiene stock suficiente
   const variante = await prisma.productVariant.findUnique({
-    where: { id: BigInt(variantId) },
+    where: { id: parseBigIntParam(variantId, 'variantId') },
     include: { product: { include: { item: true } } },
   });
 
@@ -101,7 +117,8 @@ export const agregarItem = async (userId, { variantId, quantity }) => {
 
     return prisma.cartItem.update({
       where: { id: itemExistente.id },
-      data: { quantity: nuevaCantidad },
+      // Actualizar precio snapshot al precio vigente al modificar cantidad
+      data: { quantity: nuevaCantidad, unitPriceSnap: variante.price },
       select: CART_ITEM_SELECT,
     });
   }
@@ -119,9 +136,11 @@ export const agregarItem = async (userId, { variantId, quantity }) => {
 };
 
 export const actualizarCantidad = async (userId, itemId, quantity) => {
+  const parsedItemId = parseBigIntParam(itemId, 'itemId');
+
   const item = await prisma.cartItem.findFirst({
     where: {
-      id: BigInt(itemId),
+      id: parsedItemId,
       cart: { clientUserId: BigInt(userId), status: 'active' },
     },
     include: { variant: true },
@@ -137,16 +156,19 @@ export const actualizarCantidad = async (userId, itemId, quantity) => {
   }
 
   return prisma.cartItem.update({
-    where: { id: BigInt(itemId) },
-    data: { quantity },
+    where: { id: parsedItemId },
+    // Actualizar precio snapshot al precio vigente
+    data: { quantity, unitPriceSnap: item.variant.price },
     select: CART_ITEM_SELECT,
   });
 };
 
 export const eliminarItem = async (userId, itemId) => {
+  const parsedItemId = parseBigIntParam(itemId, 'itemId');
+
   const item = await prisma.cartItem.findFirst({
     where: {
-      id: BigInt(itemId),
+      id: parsedItemId,
       cart: { clientUserId: BigInt(userId), status: 'active' },
     },
   });
@@ -155,5 +177,5 @@ export const eliminarItem = async (userId, itemId) => {
     throw crearError(CART_MESSAGES.ITEM_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
   }
 
-  return prisma.cartItem.delete({ where: { id: BigInt(itemId) } });
+  return prisma.cartItem.delete({ where: { id: parsedItemId } });
 };
