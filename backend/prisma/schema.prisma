@@ -152,6 +152,7 @@ model ClientNotification {
   entityType   String           @map("entity_type") @db.VarChar(50)
   entityId     BigInt           @map("entity_id")
   read         Boolean          @default(false)
+  dismissedAt  DateTime?        @map("dismissed_at") @db.Timestamp()
   sentAt       DateTime?        @map("sent_at") @db.Timestamp()
   sendAttempts Int              @default(0) @map("send_attempts") @db.SmallInt
   createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamp()

@@ -42,3 +42,11 @@ export async function markNotificationAsRead(
     throw new Error(NOTIFICATION_STRINGS.markAsReadError);
   }
 }
+
+export async function dismissNotification(notificationId: string): Promise<void> {
+  try {
+    await apiFetch(`/notifications/${notificationId}/dismiss`, { method: 'PATCH' });
+  } catch {
+    throw new Error(NOTIFICATION_STRINGS.dismissError);
+  }
+}

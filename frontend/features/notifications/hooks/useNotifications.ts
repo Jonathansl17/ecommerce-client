@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { fetchNotifications, markNotificationAsRead } from '../api/notifications.api';
+import { fetchNotifications, markNotificationAsRead, dismissNotification } from '../api/notifications.api';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 import type { ClientNotification, UseNotificationsResult } from '../types/notifications.types';
@@ -47,10 +47,21 @@ export function useNotifications(): UseNotificationsResult {
     }
   }, [isAuthenticated]);
 
+  const descartarNotificacion = useCallback(async (id: string) => {
+    if (!isAuthenticated) return;
+    // Optimistic: remove immediately from view
+    setNotificaciones((prev) => prev.filter((n) => n.id !== id));
+    try {
+      await dismissNotification(id);
+    } catch {
+      // Rollback not implemented — silent fail to avoid jarring UX
+    }
+  }, [isAuthenticated]);
+
   const noLeidas = useMemo(
     () => notificaciones.filter((n) => !n.read).length,
     [notificaciones],
   );
 
-  return { notificaciones, noLeidas, cargando, error, marcarComoLeida };
+  return { notificaciones, noLeidas, cargando, error, marcarComoLeida, descartarNotificacion };
 }

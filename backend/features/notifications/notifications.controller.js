@@ -1,5 +1,6 @@
 import { obtenerNotificaciones as obtenerNotificacionesService } from './obtener-notificaciones.service.js';
 import { marcarComoLeida as marcarComoLeidaService } from './marcar-notificacion-leida.service.js';
+import { descartarNotificacion as descartarNotificacionService } from './descartar-notificacion.service.js';
 import { obtenerComprobantePago as obtenerComprobantePagoService } from './payment/receipt.service.js';
 import { PAYMENT_RECEIPT_PDF } from './payment/receipt.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
@@ -39,15 +40,13 @@ export const descargarComprobantePago = async (req, res, next) => {
     const clientUserId = BigInt(req.user.id);
     const paymentId = parseBigIntParam(req.params.paymentId, 'paymentId');
 
-    const { pdfBuffer, filename } = await obtenerComprobantePagoService({
-      paymentId,
-      clientUserId,
-    });
+    const { pdfBuffer, filename } = await obtenerComprobantePagoService({ paymentId, clientUserId });
 
-    res.setHeader('Content-Type', PAYMENT_RECEIPT_PDF.MIME_TYPE);
-    res.setHeader('Content-Disposition', PAYMENT_RECEIPT_PDF.CONTENT_DISPOSITION(filename));
-    res.setHeader('Content-Length', pdfBuffer.length);
-    res.send(pdfBuffer);
+    res.set({
+      'Content-Type': PAYMENT_RECEIPT_PDF.MIME_TYPE,
+      'Content-Disposition': PAYMENT_RECEIPT_PDF.CONTENT_DISPOSITION(filename),
+    });
+    res.end(pdfBuffer);
   } catch (error) {
     next(error);
   }
@@ -110,6 +109,19 @@ export const marcarComoLeida = async (req, res, next) => {
     const notificacion = await marcarComoLeidaService({ notificationId, clientUserId });
 
     res.status(HTTP_STATUS.OK).json({ notificacion });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const descartarNotificacion = async (req, res, next) => {
+  try {
+    const clientUserId = BigInt(req.user.id);
+    const notificationId = BigInt(req.params.id);
+
+    await descartarNotificacionService({ notificationId, clientUserId });
+
+    res.status(HTTP_STATUS.OK).json({ mensaje: 'Notificación descartada' });
   } catch (error) {
     next(error);
   }
