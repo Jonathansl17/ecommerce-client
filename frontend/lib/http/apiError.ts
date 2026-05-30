@@ -1,5 +1,6 @@
 export class ApiError extends Error {
   status: number;
+  /** Internal use only — never render directly in UI */
   body: unknown;
 
   constructor(status: number, body: unknown, message?: string) {
