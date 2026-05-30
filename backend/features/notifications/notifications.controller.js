@@ -14,6 +14,13 @@ import {
   PRODUCT_CUSTOMIZATION_APPROVAL_VALIDATION,
 } from './product-customization-approval/constants.js';
 
+function parseBigIntParam(value, paramName) {
+  if (!/^\d+$/.test(value)) {
+    throw crearError(`Parámetro inválido: ${paramName}`, HTTP_STATUS.BAD_REQUEST);
+  }
+  return BigInt(value);
+}
+
 export const obtenerNotificaciones = async (req, res, next) => {
   try {
     const clientUserId = BigInt(req.user.id);
@@ -30,7 +37,7 @@ export const obtenerNotificaciones = async (req, res, next) => {
 export const descargarComprobantePago = async (req, res, next) => {
   try {
     const clientUserId = BigInt(req.user.id);
-    const paymentId = BigInt(req.params.paymentId);
+    const paymentId = parseBigIntParam(req.params.paymentId, 'paymentId');
 
     const { pdfBuffer, filename } = await obtenerComprobantePagoService({
       paymentId,
@@ -49,7 +56,7 @@ export const descargarComprobantePago = async (req, res, next) => {
 export const aprobarProductoPersonalizado = async (req, res, next) => {
   try {
     const clientUserId = BigInt(req.user.id);
-    const orderId = BigInt(req.params.orderId);
+    const orderId = parseBigIntParam(req.params.orderId, 'orderId');
 
     const aprobacion = await obtenerAprobacionPendiente({ orderId, clientUserId });
 
@@ -69,7 +76,7 @@ export const aprobarProductoPersonalizado = async (req, res, next) => {
 export const solicitarAjustesProductoPersonalizado = async (req, res, next) => {
   try {
     const clientUserId = BigInt(req.user.id);
-    const orderId = BigInt(req.params.orderId);
+    const orderId = parseBigIntParam(req.params.orderId, 'orderId');
     const { adjustmentNotes } = req.body;
 
     if (!adjustmentNotes || typeof adjustmentNotes !== 'string' || adjustmentNotes.trim().length === 0) {
@@ -98,7 +105,7 @@ export const solicitarAjustesProductoPersonalizado = async (req, res, next) => {
 export const marcarComoLeida = async (req, res, next) => {
   try {
     const clientUserId = BigInt(req.user.id);
-    const notificationId = BigInt(req.params.id);
+    const notificationId = parseBigIntParam(req.params.id, 'id');
 
     const notificacion = await marcarComoLeidaService({ notificationId, clientUserId });
 

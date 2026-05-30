@@ -64,7 +64,12 @@ export function useLoginForm() {
       } else if (apiError.error === AUTH_STRINGS.INACTIVE_ACCOUNT_ERROR) {
         setIsAccountInactive(true);
       } else if (apiError.error) {
-        setErrors([{ field: 'general', message: apiError.error }]);
+        const KNOWN_ERRORS: Record<string, string> = {
+          [AUTH_STRINGS.INACTIVE_ACCOUNT_ERROR]: AUTH_STRINGS.errors.connectionError,
+          'Correo electrónico o contraseña incorrectos': AUTH_STRINGS.errors.invalidCredentials,
+        };
+        const safeMessage = KNOWN_ERRORS[apiError.error] ?? AUTH_STRINGS.errors.unexpectedError;
+        setErrors([{ field: 'general', message: safeMessage }]);
       } else {
         setErrors([{ field: 'general', message: AUTH_STRINGS.errors.connectionError }]);
       }

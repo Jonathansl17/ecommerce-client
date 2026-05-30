@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { crearError } from './errorHandler.js';
 import { HTTP_STATUS } from '../constants/http.constants.js';
 
@@ -21,7 +22,13 @@ export function requireInternalApiKey(req, res, next) {
     return next(crearError(MISSING_KEY_MESSAGE, HTTP_STATUS.UNAUTHORIZED));
   }
 
-  if (provided !== expected) {
+  const expectedBuf = Buffer.from(expected);
+  const providedBuf = Buffer.from(provided);
+  const valid =
+    expectedBuf.length === providedBuf.length &&
+    crypto.timingSafeEqual(expectedBuf, providedBuf);
+
+  if (!valid) {
     return next(crearError(INVALID_KEY_MESSAGE, HTTP_STATUS.UNAUTHORIZED));
   }
 

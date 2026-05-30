@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 const agregarItemSchema = z.object({
   variantId: z.number().int().positive(),
-  quantity: z.number().int().min(1, 'La cantidad debe ser al menos 1'),
+  quantity: z.number().int().min(1, 'La cantidad debe ser al menos 1').max(100, 'La cantidad máxima es 100'),
 });
 
 const actualizarCantidadSchema = z.object({
-  quantity: z.number().int().min(1, 'La cantidad debe ser al menos 1'),
+  quantity: z.number().int().min(1, 'La cantidad debe ser al menos 1').max(100, 'La cantidad máxima es 100'),
 });
 
 function validar(schema) {
