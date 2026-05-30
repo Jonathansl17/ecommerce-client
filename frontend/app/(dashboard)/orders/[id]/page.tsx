@@ -61,24 +61,17 @@ export default function OrderDetailPage() {
       </Link>
 
       {/* Header */}
-      <header className="rounded-xl border border-border bg-card p-5 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <header className="rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-xl font-bold text-foreground">
               {ORDER_STATUS_NOTIFICATION_STRINGS.orderNumber(pedido.id)}
             </h1>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {ORDER_STATUS_NOTIFICATION_STRINGS.orderDate}: {formatearFecha(pedido.createdAt)}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <OrderStatusBadge status={pedido.status} />
-            <CancelOrderButton
-              orderId={pedido.id}
-              currentStatus={pedido.status}
-              onCancelled={() => router.refresh()}
-            />
-          </div>
+          <OrderStatusBadge status={pedido.status} />
         </div>
       </header>
 
@@ -192,6 +185,13 @@ export default function OrderDetailPage() {
           <OrderStatusTimeline historial={pedido.orderStatusNotifications} />
         </div>
       </section>
+
+      {/* Cancel — destructive zone at bottom */}
+      <CancelOrderButton
+        orderId={pedido.id}
+        currentStatus={pedido.status}
+        onCancelled={() => router.refresh()}
+      />
 
     </div>
   );
