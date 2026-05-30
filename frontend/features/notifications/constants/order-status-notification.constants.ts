@@ -35,9 +35,9 @@ export const ORDER_STATUS_NOTIFICATION_DELIVERY_LABELS = {
 } as const;
 
 export const ORDER_STATUS_NOTIFICATION_DELIVERY_TONES = {
-  pending: 'bg-slate-100 text-slate-700',
-  sent: 'bg-emerald-100 text-emerald-700',
-  failed: 'bg-amber-100 text-amber-700',
+  pending: 'bg-secondary text-secondary-foreground',
+  sent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  failed: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
 } as const;
 
 export const ORDER_STATUS_NOTIFICATION_STRINGS = {

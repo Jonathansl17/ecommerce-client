@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useId } from 'react';
+import { useState, useRef, useEffect, useId, useCallback } from 'react';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationItem } from './NotificationItem';
 import { BellIcon } from './icons/BellIcon';
@@ -13,8 +13,10 @@ import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
 
 export function NotificationBell() {
   const [abierto, setAbierto] = useState(false);
+  const [ringing, setRinging] = useState(false);
   const { notificaciones, noLeidas, cargando, error, marcarComoLeida } = useNotifications();
   const contenedorRef = useRef<HTMLDivElement>(null);
+  const ringTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelId = useId();
 
   useEffect(() => {
@@ -37,6 +39,19 @@ export function NotificationBell() {
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (ringTimerRef.current != null) clearTimeout(ringTimerRef.current);
+    };
+  }, []);
+
+  const handleClick = useCallback(() => {
+    setAbierto((prev) => !prev);
+    setRinging(true);
+    if (ringTimerRef.current != null) clearTimeout(ringTimerRef.current);
+    ringTimerRef.current = setTimeout(() => setRinging(false), 700);
+  }, []);
+
   const hayNotificaciones = !cargando && !error && notificaciones.length > 0;
   const sinNotificaciones = !cargando && !error && notificaciones.length === 0;
 
@@ -44,7 +59,7 @@ export function NotificationBell() {
     <div ref={contenedorRef} className="relative">
       <button
         type="button"
-        onClick={() => setAbierto((prev) => !prev)}
+        onClick={handleClick}
         aria-label={
           noLeidas > 0
             ? NOTIFICATION_STRINGS.unreadBadgeAriaLabel(noLeidas)
@@ -55,14 +70,14 @@ export function NotificationBell() {
         aria-controls={panelId}
         className="relative flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <BellIcon />
+        <BellIcon ringing={ringing} />
         <UnreadCountBadge count={noLeidas} />
       </button>
 
       {abierto && (
         <div
           id={panelId}
-          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-lg animate-notif-panel-in"
         >
           <PanelHeader unreadCount={noLeidas} />
 
@@ -74,7 +89,7 @@ export function NotificationBell() {
             <ul
               role="menu"
               aria-label={NOTIFICATION_STRINGS.bellAriaLabel}
-              className="max-h-80 divide-y divide-border overflow-y-auto"
+              className="max-h-80 divide-y divide-zinc-300 dark:divide-zinc-600 overflow-y-auto"
             >
               {notificaciones.map((notificacion) => (
                 <NotificationItem

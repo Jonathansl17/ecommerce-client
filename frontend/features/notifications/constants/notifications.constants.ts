@@ -15,7 +15,7 @@ export const NOTIFICATION_STRINGS = {
   welcomeTag: 'Bienvenida',
   orderTag: 'Pedido',
   paymentTag: 'Pago',
-  viewOrder: 'Ver pedido →',
+  viewOrder: 'Ver pedido',
   customizationTag: 'Personalización',
   customizationImagesLabel: 'Fotografías del producto',
   customizationImageAlt: (index: number) => `Foto del producto personalizado ${index + 1}`,
@@ -33,10 +33,10 @@ export const PAYMENT_RECEIPT_STRINGS = {
 } as const;
 
 export const NOTIFICATION_TAG_STYLES: Record<string, string> = {
-  onboarding: 'bg-sky-400 text-white dark:bg-sky-500',
-  order: 'bg-secondary text-secondary-foreground',
-  payment: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
-  product_customization: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+  onboarding: 'border border-blue-500 text-blue-500 dark:border-blue-600 dark:text-blue-600',
+  order: 'border border-emerald-600 text-emerald-600 dark:border-emerald-500 dark:text-emerald-500',
+  payment: 'border border-indigo-500 text-indigo-500 dark:border-indigo-600 dark:text-indigo-600',
+  product_customization: 'border border-teal-600 text-teal-600 dark:border-teal-500 dark:text-teal-500',
 } as const;
 
 export const NOTIFICATION_TAG_LABELS: Record<string, string> = {

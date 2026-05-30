@@ -30,13 +30,13 @@ export function OrderStatusTimeline({ historial }: OrderStatusTimelineProps) {
     ) : (
       <ol className="space-y-4">
         {historial.map((evento) => (
-          <li key={evento.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <li key={evento.id} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {ORDER_STATUS_NOTIFICATION_STRINGS.changedAt}
                 </p>
-                <p className="mt-1 text-sm font-medium text-slate-900">
+                <p className="mt-1 text-sm font-medium text-foreground">
                   {formatearFecha(evento.changedAt)}
                 </p>
               </div>
@@ -48,26 +48,26 @@ export function OrderStatusTimeline({ historial }: OrderStatusTimelineProps) {
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <div className="rounded-xl bg-slate-50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+              <div className="rounded-xl bg-muted/60 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {ORDER_STATUS_NOTIFICATION_STRINGS.previousStatus}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">
+                <p className="mt-1 text-sm font-semibold text-foreground">
                   {getPreviousStatusLabel(evento.previousStatus)}
                 </p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+              <div className="rounded-xl bg-muted/60 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {ORDER_STATUS_NOTIFICATION_STRINGS.newStatus}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">
+                <p className="mt-1 text-sm font-semibold text-foreground">
                   {ORDER_STATUS_NOTIFICATION_STATUS_LABELS[evento.newStatus]}
                 </p>
               </div>
             </div>
 
             {evento.deliveryStatus === 'failed' && (
-              <p className="mt-3 text-sm text-amber-700">
+              <p className="mt-3 text-sm text-amber-600 dark:text-amber-400">
                 {ORDER_STATUS_NOTIFICATION_STRINGS.externalDeliveryFailure}
                 {evento.deliveryLastError ? ` (${evento.deliveryLastError})` : ''}
               </p>
