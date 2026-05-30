@@ -3,6 +3,7 @@ import type {
   PaginationMeta,
   ProductReview,
   RatingsSummary,
+  ReviewResponse,
   VoteType,
 } from '@/features/reviews/types/reviews.types';
 
@@ -46,6 +47,9 @@ export type ProductReviewsAction =
   | { type: 'SET_MY_VOTES'; payload: MyReviewVotes }
   | { type: 'APPLY_VOTE'; payload: { reviewId: string; voteType: VoteType } }
   | { type: 'APPLY_VOTE_REMOVAL'; payload: { reviewId: string } }
+  | { type: 'SET_RESPONSE';
+      payload: { reviewId: string; response: ReviewResponse | null };
+    }
   | {
       type: 'REVERT_VOTE_STATE';
       payload: {
@@ -67,6 +71,9 @@ export interface UseProductReviewsResult {
   dispatch: Dispatch<ProductReviewsAction>;
   vote: (reviewId: string, voteType: VoteType) => Promise<void>;
   removeVote: (reviewId: string) => Promise<void>;
+  respond: (reviewId: string, content: string) => Promise<void>;
+  updateResponse: (reviewId: string, content: string) => Promise<void>;
+  deleteResponse: (reviewId: string) => Promise<void>;
 }
 
 export interface EmptyReviewsStateProps {
@@ -78,7 +85,11 @@ export interface PublicReviewCardProps {
   currentUserVote?: VoteType | null;
   isOwnReview?: boolean;
   isAuthenticated?: boolean;
+  isAdmin?: boolean;
   onVote?: (reviewId: string, voteType: VoteType) => Promise<void>;
+  onRespond?: (reviewId: string, content: string) => Promise<void>;
+  onUpdateResponse?: (reviewId: string, content: string) => Promise<void>;
+  onDeleteResponse?: (reviewId: string) => Promise<void>;
 }
 
 export interface ReviewFiltersBarProps {

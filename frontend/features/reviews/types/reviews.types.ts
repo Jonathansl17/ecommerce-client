@@ -33,6 +33,13 @@ export interface PurchasedProduct {
   variant: PurchasedProductVariant;
 }
 
+export interface ReviewResponse {
+  content: string;
+  edited: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ProductReview {
   id: string;
   productId: string;
@@ -46,6 +53,7 @@ export interface ProductReview {
   unhelpfulVotes: number;
   createdAt: string;
   updatedAt: string;
+  response: ReviewResponse | null;
 }
 
 export interface ReviewVote {
