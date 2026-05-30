@@ -13,6 +13,7 @@ const checkoutSchema = z.object({
 
 const updateOrderStatusSchema = z.object({
   status: z.enum(ORDER_STATUS_VALUES),
+  cancelationReason: z.string().max(500).optional(),
 });
 
 function validar(schema) {
