@@ -23,6 +23,8 @@ export const NOTIFICATION_STRINGS = {
   loadError: 'No se pudieron cargar las notificaciones',
   fetchError: 'Error al cargar notificaciones',
   markAsReadError: 'Error al marcar la notificación como leída',
+  dismissError: 'Error al descartar la notificación',
+  dismissAriaLabel: 'Descartar notificación',
 } as const;
 
 export const PAYMENT_RECEIPT_STRINGS = {
