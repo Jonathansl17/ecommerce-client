@@ -118,6 +118,16 @@ export function productReviewsReducer(
       };
     }
 
+    case 'SET_RESPONSE': {
+      const { reviewId, response } = action.payload;
+      return {
+        ...state,
+        reviews: state.reviews.map((r) =>
+          r.id === reviewId ? { ...r, response } : r,
+        ),
+      };
+    }
+
     case 'REVERT_VOTE_STATE': {
       const { reviewId, previousVote, helpfulVotes, unhelpfulVotes } = action.payload;
       return {

@@ -8,13 +8,18 @@ import {
   eliminar,
   votar,
   retirarVoto,
+  responder,
+  actualizarRespuesta,
+  eliminarRespuesta,
 } from './reviews.controller.js';
 import {
   validateCrear,
   validateActualizar,
   validateVotar,
+  validateResponder,
 } from './reviews.validator.js';
 import { requireAuth } from '../../shared/middleware/authMiddleware.js';
+import { requireAdmin } from '../../shared/middleware/requireAdmin.js';
 
 const router = Router();
 
@@ -41,5 +46,13 @@ router.post('/:reviewId/vote', requireAuth, validateVotar, votar);
 
 // DELETE /api/reviews/:reviewId/vote   → retirar voto propio (US-REV-003)
 router.delete('/:reviewId/vote', requireAuth, retirarVoto);
+
+// Respuesta oficial del administrador (US-REV-005). Solo admins (requireAdmin).
+// POST   /api/reviews/:reviewId/response  → crear respuesta (una sola por reseña)
+router.post('/:reviewId/response', requireAuth, requireAdmin, validateResponder, responder);
+// PUT    /api/reviews/:reviewId/response  → editar respuesta
+router.put('/:reviewId/response', requireAuth, requireAdmin, validateResponder, actualizarRespuesta);
+// DELETE /api/reviews/:reviewId/response  → eliminar respuesta
+router.delete('/:reviewId/response', requireAuth, requireAdmin, eliminarRespuesta);
 
 export default router;

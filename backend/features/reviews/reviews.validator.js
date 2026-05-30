@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { REVIEW_LIMITS, REVIEWS_MESSAGES, VOTE_TYPES } from './reviews.constants.js';
+import {
+  REVIEW_LIMITS,
+  REVIEW_RESPONSE_LIMITS,
+  REVIEWS_MESSAGES,
+  VOTE_TYPES,
+} from './reviews.constants.js';
 
 const ratingField = z
   .number()
@@ -30,6 +35,17 @@ const votarReviewSchema = z.object({
   }),
 });
 
+const responderReviewSchema = z.object({
+  content: z
+    .string()
+    .trim()
+    .min(REVIEW_RESPONSE_LIMITS.CONTENT_MIN, 'La respuesta no puede estar vacía')
+    .max(
+      REVIEW_RESPONSE_LIMITS.CONTENT_MAX,
+      `La respuesta no puede superar los ${REVIEW_RESPONSE_LIMITS.CONTENT_MAX} caracteres`,
+    ),
+});
+
 function validar(schema) {
   return (req, res, next) => {
     const result = schema.safeParse(req.body);
@@ -46,3 +62,4 @@ function validar(schema) {
 export const validateCrear = validar(crearReviewSchema);
 export const validateActualizar = validar(actualizarReviewSchema);
 export const validateVotar = validar(votarReviewSchema);
+export const validateResponder = validar(responderReviewSchema);

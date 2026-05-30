@@ -111,8 +111,23 @@ model ClientUser {
   productCustomizationApprovals   ProductCustomizationApproval[]
   reviews                         Review[]
   reviewVotes                     ReviewVote[]
+  reviewResponses                 ReviewResponse[]
+  admin                           Admin?
 
   @@map("client_users")
+}
+
+// US-REV-005: marca a un ClientUser como administrador.
+// La existencia de la fila + admin=true habilita responder reseñas.
+model Admin {
+  id           BigInt   @id @default(autoincrement())
+  clientUserId BigInt   @unique @map("client_user_id")
+  admin        Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  clientUser ClientUser @relation(fields: [clientUserId], references: [id])
+
+  @@map("admins")
 }
 
 model ClientRecoveryToken {
@@ -380,11 +395,29 @@ model Review {
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamp()
   updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamp()
 
-  product    Product      @relation(fields: [productId], references: [itemId])
-  clientUser ClientUser   @relation(fields: [clientUserId], references: [id])
+  product    Product         @relation(fields: [productId], references: [itemId])
+  clientUser ClientUser      @relation(fields: [clientUserId], references: [id])
   votes      ReviewVote[]
+  response   ReviewResponse?
 
   @@map("reviews")
+}
+
+// US-REV-005: respuesta oficial del administrador a una reseña.
+// reviewId es UNIQUE → relación 0:1 (una sola respuesta por reseña).
+// adminUserId enlaza al ClientUser autor (que debe ser admin para poder responder).
+model ReviewResponse {
+  id          BigInt   @id @default(autoincrement())
+  reviewId    BigInt   @unique @map("review_id")
+  adminUserId BigInt   @map("admin_user_id")
+  content     String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp()
+
+  review    Review     @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  adminUser ClientUser @relation(fields: [adminUserId], references: [id])
+
+  @@map("review_responses")
 }
 
 model ReviewVote {
