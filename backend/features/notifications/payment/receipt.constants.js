@@ -1,7 +1,11 @@
 export const PAYMENT_RECEIPT_PDF = {
   MIME_TYPE: 'application/pdf',
   FILENAME: (orderId) => `comprobante-pago-pedido-${orderId}.pdf`,
-  CONTENT_DISPOSITION: (filename) => `attachment; filename="${filename}"`,
+  CONTENT_DISPOSITION: (filename) => {
+    const safe = filename.replace(/[^\w\-.]/g, '_');
+    const encoded = encodeURIComponent(filename);
+    return `attachment; filename="${safe}"; filename*=UTF-8''${encoded}`;
+  },
 };
 
 export const PAYMENT_RECEIPT_STRINGS = {

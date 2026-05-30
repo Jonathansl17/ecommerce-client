@@ -17,6 +17,15 @@ function validarImagenes(images) {
   if (!Array.isArray(images) || images.length < PRODUCT_CUSTOMIZATION_VALIDATION.MIN_IMAGES) {
     throw new Error(PRODUCT_CUSTOMIZATION_MESSAGES.VALIDATION_IMAGES_REQUIRED);
   }
+  for (const url of images) {
+    let parsed;
+    try { parsed = new URL(url); } catch {
+      throw new Error(`URL de imagen inválida: ${url}`);
+    }
+    if (parsed.protocol !== 'https:') {
+      throw new Error(`Protocolo no permitido en imagen: ${parsed.protocol}`);
+    }
+  }
 }
 
 async function obtenerOrdenConCliente(orderId) {
