@@ -5,6 +5,7 @@ import { crearError } from '../../shared/middleware/errorHandler.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 import { PASSWORD_RECOVERY_CONFIG, PASSWORD_RECOVERY_MESSAGES } from './password-recovery.constants.js';
 import { enviarCorreoRecuperacionPassword } from './password-recovery.email.service.js';
+import { enviarCorreoCambioContrasena } from '../notifications/email/email.service.js';
 
 const normalizarEmail = (email) => email.toLowerCase().trim();
 
@@ -40,6 +41,8 @@ const obtenerRegistroRecuperacionValido = (tokenHash) =>
       user: {
         select: {
           accountStatus: true,
+          email: true,
+          fullName: true,
         },
       },
     },
@@ -126,6 +129,11 @@ export const restablecerPassword = async ({ token, password, saltRounds }) => {
       data: { usedAt: now },
     });
   });
+
+  enviarCorreoCambioContrasena(
+    { email: recoveryToken.user.email, fullName: recoveryToken.user.fullName },
+    now,
+  ).catch((err) => console.error(PASSWORD_RECOVERY_MESSAGES.EMAIL_SEND_ERROR, err.message));
 
   return { message: PASSWORD_RECOVERY_MESSAGES.PASSWORD_RESET };
 };

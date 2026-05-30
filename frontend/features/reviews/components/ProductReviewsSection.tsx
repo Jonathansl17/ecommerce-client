@@ -40,7 +40,12 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
     filters,
     dispatch,
     vote,
+    respond,
+    updateResponse,
+    deleteResponse,
   } = useProductReviews(productId);
+
+  const isAdmin = user?.isAdmin === true;
 
   const hasRawReviews = summary.totalReviews > 0;
   const isFiltered = filters.rating !== 'all';
@@ -102,7 +107,11 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
                       currentUserVote={myVotes[review.id] ?? null}
                       isOwnReview={user?.id === review.clientUserId}
                       isAuthenticated={isAuthenticated}
+                      isAdmin={isAdmin}
                       onVote={vote}
+                      onRespond={respond}
+                      onUpdateResponse={updateResponse}
+                      onDeleteResponse={deleteResponse}
                     />
                   </li>
                 ))}

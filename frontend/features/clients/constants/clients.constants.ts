@@ -1,3 +1,18 @@
+export const CLIENT_API = {
+  me: '/clients/me',
+  password: '/clients/me/password',
+};
+
+export const PROFILE_REDIRECT_DELAY_MS = 1500;
+export const PASSWORD_SUCCESS_DELAY_MS = 2000;
+
+export const PROFILE_ERROR_MESSAGES = {
+  deactivate: 'Error al desactivar la cuenta',
+  changePassword: 'Error al cambiar contraseña',
+  updateProfile: 'Error al actualizar perfil',
+  unknown: 'Error desconocido',
+};
+
 export const PROFILE_STRINGS = {
   page: {
     title: 'Mi Perfil',

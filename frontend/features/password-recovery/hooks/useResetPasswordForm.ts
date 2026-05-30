@@ -10,6 +10,7 @@ import {
   getRecoveryFieldError,
   validateResetPasswordForm,
 } from '@/features/password-recovery/shared/password-recovery.validation';
+import { meetsRequirements, isPasswordValid } from '@/lib/utils/password.utils';
 import type {
   PasswordRecoveryApiErrorResponse,
   RecoveryFieldError,
@@ -75,7 +76,7 @@ export function useResetPasswordForm(token: string | null) {
     return getRecoveryFieldError(errors, field);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrors([]);
     setSuccessMessage(undefined);
@@ -128,11 +129,23 @@ export function useResetPasswordForm(token: string | null) {
     }
   }
 
+  const passwordsMatch = !formData.confirmPassword || formData.password === formData.confirmPassword;
+  const requirements = meetsRequirements(formData.password);
+  const canSubmit =
+    !loading &&
+    !validatingToken &&
+    isTokenValid &&
+    isPasswordValid(formData.password) &&
+    formData.password === formData.confirmPassword;
+
   return {
     formData,
     loading,
     validatingToken,
     isTokenValid,
+    passwordsMatch,
+    requirements,
+    canSubmit,
     successMessage,
     generalMessage,
     handleChange,

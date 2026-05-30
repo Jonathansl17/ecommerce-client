@@ -42,6 +42,31 @@ export const PRODUCT_REVIEW_STRINGS = {
   starsBarAriaLabel: (n: number, count: number, pct: number) =>
     `${n} ${n === 1 ? 'estrella' : 'estrellas'}: ${count} reseñas, ${pct}%`,
   reviewedOn: (fecha: string) => `Reseñado el ${fecha}`,
+  response: {
+    badge: 'Respuesta oficial de la tienda',
+    respondedOn: (fecha: string) => `Respondido el ${fecha}`,
+    editedTag: 'Editada',
+    maxLength: 500,
+    placeholder: 'Escribe la respuesta oficial de la tienda...',
+    counter: (n: number, max: number) => `${n}/${max}`,
+    actions: {
+      respond: 'Responder',
+      edit: 'Editar',
+      delete: 'Eliminar',
+      cancel: 'Cancelar',
+      publish: 'Publicar respuesta',
+      publishing: 'Publicando...',
+      save: 'Guardar cambios',
+      saving: 'Guardando...',
+    },
+    deleteConfirm: {
+      title: 'Eliminar respuesta',
+      message:
+        '¿Seguro que deseas eliminar esta respuesta oficial? Esta acción no se puede deshacer.',
+      confirm: 'Eliminar',
+      cancel: 'Cancelar',
+    },
+  },
 } as const;
 
 export const PRODUCT_REVIEW_DATE_FORMAT: {

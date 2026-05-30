@@ -31,6 +31,7 @@ export interface AuthUser {
   accountStatus?: string;
   createdAt?: string;
   updatedAt?: string;
+  isAdmin?: boolean;
 }
 
 export interface ApiErrorResponse {

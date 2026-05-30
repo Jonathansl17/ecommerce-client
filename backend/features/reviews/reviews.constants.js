@@ -17,6 +17,11 @@ export const REVIEWS_MESSAGES = {
   VOTE_NOT_FOUND: 'No tienes un voto registrado en esta reseña',
   VOTE_REGISTERED: 'Voto registrado',
   VOTE_REMOVED: 'Voto retirado',
+  RESPONSE_ALREADY_EXISTS: 'Esta reseña ya tiene una respuesta del administrador',
+  RESPONSE_NOT_FOUND: 'Esta reseña no tiene una respuesta del administrador',
+  RESPONSE_CREATED: 'Respuesta publicada correctamente',
+  RESPONSE_UPDATED: 'Respuesta actualizada correctamente',
+  RESPONSE_DELETED: 'Respuesta eliminada correctamente',
 };
 
 export const REVIEW_STATUS = {
@@ -38,4 +43,9 @@ export const REVIEW_LIMITS = {
   RATING_MAX: 5,
   COMMENT_MIN: 10,
   COMMENT_MAX: 1000,
+};
+
+export const REVIEW_RESPONSE_LIMITS = {
+  CONTENT_MIN: 1,
+  CONTENT_MAX: 500,
 };
