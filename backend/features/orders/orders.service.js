@@ -171,23 +171,29 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
   for (const item of carrito.cartItems) {
     const disponible = item.variant.currentStock - item.variant.reservedStock;
     if (disponible < item.quantity) {
-      throw crearError(
-        `${ORDERS_MESSAGES.OUT_OF_STOCK}: ${item.variant.product.item.name} (${item.variant.color} / ${item.variant.size})`,
-        HTTP_STATUS.BAD_REQUEST
-      );
+      // Log interno con detalles — el cliente solo recibe el mensaje genérico
+      console.warn('[CHECKOUT] Stock insuficiente', {
+        variantId: item.variantId.toString(),
+        solicitado: item.quantity,
+        disponible,
+      });
+      throw crearError(ORDERS_MESSAGES.OUT_OF_STOCK, HTTP_STATUS.BAD_REQUEST);
     }
   }
 
-  // 3. Calcular totales usando el unit_price_snap almacenado en el carrito
-  const subtotal = carrito.cartItems.reduce(
-    (acc, item) => acc + Number(item.unitPriceSnap) * item.quantity,
-    0
+  // 3. Calcular totales con aritmética entera (centavos) para evitar pérdida de precisión float
+  const subtotalCents = carrito.cartItems.reduce(
+    (acc, item) => acc + Math.round(Number(item.unitPriceSnap) * 100) * item.quantity,
+    0,
   );
-  const taxes = subtotal * TAX_RATE;
+  const subtotal = subtotalCents / 100;
+  const taxes = Math.round(subtotalCents * TAX_RATE) / 100;
   const totalAmount = subtotal + taxes;
 
   // 4. Crear Order, OrderItems, Payment y actualizar stock en una sola transacción
-  const orden = await prisma.$transaction(async (tx) => {
+  let orden;
+  try {
+  orden = await prisma.$transaction(async (tx) => {
     // Crear la orden
     const nuevaOrden = await tx.order.create({
       data: {
@@ -242,6 +248,13 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
       select: ORDER_SELECT,
     });
   });
+  } catch (error) {
+    // cartId tiene @unique en Order — dos requests simultáneos del mismo carrito
+    if (error?.code === 'P2002') {
+      throw crearError('Ya existe un pedido para este carrito', HTTP_STATUS.CONFLICT);
+    }
+    throw error;
+  }
 
   return serializarPedido(orden);
 };
@@ -430,9 +443,11 @@ export const cancelarPedido = async (userId, orderId) => {
   const newStatus = CANCELLED_ORDER_STATUS;
 
   const { order, orderStatusNotification } = await prisma.$transaction(async (tx) => {
+    // clientUserId en el WHERE garantiza ownership dentro de la TX (defensa en profundidad)
     const updatedOrderCount = await tx.order.updateMany({
       where: {
         id: parsedOrderId,
+        clientUserId: parsedUserId,
         status: CANCELLABLE_ORDER_STATUS,
       },
       data: {
@@ -448,8 +463,9 @@ export const cancelarPedido = async (userId, orderId) => {
     }
 
     for (const item of currentOrder.orderItems) {
-      await tx.productVariant.update({
-        where: { id: item.variantId },
+      // gte guard: evita decrementar reservedStock a negativo en cancellations concurrentes
+      await tx.productVariant.updateMany({
+        where: { id: item.variantId, reservedStock: { gte: item.quantity } },
         data: { reservedStock: { decrement: item.quantity } },
       });
     }
@@ -590,8 +606,8 @@ export const cancelarPedidoAdmin = async (orderId) => {
     }
 
     for (const item of currentOrder.orderItems) {
-      await tx.productVariant.update({
-        where: { id: item.variantId },
+      await tx.productVariant.updateMany({
+        where: { id: item.variantId, reservedStock: { gte: item.quantity } },
         data: { reservedStock: { decrement: item.quantity } },
       });
     }
