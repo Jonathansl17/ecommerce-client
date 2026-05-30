@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MapPin } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { OrderStatusTimeline } from '@/features/notifications/components/OrderStatusTimeline';
 import { OrderStatusStepper } from '@/features/notifications/components/ui/OrderStatusStepper';
@@ -107,35 +107,40 @@ export default function OrderDetailPage() {
       </section>
 
       {/* Shipping address */}
-      <div className="rounded-xl border border-border bg-card px-5 py-4">
-        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-          {ORDER_STATUS_NOTIFICATION_STRINGS.shippingAddress}
-        </p>
-        <p className="mt-1 text-sm text-foreground">{pedido.shippingAddress}</p>
+      <div className="rounded-xl border border-border bg-card px-5 py-3.5 flex items-start gap-3">
+        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            {ORDER_STATUS_NOTIFICATION_STRINGS.shippingAddress}
+          </p>
+          <p className="mt-0.5 text-sm text-foreground">{pedido.shippingAddress}</p>
+        </div>
       </div>
 
       {/* Payment */}
       {payment && (
-        <section className="rounded-xl border border-border bg-card px-5 py-4">
-          <h2 className="text-sm font-semibold text-foreground">
-            {ORDER_STATUS_NOTIFICATION_STRINGS.paymentTitle}
-          </h2>
-          <div className="mt-3 grid grid-cols-3 gap-4">
-            <div>
+        <section className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="border-b border-border px-5 py-3">
+            <h2 className="text-sm font-semibold text-foreground">
+              {ORDER_STATUS_NOTIFICATION_STRINGS.paymentTitle}
+            </h2>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-border px-0">
+            <div className="px-5 py-3">
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Método</p>
-              <p className="mt-1 text-sm font-semibold text-foreground">
+              <p className="mt-0.5 text-sm font-semibold text-foreground">
                 {PAYMENT_METHOD_LABELS[payment.method] ?? payment.method}
               </p>
             </div>
-            <div>
+            <div className="px-5 py-3">
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Monto</p>
-              <p className="mt-1 text-sm font-semibold text-foreground">
+              <p className="mt-0.5 text-sm font-semibold text-foreground">
                 ₡{payment.amount.toLocaleString('es-CR')}
               </p>
             </div>
-            <div>
+            <div className="px-5 py-3">
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Estado</p>
-              <p className="mt-1 text-sm font-semibold text-foreground">
+              <p className="mt-0.5 text-sm font-semibold text-foreground">
                 {PAYMENT_STATUS_LABELS[payment.status] ?? payment.status}
               </p>
             </div>
@@ -181,9 +186,7 @@ export default function OrderDetailPage() {
             {ORDER_STATUS_NOTIFICATION_STRINGS.timelineTitle}
           </h2>
         </div>
-        <div className="p-4">
-          <OrderStatusTimeline historial={pedido.orderStatusNotifications} />
-        </div>
+        <OrderStatusTimeline historial={pedido.orderStatusNotifications} />
       </section>
 
       {/* Cancel — destructive zone at bottom */}
