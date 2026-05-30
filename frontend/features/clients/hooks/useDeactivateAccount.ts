@@ -1,24 +1,11 @@
 'use client';
+import { DeactivateAccountData } from '../types/profile.interface';
 
 import { useState } from 'react';
 import { apiFetch, ApiError } from '@/lib/http/apiFetch';
+import { extractErrorMessage } from '@/lib/http/extractErrorMessage';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
-
-interface DeactivateAccountData {
-  password: string;
-}
-
-function extractErrorMessage(body: unknown, fallback: string): string {
-  if (body && typeof body === 'object') {
-    const record = body as Record<string, unknown>;
-    if (Array.isArray(record.errors)) {
-      const first = (record.errors as { message?: string }[])[0];
-      if (first?.message) return first.message;
-    }
-    if (typeof record.error === 'string') return record.error;
-  }
-  return fallback;
-}
+import { CLIENT_API, PROFILE_ERROR_MESSAGES } from '../constants/clients.constants';
 
 export function useDeactivateAccount() {
   const { logout } = useAuth();
@@ -30,7 +17,7 @@ export function useDeactivateAccount() {
     setError(null);
 
     try {
-      await apiFetch('/clients/me', {
+      await apiFetch(CLIENT_API.me, {
         method: 'DELETE',
         body: data as unknown as Record<string, unknown>,
         signal: AbortSignal.timeout(10_000),
@@ -39,9 +26,9 @@ export function useDeactivateAccount() {
       return true;
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(extractErrorMessage(err.body, 'Error al desactivar la cuenta'));
+        setError(extractErrorMessage(err.body, PROFILE_ERROR_MESSAGES.deactivate));
       } else {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
+        setError(err instanceof Error ? err.message : PROFILE_ERROR_MESSAGES.unknown);
       }
       return false;
     } finally {

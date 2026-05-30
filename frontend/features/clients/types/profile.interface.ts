@@ -135,3 +135,7 @@ export interface UpdateProfileResponse {
     email: string;
   };
 }
+
+export interface DeactivateAccountData {
+  password: string;
+}
