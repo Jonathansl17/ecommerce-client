@@ -1,16 +1,26 @@
 import { NOTIFICATION_STRINGS } from '../../constants/notifications.constants';
 import type { ProductCustomizationImagesProps } from '../../types/notifications.types';
 
+function isSafeImageUrl(url: string): boolean {
+  try {
+    return new URL(url).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export function ProductCustomizationImages({ images }: ProductCustomizationImagesProps) {
+  const safeImages = images.filter(isSafeImageUrl);
+
   return (
     <div className="mt-2">
       <p className="text-xs font-medium text-muted-foreground mb-1.5">
         {NOTIFICATION_STRINGS.customizationImagesLabel}
       </p>
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {images.map((url, index) => (
+        {safeImages.map((url, index) => (
           <a
-            key={url}
+            key={index}
             href={url}
             target="_blank"
             rel="noopener noreferrer"

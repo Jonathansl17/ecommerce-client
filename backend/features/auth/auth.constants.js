@@ -29,7 +29,7 @@ export const buildCookieOptions = (maxAgeMs, { forRefresh = false } = {}) => {
   return {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: forRefresh ? '/api/auth' : '/',
     maxAge: maxAgeMs,
   };
