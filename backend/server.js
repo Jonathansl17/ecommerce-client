@@ -5,6 +5,8 @@ import express from 'express';
 BigInt.prototype.toJSON = function () { return this.toString(); };
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { limpiarTokensExpirados } from './features/auth/auth.tokens.service.js';
 import { iniciarMonitorInventarioBajo } from './features/notifications/low-stock/scheduler.service.js';
 import authRoutes from './features/auth/auth.routes.js';
@@ -24,6 +26,7 @@ const PORT = process.env.PORT || 3001;
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:4001';
 
+app.use(helmet());
 app.use(cors({
   origin: FRONTEND_ORIGIN,
   credentials: true,
@@ -31,6 +34,35 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(requireFetchHeader);
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+});
+
+const refreshLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const recoveryLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/refresh', refreshLimiter);
+app.use('/api/password-recovery/request', recoveryLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/password-recovery', passwordRecoveryRoutes);
