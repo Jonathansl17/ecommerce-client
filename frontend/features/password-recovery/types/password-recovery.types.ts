@@ -30,7 +30,7 @@ export interface ForgotPasswordFormProps {
   loading: boolean;
   successMessage?: string;
   handleChange: (field: keyof ForgotPasswordFormData) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   fieldError: (field: string) => string | undefined;
 }
 
@@ -39,9 +39,12 @@ export interface ResetPasswordFormProps {
   loading: boolean;
   validatingToken: boolean;
   isTokenValid: boolean;
+  passwordsMatch: boolean;
+  requirements: { minLength: boolean; uppercase: boolean; lowercase: boolean; number: boolean };
+  canSubmit: boolean;
   successMessage?: string;
   generalMessage?: string;
   handleChange: (field: keyof ResetPasswordFormData) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   fieldError: (field: string) => string | undefined;
 }

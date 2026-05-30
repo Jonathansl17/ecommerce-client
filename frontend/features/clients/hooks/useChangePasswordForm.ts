@@ -3,20 +3,8 @@
 import { useEffect, useState } from 'react';
 import { usePasswordChange } from './usePasswordChange';
 import { ChangePasswordDialogProps } from '../types/profile.interface';
-
-function meetsRequirements(password: string) {
-  return {
-    minLength: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    lowercase: /[a-z]/.test(password),
-    number: /[0-9]/.test(password),
-  };
-}
-
-function isPasswordValid(password: string): boolean {
-  const r = meetsRequirements(password);
-  return r.minLength && r.uppercase && r.lowercase && r.number;
-}
+import { PASSWORD_SUCCESS_DELAY_MS } from '../constants/clients.constants';
+import { meetsRequirements, isPasswordValid } from '@/lib/utils/password.utils';
 
 export function useChangePasswordForm({ isOpen, onClose, onSuccess }: ChangePasswordDialogProps) {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -62,7 +50,7 @@ export function useChangePasswordForm({ isOpen, onClose, onSuccess }: ChangePass
         setTimeout(() => {
           onClose();
           onSuccess?.();
-        }, 2000);
+        }, PASSWORD_SUCCESS_DELAY_MS);
       }
     }
   };
