@@ -43,6 +43,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
     respond,
     updateResponse,
     deleteResponse,
+    deleteReview,
   } = useProductReviews(productId);
 
   const isAdmin = user?.isAdmin === true;
@@ -112,6 +113,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
                       onRespond={respond}
                       onUpdateResponse={updateResponse}
                       onDeleteResponse={deleteResponse}
+                      onDeleteReview={deleteReview}
                     />
                   </li>
                 ))}

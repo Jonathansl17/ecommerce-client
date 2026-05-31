@@ -299,6 +299,32 @@ export const eliminar = async (userId, reviewId) => {
   ]);
 };
 
+// Eliminación por moderación (US-REV-006): un admin elimina la reseña de otro usuario
+// indicando un motivo. No valida propiedad (la autorización la cubre requireAdmin).
+// Borra en cascada los votos (la respuesta del admin cae por onDelete: Cascade).
+export const eliminarComoModerador = async (moderatorId, reviewId, { reason }) => {
+  const reviewIdBig = toBigIntOrThrow(reviewId, REVIEWS_MESSAGES.INVALID_REVIEW_ID);
+
+  const review = await prisma.review.findUnique({
+    where: { id: reviewIdBig },
+    select: { id: true },
+  });
+  if (!review) {
+    throw crearError(REVIEWS_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  }
+
+  await prisma.$transaction([
+    prisma.reviewVote.deleteMany({ where: { reviewId: reviewIdBig } }),
+    prisma.review.delete({ where: { id: reviewIdBig } }),
+  ]);
+
+  // Trazabilidad de la acción de moderación. El registro persistente en una tabla de
+  // auditoría es una tarea aparte de US-REV-006 (#8), aún fuera de alcance.
+  console.info(
+    `[moderación] Reseña ${reviewId} eliminada por admin ${moderatorId}. Motivo: ${reason}`,
+  );
+};
+
 
 
 // Asegura que la reseña exista; devuelve su id y la respuesta actual (o null).

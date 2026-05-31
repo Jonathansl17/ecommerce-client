@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useReducer } from 'react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import {
+  deleteReviewAsAdmin,
   deleteReviewResponse,
   fetchMyVotes,
   fetchProductReviews,
@@ -157,6 +158,13 @@ export function useProductReviews(productId: string): UseProductReviewsResult {
     dispatch({ type: 'SET_RESPONSE', payload: { reviewId, response: null } });
   }, []);
 
+  // Eliminación por moderación (US-REV-006): borra la reseña tras confirmar con el
+  // backend y la quita del estado (el summary se recalcula en el reducer).
+  const deleteReview = useCallback(async (reviewId: string, reason: string) => {
+    await deleteReviewAsAdmin(reviewId, reason);
+    dispatch({ type: 'REMOVE_REVIEW', payload: { reviewId } });
+  }, []);
+
   return {
     reviews: state.reviews,
     summary: state.summary ?? { ...EMPTY_SUMMARY, productId },
@@ -171,7 +179,6 @@ export function useProductReviews(productId: string): UseProductReviewsResult {
     respond,
     updateResponse,
     deleteResponse,
+    deleteReview,
   };
 }
-
-// random text just for initialize the PR

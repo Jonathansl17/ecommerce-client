@@ -67,6 +67,23 @@ export const PRODUCT_REVIEW_STRINGS = {
       cancel: 'Cancelar',
     },
   },
+  // Moderación de reseñas: eliminación de la reseña de otro usuario (US-REV-006).
+  moderation: {
+    deleteAction: 'Eliminar reseña',
+    deleting: 'Eliminando...',
+    maxLength: 500,
+    counter: (n: number, max: number) => `${n}/${max}`,
+    dialog: {
+      title: 'Eliminar reseña',
+      message: (author: string) =>
+        `Vas a eliminar la reseña de ${author}. Indica el motivo de la eliminación; esta acción no se puede deshacer.`,
+      reasonLabel: 'Motivo de la eliminación',
+      reasonPlaceholder: 'Escribe el motivo de la eliminación...',
+      confirm: 'Eliminar reseña',
+      cancel: 'Cancelar',
+      genericError: 'No se pudo eliminar la reseña.',
+    },
+  },
 } as const;
 
 export const PRODUCT_REVIEW_DATE_FORMAT: {

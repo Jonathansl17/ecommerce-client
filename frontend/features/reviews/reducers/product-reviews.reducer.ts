@@ -128,6 +128,39 @@ export function productReviewsReducer(
       };
     }
 
+    case 'REMOVE_REVIEW': {
+      const { reviewId } = action.payload;
+      const target = state.reviews.find((r) => r.id === reviewId);
+      if (!target) return state;
+
+      const reviews = state.reviews.filter((r) => r.id !== reviewId);
+      const pagination = {
+        ...state.pagination,
+        total: Math.max(0, state.pagination.total - 1),
+      };
+
+      // Recalcula el summary con la calificación de la reseña removida, así la cabecera
+      // (promedio, total y distribución) queda consistente sin necesidad de refetch.
+      let { summary } = state;
+      if (summary) {
+        const newTotal = Math.max(0, summary.totalReviews - 1);
+        const ratingSum = summary.average * summary.totalReviews;
+        const average =
+          newTotal > 0
+            ? Math.round(((ratingSum - target.rating) / newTotal) * 10) / 10
+            : 0;
+        const starKey = `stars${target.rating}` as const;
+        summary = {
+          ...summary,
+          totalReviews: newTotal,
+          average,
+          [starKey]: Math.max(0, summary[starKey] - 1),
+        };
+      }
+
+      return { ...state, reviews, pagination, summary };
+    }
+
     case 'REVERT_VOTE_STATE': {
       const { reviewId, previousVote, helpfulVotes, unhelpfulVotes } = action.payload;
       return {
