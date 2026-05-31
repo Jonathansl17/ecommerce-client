@@ -12,6 +12,8 @@ export const REVIEWS_MESSAGES = {
   CREATED_SUCCESS: 'Reseña publicada correctamente',
   UPDATED_SUCCESS: 'Reseña actualizada correctamente',
   DELETED_SUCCESS: 'Reseña eliminada correctamente',
+  MODERATION_DELETED_SUCCESS: 'Reseña eliminada por moderación',
+  DELETE_REASON_REQUIRED: 'Debes indicar el motivo de la eliminación',
   VOTE_INVALID_TYPE: 'Tipo de voto inválido',
   VOTE_OWN_REVIEW: 'No puedes votar tu propia reseña',
   VOTE_NOT_FOUND: 'No tienes un voto registrado en esta reseña',
@@ -48,4 +50,10 @@ export const REVIEW_LIMITS = {
 export const REVIEW_RESPONSE_LIMITS = {
   CONTENT_MIN: 1,
   CONTENT_MAX: 500,
+};
+
+// Motivo obligatorio que el moderador indica al eliminar la reseña de otro usuario.
+export const REVIEW_DELETE_REASON_LIMITS = {
+  REASON_MIN: 1,
+  REASON_MAX: 500,
 };

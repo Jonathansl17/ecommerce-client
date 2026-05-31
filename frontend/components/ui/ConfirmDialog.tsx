@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef } from 'react';
+import { type ReactNode, useEffect, useId, useRef } from 'react';
 import { Button } from './Button';
 
 interface ConfirmDialogProps {
@@ -13,6 +13,10 @@ interface ConfirmDialogProps {
   onCancel: () => void;
   loading?: boolean;
   destructive?: boolean;
+  // Deshabilita el botón de confirmar (p. ej. hasta que se complete un campo requerido).
+  confirmDisabled?: boolean;
+  // Contenido extra entre el mensaje y los botones (p. ej. un campo de motivo).
+  children?: ReactNode;
 }
 
 export function ConfirmDialog({
@@ -25,15 +29,23 @@ export function ConfirmDialog({
   onCancel,
   loading = false,
   destructive = false,
+  confirmDisabled = false,
+  children,
 }: ConfirmDialogProps) {
   const titleId = useId();
   const messageId = useId();
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 
+  // Enfoca el botón cancelar SOLO al abrir el diálogo. Se separa del listener de
+  // Escape a propósito: si dependiera de onCancel (que el padre suele recrear en cada
+  // render), volvería a robar el foco con cada tecla escrita en un campo interno.
+  useEffect(() => {
+    if (open) cancelRef.current?.focus();
+  }, [open]);
+
+  // Escape cierra el diálogo (salvo mientras carga).
   useEffect(() => {
     if (!open) return;
-    cancelRef.current?.focus();
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !loading) {
         e.preventDefault();
@@ -68,6 +80,7 @@ export function ConfirmDialog({
         <p id={messageId} className="text-sm text-foreground/80">
           {message}
         </p>
+        {children}
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             ref={cancelRef}
@@ -82,6 +95,7 @@ export function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             isLoading={loading}
+            disabled={confirmDisabled}
             className={`sm:w-auto sm:px-5 ${confirmClass}`}
           >
             {confirmLabel}

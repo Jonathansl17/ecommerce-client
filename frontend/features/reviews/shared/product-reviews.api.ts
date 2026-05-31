@@ -180,3 +180,15 @@ export async function deleteReviewResponse(reviewId: string): Promise<void> {
     { method: 'DELETE' },
   );
 }
+
+// Eliminación por moderación (US-REV-006): admin elimina la reseña de otro usuario
+// indicando el motivo obligatorio. Solo lo permite el backend a usuarios admin.
+export async function deleteReviewAsAdmin(
+  reviewId: string,
+  reason: string,
+): Promise<void> {
+  await responseFetch<{ message: string }>(
+    `/reviews/${encodeURIComponent(reviewId)}/moderation`,
+    { method: 'DELETE', body: JSON.stringify({ reason }) },
+  );
+}

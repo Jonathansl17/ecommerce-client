@@ -50,6 +50,7 @@ export type ProductReviewsAction =
   | { type: 'SET_RESPONSE';
       payload: { reviewId: string; response: ReviewResponse | null };
     }
+  | { type: 'REMOVE_REVIEW'; payload: { reviewId: string } }
   | {
       type: 'REVERT_VOTE_STATE';
       payload: {
@@ -74,6 +75,7 @@ export interface UseProductReviewsResult {
   respond: (reviewId: string, content: string) => Promise<void>;
   updateResponse: (reviewId: string, content: string) => Promise<void>;
   deleteResponse: (reviewId: string) => Promise<void>;
+  deleteReview: (reviewId: string, reason: string) => Promise<void>;
 }
 
 export interface EmptyReviewsStateProps {
@@ -90,6 +92,7 @@ export interface PublicReviewCardProps {
   onRespond?: (reviewId: string, content: string) => Promise<void>;
   onUpdateResponse?: (reviewId: string, content: string) => Promise<void>;
   onDeleteResponse?: (reviewId: string) => Promise<void>;
+  onDeleteReview?: (reviewId: string, reason: string) => Promise<void>;
 }
 
 export interface ReviewFiltersBarProps {
