@@ -109,6 +109,24 @@ export interface PublicReviewCardProps {
   onDeleteReview?: (reviewId: string, payload: ReviewDeletePayload) => Promise<void>;
 }
 
+export interface AdminReviewModerationProps {
+  review: ProductReview;
+  productName?: string;
+  onDeleteReview?: (reviewId: string, payload: ReviewDeletePayload) => Promise<void>;
+}
+
+export interface AdminResponseSectionProps {
+  review: ProductReview;
+  isAdmin?: boolean;
+  onRespond?: (reviewId: string, content: string) => Promise<void>;
+  onUpdateResponse?: (reviewId: string, content: string) => Promise<void>;
+  onDeleteResponse?: (reviewId: string) => Promise<void>;
+}
+
+export interface AuthorAvatarProps {
+  name: string;
+}
+
 export interface ReviewFiltersBarProps {
   filters: ProductReviewFilters;
   onDateChange: (value: DateFilter) => void;

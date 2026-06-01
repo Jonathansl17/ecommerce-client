@@ -7,7 +7,8 @@ import {
   PRODUCT_REVIEW_STRINGS,
   PRODUCT_REVIEW_DATE_FORMAT,
 } from '../constants/product-reviews.constants';
-import type { ProductReview, ReviewResponse } from '../types/reviews.types';
+import type { ReviewResponse } from '../types/reviews.types';
+import type { AdminResponseSectionProps } from '../types/product-reviews.types';
 
 const STRINGS = PRODUCT_REVIEW_STRINGS.response;
 
@@ -16,14 +17,6 @@ function formatDate(isoString: string): string {
     PRODUCT_REVIEW_DATE_FORMAT.LOCALE,
     PRODUCT_REVIEW_DATE_FORMAT.OPTIONS,
   );
-}
-
-interface AdminResponseSectionProps {
-  review: ProductReview;
-  isAdmin?: boolean;
-  onRespond?: (reviewId: string, content: string) => Promise<void>;
-  onUpdateResponse?: (reviewId: string, content: string) => Promise<void>;
-  onDeleteResponse?: (reviewId: string) => Promise<void>;
 }
 
 // Bloque visible para todos con la respuesta oficial. Sin controles de admin.

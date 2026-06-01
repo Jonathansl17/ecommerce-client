@@ -8,20 +8,13 @@ import {
   REVIEW_DELETE_REASON_OPTIONS,
   SELECT_BASE,
 } from '../constants/product-reviews.constants';
-import type { ProductReview } from '../types/reviews.types';
 import type {
-  ReviewDeletePayload,
+  AdminReviewModerationProps,
   ReviewDeleteReasonCode,
 } from '../types/product-reviews.types';
 
 const STRINGS = PRODUCT_REVIEW_STRINGS.moderation;
 const DIALOG = STRINGS.dialog;
-
-interface AdminReviewModerationProps {
-  review: ProductReview;
-  productName?: string;
-  onDeleteReview?: (reviewId: string, payload: ReviewDeletePayload) => Promise<void>;
-}
 
 // Control de moderación (solo admin): botón "Eliminar reseña" que abre un diálogo con
 // un resumen de la reseña, un motivo predefinido obligatorio y una descripción

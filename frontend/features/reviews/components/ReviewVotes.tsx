@@ -1,18 +1,6 @@
 import { useRef, useState } from 'react';
 import { REVIEW_STRINGS } from '../constants/reviews.constants';
-import type { VoteType } from '../types/reviews.types';
-
-interface ReviewVotesProps {
-  helpfulVotes: number;
-  unhelpfulVotes: number;
-  // Modo interactivo — todas opcionales para no romper usos solo-lectura existentes.
-  currentUserVote?: VoteType | null;
-  /** True cuando el visitante es el autor de la reseña: oculta los botones. */
-  isOwnReview?: boolean;
-  /** True cuando no hay sesión: muestra los contadores pero deshabilita el voto. */
-  isAuthenticated?: boolean;
-  onVote?: (voteType: VoteType) => Promise<void> | void;
-}
+import type { ReviewVotesProps, VoteType } from '../types/reviews.types';
 
 export function ReviewVotes({
   helpfulVotes,
