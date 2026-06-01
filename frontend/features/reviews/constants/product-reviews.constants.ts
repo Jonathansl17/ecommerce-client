@@ -4,6 +4,7 @@ import type {
   ProductReviewFilters,
   ProductReviewsState,
   RatingFilter,
+  ReviewDeleteReasonCode,
 } from '../types/product-reviews.types';
 
 export const PRODUCT_REVIEW_STRINGS = {
@@ -71,20 +72,36 @@ export const PRODUCT_REVIEW_STRINGS = {
   moderation: {
     deleteAction: 'Eliminar reseña',
     deleting: 'Eliminando...',
-    maxLength: 500,
-    counter: (n: number, max: number) => `${n}/${max}`,
+    detailMaxLength: 500,
+    remainingCounter: (remaining: number) =>
+      `${remaining} ${remaining === 1 ? 'carácter restante' : 'caracteres restantes'}`,
     dialog: {
       title: 'Eliminar reseña',
-      message: (author: string) =>
-        `Vas a eliminar la reseña de ${author}. Indica el motivo de la eliminación; esta acción no se puede deshacer.`,
-      reasonLabel: 'Motivo de la eliminación',
-      reasonPlaceholder: 'Escribe el motivo de la eliminación...',
+      description:
+        'Esta acción elimina la reseña de forma permanente, junto con sus votos y la respuesta del administrador. No se puede deshacer.',
+      previewLabel: 'Reseña a eliminar',
+      reasonLabel: 'Motivo de eliminación',
+      reasonPlaceholder: 'Selecciona un motivo',
+      detailLabel: 'Descripción adicional (opcional)',
+      detailPlaceholder: 'Agrega detalles sobre el motivo de eliminación...',
       confirm: 'Eliminar reseña',
       cancel: 'Cancelar',
       genericError: 'No se pudo eliminar la reseña.',
     },
   },
 } as const;
+
+// Motivos predefinidos del diálogo de eliminación (US-REV-006).
+export const REVIEW_DELETE_REASON_OPTIONS: {
+  value: ReviewDeleteReasonCode;
+  label: string;
+}[] = [
+  { value: 'contenido_ofensivo', label: 'Contenido ofensivo' },
+  { value: 'spam', label: 'Spam' },
+  { value: 'informacion_falsa', label: 'Información falsa' },
+  { value: 'fuera_de_tema', label: 'Fuera de tema' },
+  { value: 'otro', label: 'Otro' },
+];
 
 export const PRODUCT_REVIEW_DATE_FORMAT: {
   LOCALE: string;

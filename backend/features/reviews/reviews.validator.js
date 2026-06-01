@@ -2,7 +2,8 @@ import { z } from 'zod';
 import {
   REVIEW_LIMITS,
   REVIEW_RESPONSE_LIMITS,
-  REVIEW_DELETE_REASON_LIMITS,
+  REVIEW_DELETE_REASON_CODES,
+  REVIEW_DELETE_LIMITS,
   REVIEWS_MESSAGES,
   VOTE_TYPES,
 } from './reviews.constants.js';
@@ -47,16 +48,17 @@ const responderReviewSchema = z.object({
     ),
 });
 
-// Eliminación de una reseña por un moderador: exige el motivo (US-REV-006).
+// Eliminación de una reseña por un moderador (US-REV-006): exige un motivo de la lista
+// predefinida y admite una descripción adicional opcional.
 const eliminarModeracionSchema = z.object({
-  reason: z
+  reasonCode: z.enum(REVIEW_DELETE_REASON_CODES, {
+    message: REVIEWS_MESSAGES.DELETE_REASON_REQUIRED,
+  }),
+  reasonDetail: z
     .string()
     .trim()
-    .min(REVIEW_DELETE_REASON_LIMITS.REASON_MIN, REVIEWS_MESSAGES.DELETE_REASON_REQUIRED)
-    .max(
-      REVIEW_DELETE_REASON_LIMITS.REASON_MAX,
-      `El motivo no puede superar los ${REVIEW_DELETE_REASON_LIMITS.REASON_MAX} caracteres`,
-    ),
+    .max(REVIEW_DELETE_LIMITS.DETAIL_MAX, REVIEWS_MESSAGES.DELETE_DETAIL_TOO_LONG)
+    .optional(),
 });
 
 function validar(schema) {

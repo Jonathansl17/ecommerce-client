@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, useEffect, useId, useRef } from 'react';
+import { X } from 'lucide-react';
 import { Button } from './Button';
 
 interface ConfirmDialogProps {
@@ -15,6 +16,8 @@ interface ConfirmDialogProps {
   destructive?: boolean;
   // Deshabilita el botón de confirmar (p. ej. hasta que se complete un campo requerido).
   confirmDisabled?: boolean;
+  // Muestra una "X" de cierre en la cabecera (equivalente a Cancelar).
+  showClose?: boolean;
   // Contenido extra entre el mensaje y los botones (p. ej. un campo de motivo).
   children?: ReactNode;
 }
@@ -30,6 +33,7 @@ export function ConfirmDialog({
   loading = false,
   destructive = false,
   confirmDisabled = false,
+  showClose = false,
   children,
 }: ConfirmDialogProps) {
   const titleId = useId();
@@ -73,10 +77,23 @@ export function ConfirmDialog({
         if (e.target === e.currentTarget && !loading) onCancel();
       }}
     >
-      <div className="w-full max-w-md rounded-lg border border-foreground/10 bg-background p-6 shadow-lg space-y-4">
-        <h2 id={titleId} className="text-lg font-semibold text-foreground">
-          {title}
-        </h2>
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg border border-foreground/10 bg-background p-6 shadow-lg space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <h2 id={titleId} className="text-lg font-semibold text-foreground">
+            {title}
+          </h2>
+          {showClose && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={loading}
+              aria-label={cancelLabel}
+              className="-mr-1 -mt-1 rounded-md p-1 text-foreground/50 transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          )}
+        </div>
         <p id={messageId} className="text-sm text-foreground/80">
           {message}
         </p>

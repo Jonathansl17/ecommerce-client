@@ -20,6 +20,7 @@ function formatDate(isoString: string): string {
 
 export function PublicReviewCard({
   review,
+  productName,
   currentUserVote = null,
   isOwnReview = false,
   isAuthenticated = false,
@@ -79,7 +80,11 @@ export function PublicReviewCard({
       />
 
       {isAdmin && (
-        <AdminReviewModeration review={review} onDeleteReview={onDeleteReview} />
+        <AdminReviewModeration
+          review={review}
+          productName={productName}
+          onDeleteReview={onDeleteReview}
+        />
       )}
     </article>
   );
