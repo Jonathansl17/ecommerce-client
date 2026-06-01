@@ -15,7 +15,10 @@ import {
 import { INITIAL_REVIEWS_STATE } from '../constants/product-reviews.constants';
 import { productReviewsReducer } from '../reducers/product-reviews.reducer';
 import type { RatingsSummary, VoteType } from '../types/reviews.types';
-import type { UseProductReviewsResult } from '../types/product-reviews.types';
+import type {
+  ReviewDeletePayload,
+  UseProductReviewsResult,
+} from '../types/product-reviews.types';
 
 const EMPTY_SUMMARY: RatingsSummary = {
   productId: '',
@@ -160,10 +163,13 @@ export function useProductReviews(productId: string): UseProductReviewsResult {
 
   // Eliminación por moderación (US-REV-006): borra la reseña tras confirmar con el
   // backend y la quita del estado (el summary se recalcula en el reducer).
-  const deleteReview = useCallback(async (reviewId: string, reason: string) => {
-    await deleteReviewAsAdmin(reviewId, reason);
-    dispatch({ type: 'REMOVE_REVIEW', payload: { reviewId } });
-  }, []);
+  const deleteReview = useCallback(
+    async (reviewId: string, payload: ReviewDeletePayload) => {
+      await deleteReviewAsAdmin(reviewId, payload);
+      dispatch({ type: 'REMOVE_REVIEW', payload: { reviewId } });
+    },
+    [],
+  );
 
   return {
     reviews: state.reviews,

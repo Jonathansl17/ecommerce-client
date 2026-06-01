@@ -9,6 +9,19 @@ import type {
 
 export type MyReviewVotes = Record<string, VoteType>;
 
+// Motivos predefinidos de eliminación por moderación (US-REV-006).
+export type ReviewDeleteReasonCode =
+  | 'contenido_ofensivo'
+  | 'spam'
+  | 'informacion_falsa'
+  | 'fuera_de_tema'
+  | 'otro';
+
+export interface ReviewDeletePayload {
+  reasonCode: ReviewDeleteReasonCode;
+  reasonDetail?: string;
+}
+
 export type DateFilter = 'recent' | 'oldest';
 export type RatingFilter = 'all' | '5' | '4' | '3' | '2' | '1';
 export type HelpfulFilter = 'none' | 'most_helpful';
@@ -75,7 +88,7 @@ export interface UseProductReviewsResult {
   respond: (reviewId: string, content: string) => Promise<void>;
   updateResponse: (reviewId: string, content: string) => Promise<void>;
   deleteResponse: (reviewId: string) => Promise<void>;
-  deleteReview: (reviewId: string, reason: string) => Promise<void>;
+  deleteReview: (reviewId: string, payload: ReviewDeletePayload) => Promise<void>;
 }
 
 export interface EmptyReviewsStateProps {
@@ -84,6 +97,7 @@ export interface EmptyReviewsStateProps {
 
 export interface PublicReviewCardProps {
   review: ProductReview;
+  productName?: string;
   currentUserVote?: VoteType | null;
   isOwnReview?: boolean;
   isAuthenticated?: boolean;
@@ -92,7 +106,7 @@ export interface PublicReviewCardProps {
   onRespond?: (reviewId: string, content: string) => Promise<void>;
   onUpdateResponse?: (reviewId: string, content: string) => Promise<void>;
   onDeleteResponse?: (reviewId: string) => Promise<void>;
-  onDeleteReview?: (reviewId: string, reason: string) => Promise<void>;
+  onDeleteReview?: (reviewId: string, payload: ReviewDeletePayload) => Promise<void>;
 }
 
 export interface ReviewFiltersBarProps {
@@ -108,4 +122,5 @@ export interface ProductRatingsHeaderProps {
 
 export interface ProductReviewsSectionProps {
   productId: string;
+  productName?: string;
 }
