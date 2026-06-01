@@ -28,7 +28,10 @@ function ReviewsSkeleton() {
   );
 }
 
-export function ProductReviewsSection({ productId }: ProductReviewsSectionProps) {
+export function ProductReviewsSection({
+  productId,
+  productName,
+}: ProductReviewsSectionProps) {
   const { user, isAuthenticated } = useAuth();
   const {
     summary,
@@ -43,6 +46,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
     respond,
     updateResponse,
     deleteResponse,
+    deleteReview,
   } = useProductReviews(productId);
 
   const isAdmin = user?.isAdmin === true;
@@ -104,6 +108,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
                   <li key={review.id}>
                     <PublicReviewCard
                       review={review}
+                      productName={productName}
                       currentUserVote={myVotes[review.id] ?? null}
                       isOwnReview={user?.id === review.clientUserId}
                       isAuthenticated={isAuthenticated}
@@ -112,6 +117,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
                       onRespond={respond}
                       onUpdateResponse={updateResponse}
                       onDeleteResponse={deleteResponse}
+                      onDeleteReview={deleteReview}
                     />
                   </li>
                 ))}

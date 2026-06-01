@@ -125,6 +125,18 @@ export interface StarRatingDisplayProps {
   size?: 'sm' | 'md';
 }
 
+export interface ReviewVotesProps {
+  helpfulVotes: number;
+  unhelpfulVotes: number;
+  // Modo interactivo — todas opcionales para no romper usos solo-lectura existentes.
+  currentUserVote?: VoteType | null;
+  /** True cuando el visitante es el autor de la reseña: oculta los botones. */
+  isOwnReview?: boolean;
+  /** True cuando no hay sesión: muestra los contadores pero deshabilita el voto. */
+  isAuthenticated?: boolean;
+  onVote?: (voteType: VoteType) => Promise<void> | void;
+}
+
 export interface ReviewFormProps {
   initialData?: ReviewFormData;
   submitting: boolean;
