@@ -1,6 +1,4 @@
-interface AuthorAvatarProps {
-  name: string;
-}
+import type { AuthorAvatarProps } from '../types/product-reviews.types';
 
 export function AuthorAvatar({ name }: AuthorAvatarProps) {
   const initial = name.charAt(0).toUpperCase();
