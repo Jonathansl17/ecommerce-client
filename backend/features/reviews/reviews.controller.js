@@ -10,6 +10,7 @@ import {
   responderReview as responderReviewService,
   actualizarRespuesta as actualizarRespuestaService,
   eliminarRespuesta as eliminarRespuestaService,
+  eliminarComoModerador as eliminarComoModeradorService,
 } from './reviews.service.js';
 import { REVIEWS_MESSAGES } from './reviews.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
@@ -138,6 +139,17 @@ export const eliminarRespuesta = async (req, res, next) => {
   try {
     await eliminarRespuestaService(req.user.id, req.params.reviewId);
     res.status(HTTP_STATUS.OK).json({ message: REVIEWS_MESSAGES.RESPONSE_DELETED });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const eliminarComoModerador = async (req, res, next) => {
+  try {
+    await eliminarComoModeradorService(req.user.id, req.params.reviewId, req.body);
+    res
+      .status(HTTP_STATUS.OK)
+      .json({ message: REVIEWS_MESSAGES.MODERATION_DELETED_SUCCESS });
   } catch (error) {
     next(error);
   }

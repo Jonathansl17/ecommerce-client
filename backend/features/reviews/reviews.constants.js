@@ -12,6 +12,9 @@ export const REVIEWS_MESSAGES = {
   CREATED_SUCCESS: 'Reseña publicada correctamente',
   UPDATED_SUCCESS: 'Reseña actualizada correctamente',
   DELETED_SUCCESS: 'Reseña eliminada correctamente',
+  MODERATION_DELETED_SUCCESS: 'Reseña eliminada por moderación',
+  DELETE_REASON_REQUIRED: 'Debes seleccionar un motivo de eliminación',
+  DELETE_DETAIL_TOO_LONG: 'La descripción no puede superar los 500 caracteres',
   VOTE_INVALID_TYPE: 'Tipo de voto inválido',
   VOTE_OWN_REVIEW: 'No puedes votar tu propia reseña',
   VOTE_NOT_FOUND: 'No tienes un voto registrado en esta reseña',
@@ -48,4 +51,18 @@ export const REVIEW_LIMITS = {
 export const REVIEW_RESPONSE_LIMITS = {
   CONTENT_MIN: 1,
   CONTENT_MAX: 500,
+};
+
+// Motivos predefinidos que el moderador debe seleccionar al eliminar una reseña
+// ajena (US-REV-006). 'otro' admite una descripción adicional opcional.
+export const REVIEW_DELETE_REASON_CODES = [
+  'contenido_ofensivo',
+  'spam',
+  'informacion_falsa',
+  'fuera_de_tema',
+  'otro',
+];
+
+export const REVIEW_DELETE_LIMITS = {
+  DETAIL_MAX: 500,
 };

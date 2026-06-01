@@ -6,6 +6,7 @@ import type {
   MyReviewVotes,
   ProductReviewsServerResponse,
   RatingFilter,
+  ReviewDeletePayload,
 } from '../types/product-reviews.types';
 
 interface FetchProductReviewsArgs {
@@ -178,5 +179,18 @@ export async function deleteReviewResponse(reviewId: string): Promise<void> {
   await responseFetch<{ message: string }>(
     `/reviews/${encodeURIComponent(reviewId)}/response`,
     { method: 'DELETE' },
+  );
+}
+
+// Eliminación por moderación (US-REV-006): admin elimina la reseña de otro usuario
+// indicando un motivo predefinido (+ descripción opcional). Solo lo permite el backend
+// a usuarios admin.
+export async function deleteReviewAsAdmin(
+  reviewId: string,
+  payload: ReviewDeletePayload,
+): Promise<void> {
+  await responseFetch<{ message: string }>(
+    `/reviews/${encodeURIComponent(reviewId)}/moderation`,
+    { method: 'DELETE', body: JSON.stringify(payload) },
   );
 }

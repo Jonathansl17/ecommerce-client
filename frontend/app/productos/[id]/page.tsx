@@ -75,7 +75,7 @@ export default function ProductPage() {
       </div>
 
       <div className="mt-10">
-        <ProductReviewsSection productId={id} />
+        <ProductReviewsSection productId={id} productName={product.name} />
       </div>
     </main>
   );

@@ -11,12 +11,14 @@ import {
   responder,
   actualizarRespuesta,
   eliminarRespuesta,
+  eliminarComoModerador,
 } from './reviews.controller.js';
 import {
   validateCrear,
   validateActualizar,
   validateVotar,
   validateResponder,
+  validateEliminarModeracion,
 } from './reviews.validator.js';
 import { requireAuth } from '../../shared/middleware/authMiddleware.js';
 import { requireAdmin } from '../../shared/middleware/requireAdmin.js';
@@ -40,6 +42,16 @@ router.put('/:reviewId', requireAuth, validateActualizar, actualizar);
 
 // DELETE /api/reviews/:reviewId  → eliminar reseña propia (US-REV-004)
 router.delete('/:reviewId', requireAuth, eliminar);
+
+// DELETE /api/reviews/:reviewId/moderation → eliminar reseña de otro usuario con motivo
+// (US-REV-006). Solo admins; el motivo es obligatorio (validateEliminarModeracion).
+router.delete(
+  '/:reviewId/moderation',
+  requireAuth,
+  requireAdmin,
+  validateEliminarModeracion,
+  eliminarComoModerador,
+);
 
 // POST   /api/reviews/:reviewId/vote   → votar útil/no útil (US-REV-003)
 router.post('/:reviewId/vote', requireAuth, validateVotar, votar);
