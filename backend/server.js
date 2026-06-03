@@ -33,6 +33,12 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Internal routes called by the admin backend (server-to-server) don't carry an
+// Origin header, so they must be mounted before the browser-facing CSRF check.
+// They are protected by requireInternalApiKey inside internalRoutes.
+app.use('/api/internal', internalRoutes);
+
 app.use(requireFetchHeader);
 
 const loginLimiter = rateLimit({
@@ -72,7 +78,6 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/reviews', reviewsRoutes);
-app.use('/api/internal', internalRoutes);
 
 app.use(errorHandler);
 
