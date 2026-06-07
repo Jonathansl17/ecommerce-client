@@ -319,7 +319,8 @@ export const eliminarComoModerador = async (
 
   // Trazabilidad de la acción de moderación. El registro persistente en una tabla de
   // auditoría es una tarea aparte de US-REV-006 (#8), aún fuera de alcance.
-  const detalle = reasonDetail ? ` (${reasonDetail})` : '';
+  const safeDetail = reasonDetail ? reasonDetail.replace(/[\r\n\t]/g, ' ') : '';
+  const detalle = safeDetail ? ` (${safeDetail})` : '';
   console.info(
     `[moderación] Reseña ${reviewId} eliminada por admin ${moderatorId}. Motivo: ${reasonCode}${detalle}`,
   );
