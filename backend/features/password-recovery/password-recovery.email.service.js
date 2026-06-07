@@ -40,7 +40,9 @@ export async function enviarCorreoRecuperacionPassword({
   const config = obtenerConfiguracionCorreo();
 
   if (!config.host || !config.port || !config.user || !config.pass || !config.from) {
-    console.warn('[password-recovery] SMTP no configurado. Enlace generado:', recoveryUrl);
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[password-recovery] SMTP no configurado. Enlace de desarrollo generado (no usar en producción).');
+    }
     return;
   }
 
@@ -75,6 +77,6 @@ export async function enviarCorreoRecuperacionPassword({
       throw error;
     }
 
-    console.warn('[password-recovery] No se pudo enviar el correo. Enlace generado:', recoveryUrl, error);
+    console.warn('[password-recovery] No se pudo enviar el correo de recuperación.', error?.message);
   }
 }
