@@ -23,10 +23,10 @@ export function requireInternalApiKey(req, res, next) {
   }
 
   const expectedBuf = Buffer.from(expected);
-  const providedBuf = Buffer.from(provided);
-  const valid =
-    expectedBuf.length === providedBuf.length &&
-    crypto.timingSafeEqual(expectedBuf, providedBuf);
+  const providedBuf = Buffer.alloc(expectedBuf.length);
+  Buffer.from(provided).copy(providedBuf, 0, 0, expectedBuf.length);
+  const lengthMatch = Buffer.from(provided).length === expectedBuf.length;
+  const valid = crypto.timingSafeEqual(expectedBuf, providedBuf) && lengthMatch;
 
   if (!valid) {
     return next(crearError(INVALID_KEY_MESSAGE, HTTP_STATUS.UNAUTHORIZED));
