@@ -33,7 +33,10 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(requireFetchHeader);
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/internal')) return next();
+  return requireFetchHeader(req, res, next);
+});
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -60,9 +63,29 @@ const recoveryLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const reviewWriteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'GET',
+});
+
+const reviewReadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method !== 'GET',
+});
+
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/refresh', refreshLimiter);
 app.use('/api/password-recovery/request', recoveryLimiter);
+app.use('/api/reviews', reviewReadLimiter);
+app.use('/api/reviews', reviewWriteLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/password-recovery', passwordRecoveryRoutes);
