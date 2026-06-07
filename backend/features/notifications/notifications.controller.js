@@ -63,7 +63,10 @@ export const aprobarProductoPersonalizado = async (req, res, next) => {
       throw crearError(PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
     }
 
-    await marcarComoAprobado({ approvalId: aprobacion.id });
+    const resultado = await marcarComoAprobado({ approvalId: aprobacion.id });
+    if (resultado.count === 0) {
+      throw crearError(PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.ALREADY_RESPONDED, HTTP_STATUS.CONFLICT);
+    }
     triggerProductoAprobado({ orderId });
 
     res.status(HTTP_STATUS.OK).json({ mensaje: PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.CLIENT_APPROVED_OK });
@@ -92,7 +95,10 @@ export const solicitarAjustesProductoPersonalizado = async (req, res, next) => {
       throw crearError(PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
     }
 
-    await marcarAjustesSolicitados({ approvalId: aprobacion.id, adjustmentNotes: adjustmentNotes.trim() });
+    const resultado = await marcarAjustesSolicitados({ approvalId: aprobacion.id, adjustmentNotes: adjustmentNotes.trim() });
+    if (resultado.count === 0) {
+      throw crearError(PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.ALREADY_RESPONDED, HTTP_STATUS.CONFLICT);
+    }
     triggerAjustesSolicitados({ orderId, adjustmentNotes: adjustmentNotes.trim() });
 
     res.status(HTTP_STATUS.OK).json({ mensaje: PRODUCT_CUSTOMIZATION_APPROVAL_MESSAGES.ADJUSTMENTS_REQUESTED_OK });
