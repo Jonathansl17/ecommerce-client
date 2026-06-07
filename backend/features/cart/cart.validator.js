@@ -1,7 +1,14 @@
 import { z } from 'zod';
 
+const bigIntIdSchema = z
+  .union([z.string(), z.number()])
+  .transform((v) => String(v))
+  .refine((v) => /^\d+$/.test(v) && BigInt(v) > 0n, {
+    message: 'El ID debe ser un entero positivo',
+  });
+
 const agregarItemSchema = z.object({
-  variantId: z.number().int().positive(),
+  variantId: bigIntIdSchema,
   quantity: z.number().int().min(1, 'La cantidad debe ser al menos 1').max(100, 'La cantidad máxima es 100'),
 });
 
