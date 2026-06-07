@@ -15,6 +15,7 @@ import {
   ORDER_STATUS_TRANSITIONS,
 } from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
+import { parseBigInt } from '../../shared/utils/parseBigInt.js';
 import { TAX_RATE } from '../../shared/constants/tax.constants.js';
 
 const ORDER_STATUS_NOTIFICATION_SELECT = {
@@ -150,7 +151,7 @@ export function serializarPedido(orden) {
 export const checkout = async (userId, { shippingAddress, paymentMethod, externalReference }) => {
   // 1. Obtener carrito activo con ítems
   const carrito = await prisma.cart.findFirst({
-    where: { clientUserId: BigInt(userId), status: 'active' },
+    where: { clientUserId: parseBigInt(userId, 'userId'), status: 'active' },
     include: {
       cartItems: {
         include: {
@@ -199,7 +200,7 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
     // Crear la orden
     const nuevaOrden = await tx.order.create({
       data: {
-        clientUserId: BigInt(userId),
+        clientUserId: parseBigInt(userId, 'userId'),
         cartId: carrito.id,
         status: 'pending_payment',
         subtotal,
@@ -263,7 +264,7 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
 
 export const obtenerMisPedidos = async (userId) => {
   const pedidos = await prisma.order.findMany({
-    where: { clientUserId: BigInt(userId) },
+    where: { clientUserId: parseBigInt(userId, 'userId') },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -292,8 +293,8 @@ export const obtenerMisPedidos = async (userId) => {
 export const obtenerPedidoPorId = async (userId, orderId) => {
   const orden = await prisma.order.findFirst({
     where: {
-      id: BigInt(orderId),
-      clientUserId: BigInt(userId),
+      id: parseBigInt(orderId, 'orderId'),
+      clientUserId: parseBigInt(userId, 'userId'),
     },
     select: ORDER_SELECT,
   });
@@ -306,8 +307,8 @@ export const obtenerPedidoPorId = async (userId, orderId) => {
 };
 
 export const aprobarPago = async (orderId, paymentId) => {
-  const parsedOrderId = BigInt(orderId);
-  const parsedPaymentId = BigInt(paymentId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
+  const parsedPaymentId = parseBigInt(paymentId, 'paymentId');
 
   const payment = await prisma.payment.findFirst({
     where: { id: parsedPaymentId, orderId: parsedOrderId },
@@ -405,8 +406,8 @@ export const aprobarPago = async (orderId, paymentId) => {
 };
 
 export const cancelarPedido = async (userId, orderId) => {
-  const parsedOrderId = BigInt(orderId);
-  const parsedUserId = BigInt(userId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
+  const parsedUserId = parseBigInt(userId, 'userId');
   const changedAt = new Date();
 
   const currentOrder = await prisma.order.findUnique({
@@ -551,7 +552,7 @@ export const cancelarPedido = async (userId, orderId) => {
 };
 
 export const cancelarPedidoAdmin = async (orderId) => {
-  const parsedOrderId = BigInt(orderId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
   const changedAt = new Date();
 
   const currentOrder = await prisma.order.findUnique({
@@ -693,7 +694,7 @@ export const cancelarPedidoAdmin = async (orderId) => {
 };
 
 export const actualizarEstadoPedido = async (orderId, { status: newStatus, cancelationReason }) => {
-  const parsedOrderId = BigInt(orderId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
   const changedAt = new Date();
 
   const currentOrder = await prisma.order.findUnique({
