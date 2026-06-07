@@ -9,12 +9,13 @@ import {
   validateListOrdersQuery,
   validateUpdateOrderStatus,
 } from './internal-orders.validator.js';
+import { validateNumericId } from '../../../shared/middleware/validateNumericId.js';
 
 const router = Router();
 
 router.get('/', validateListOrdersQuery, listarPedidos);
-router.get('/:id', obtenerPedidoPorId);
-router.patch('/:id/status', validateUpdateOrderStatus, actualizarEstadoPedido);
-router.post('/:id/cancel', cancelarPedido);
+router.get('/:id', validateNumericId, obtenerPedidoPorId);
+router.patch('/:id/status', validateNumericId, validateUpdateOrderStatus, actualizarEstadoPedido);
+router.post('/:id/cancel', validateNumericId, cancelarPedido);
 
 export default router;
