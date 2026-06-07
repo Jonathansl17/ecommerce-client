@@ -850,6 +850,5 @@ export const actualizarEstadoPedido = async (orderId, { status: newStatus, cance
       orderStatusNotification == null
         ? ORDERS_MESSAGES.STATUS_UNCHANGED
         : ORDERS_MESSAGES.STATUS_UPDATED_SUCCESS,
-    integrationComment: NOTIFICATION_MESSAGES.ORDER_STATUS_NOTIFICATION_TRIGGER_COMMENT,
   };
 };
