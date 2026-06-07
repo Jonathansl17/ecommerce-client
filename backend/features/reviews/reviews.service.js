@@ -8,6 +8,7 @@ import {
   COMPLETED_ORDER_STATUS,
   VOTE_TYPES,
 } from './reviews.constants.js';
+import { PRISMA_ERROR_CODES } from '../../shared/constants/app.constants.js';
 
 // ─── Helpers privados ──────────────────────────────────────────────────────
 
@@ -67,17 +68,6 @@ async function verificarCompraCompletada(clientUserId, productId) {
   }
 }
 
-// Garantiza una reseña por producto por usuario.
-async function verificarReviewNoExiste(clientUserId, productId) {
-  const existente = await prisma.review.findFirst({
-    where: { clientUserId, productId },
-    select: { id: true },
-  });
-
-  if (existente) {
-    throw crearError(REVIEWS_MESSAGES.ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
-  }
-}
 
 // Obtiene una reseña validando que pertenezca al usuario autenticado.
 async function obtenerReviewPropia(clientUserId, reviewId) {
@@ -256,20 +246,25 @@ export const crear = async (userId, { productId, rating, comment }) => {
   const productIdBig = toBigIntOrThrow(productId, REVIEWS_MESSAGES.INVALID_PRODUCT_ID);
 
   await verificarCompraCompletada(userIdBig, productIdBig);
-  await verificarReviewNoExiste(userIdBig, productIdBig);
 
-  const nueva = await prisma.review.create({
-    data: {
-      productId: productIdBig,
-      clientUserId: userIdBig,
-      rating,
-      comment,
-      status: REVIEW_STATUS.APPROVED,
-    },
-    include: { clientUser: { select: { fullName: true } } },
-  });
-
-  return mapReview(nueva);
+  try {
+    const nueva = await prisma.review.create({
+      data: {
+        productId: productIdBig,
+        clientUserId: userIdBig,
+        rating,
+        comment,
+        status: REVIEW_STATUS.APPROVED,
+      },
+      include: { clientUser: { select: { fullName: true } } },
+    });
+    return mapReview(nueva);
+  } catch (error) {
+    if (error.code === PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT) {
+      throw crearError(REVIEWS_MESSAGES.ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
+    }
+    throw error;
+  }
 };
 
 export const actualizar = async (userId, reviewId, { rating, comment }) => {
