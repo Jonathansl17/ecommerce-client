@@ -123,8 +123,10 @@ export const actualizarPerfilUsuario = async (userId, { fullName, email, passwor
 };
 
 export const desactivarCuenta = async (userId, { password }) => {
+  const userIdBig = BigInt(userId);
+
   const usuario = await prisma.clientUser.findUnique({
-    where: { id: BigInt(userId) },
+    where: { id: userIdBig },
     select: { id: true, passwordHash: true },
   });
 
@@ -137,10 +139,20 @@ export const desactivarCuenta = async (userId, { password }) => {
     throw crearError(CLIENTS_MESSAGES.INVALID_PASSWORD, HTTP_STATUS.UNAUTHORIZED);
   }
 
-  await prisma.clientUser.update({
-    where: { id: BigInt(userId) },
-    data: { accountStatus: 'inactive' },
-  });
+  await prisma.$transaction([
+    prisma.clientUser.update({
+      where: { id: userIdBig },
+      data: { accountStatus: 'inactive' },
+    }),
+    prisma.refreshToken.updateMany({
+      where: { userId: userIdBig, revokedAt: null, rotatedAt: null },
+      data: { revokedAt: new Date() },
+    }),
+    prisma.clientRecoveryToken.updateMany({
+      where: { userId: userIdBig, usedAt: null },
+      data: { usedAt: new Date() },
+    }),
+  ]);
 
   return { message: CLIENTS_MESSAGES.DEACTIVATE_SUCCESS };
 };
