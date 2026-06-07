@@ -34,3 +34,15 @@ export const ORDER_STATUS_VALUES = [
   'delivered',
   'cancelled',
 ];
+
+export const ORDER_STATUS_TRANSITIONS = {
+  pending_payment: ['confirmed', 'cancelled'],
+  confirmed: ['in_preparation', 'cancelled'],
+  in_preparation: ['customization_in_progress', 'ready_shipment', 'cancelled'],
+  customization_in_progress: ['ready_shipment', 'cancelled'],
+  ready_shipment: ['shipped'],
+  shipped: ['in_transit'],
+  in_transit: ['delivered'],
+  delivered: [],
+  cancelled: [],
+};
