@@ -319,6 +319,13 @@ export const aprobarPago = async (orderId, paymentId) => {
       status: true,
       createdAt: true,
       updatedAt: true,
+      order: {
+        select: {
+          status: true,
+          totalAmount: true,
+          clientUser: { select: { id: true, fullName: true, email: true } },
+        },
+      },
     },
   });
 
@@ -330,9 +337,26 @@ export const aprobarPago = async (orderId, paymentId) => {
     return { message: PAYMENT_MESSAGES.ALREADY_APPROVED };
   }
 
+  if (payment.order.status !== CANCELLABLE_ORDER_STATUS) {
+    throw crearError(PAYMENT_MESSAGES.ORDER_NOT_PAYABLE, HTTP_STATUS.CONFLICT);
+  }
+
+  if (!payment.amount.equals(payment.order.totalAmount)) {
+    throw crearError(PAYMENT_MESSAGES.AMOUNT_MISMATCH, HTTP_STATUS.CONFLICT);
+  }
+
   const approvedAt = new Date();
 
   const [pagoActualizado, orden] = await prisma.$transaction(async (tx) => {
+    // Re-check order status inside tx to close TOCTOU window
+    const orderCheck = await tx.order.findUnique({
+      where: { id: parsedOrderId },
+      select: { status: true },
+    });
+    if (orderCheck?.status !== CANCELLABLE_ORDER_STATUS) {
+      throw crearError(PAYMENT_MESSAGES.ORDER_NOT_PAYABLE, HTTP_STATUS.CONFLICT);
+    }
+
     const pago = await tx.payment.update({
       where: { id: parsedPaymentId },
       data: { status: PAYMENT_STATUSES.APPROVED, updatedAt: approvedAt },
