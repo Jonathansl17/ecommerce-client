@@ -9,7 +9,7 @@ import {
 
 const REVIEW_INCLUDE = {
   clientUser: {
-    select: { id: true, fullName: true, email: true },
+    select: { id: true, fullName: true },
   },
   product: {
     select: {
@@ -52,7 +52,6 @@ function serializarReview(review) {
       ? {
           id: review.clientUser.id.toString(),
           fullName: review.clientUser.fullName,
-          email: review.clientUser.email,
         }
       : null,
     product: review.product
