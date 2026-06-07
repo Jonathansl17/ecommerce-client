@@ -157,19 +157,20 @@ export const desactivarCuenta = async (userId, { password }) => {
   return { message: CLIENTS_MESSAGES.DEACTIVATE_SUCCESS };
 };
 
+const DUMMY_HASH = '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ012345';
+
 export const reactivarCuenta = async (email, password) => {
   const usuario = await prisma.clientUser.findUnique({
     where: { email: email.toLowerCase().trim() },
     select: { id: true, passwordHash: true, accountStatus: true },
   });
 
-  const credencialesValidas = usuario && await bcrypt.compare(password, usuario.passwordHash);
-  if (!credencialesValidas) {
-    throw crearError(CLIENTS_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
-  }
+  // Always run bcrypt to prevent timing oracle (user-exists vs. not)
+  const hashToCompare = usuario ? usuario.passwordHash : DUMMY_HASH;
+  const credencialesValidas = await bcrypt.compare(password, hashToCompare);
 
-  if (usuario.accountStatus !== 'inactive') {
-    throw crearError(CLIENTS_MESSAGES.ACCOUNT_NOT_INACTIVE, HTTP_STATUS.BAD_REQUEST);
+  if (!credencialesValidas || !usuario || usuario.accountStatus !== 'inactive') {
+    throw crearError(CLIENTS_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
   }
 
   await prisma.clientUser.update({
