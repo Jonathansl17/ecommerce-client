@@ -46,7 +46,7 @@ function validarDatosNotificacionPedido(order, clientUser) {
 async function enviarCorreo({ to, subject, html }) {
   validarPayloadBaseCorreo({ to, subject, html });
 
-  const transporte = obtenerTransporte();
+  const transporte = await obtenerTransporte();
 
   await transporte.sendMail({
     from: `"${EMAIL_CONFIG.BRAND_NAME}" <${process.env.EMAIL_FROM}>`,
