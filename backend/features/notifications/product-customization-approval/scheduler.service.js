@@ -22,7 +22,11 @@ export async function procesarAutoAprobacionesVencidas() {
 
   for (const aprobacion of vencidas) {
     try {
-      await marcarComoAutoAprobado({ approvalId: aprobacion.id });
+      const resultado = await marcarComoAutoAprobado({ approvalId: aprobacion.id });
+      if (resultado.count === 0) {
+        // Already responded manually between the vencidas query and this write — skip
+        continue;
+      }
       console.log(
         PRODUCT_CUSTOMIZATION_APPROVAL_LOG_PREFIXES.SCHEDULER_AUTO_APPROVED(aprobacion.orderId),
       );
