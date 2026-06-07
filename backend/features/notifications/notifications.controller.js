@@ -117,7 +117,7 @@ export const marcarComoLeida = async (req, res, next) => {
 export const descartarNotificacion = async (req, res, next) => {
   try {
     const clientUserId = BigInt(req.user.id);
-    const notificationId = BigInt(req.params.id);
+    const notificationId = parseBigIntParam(req.params.id, 'id');
 
     await descartarNotificacionService({ notificationId, clientUserId });
 
