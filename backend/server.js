@@ -63,6 +63,9 @@ const recoveryLimiter = rateLimit({
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/refresh', refreshLimiter);
 app.use('/api/password-recovery/request', recoveryLimiter);
+app.use('/api/password-recovery/validate-token', recoveryLimiter);
+app.use('/api/password-recovery/reset', recoveryLimiter);
+app.use('/api/clients/reactivate', loginLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/password-recovery', passwordRecoveryRoutes);
