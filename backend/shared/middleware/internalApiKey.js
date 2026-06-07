@@ -22,11 +22,9 @@ export function requireInternalApiKey(req, res, next) {
     return next(crearError(MISSING_KEY_MESSAGE, HTTP_STATUS.UNAUTHORIZED));
   }
 
-  const expectedBuf = Buffer.from(expected);
-  const providedBuf = Buffer.alloc(expectedBuf.length);
-  Buffer.from(provided).copy(providedBuf, 0, 0, expectedBuf.length);
-  const lengthMatch = Buffer.from(provided).length === expectedBuf.length;
-  const valid = crypto.timingSafeEqual(expectedBuf, providedBuf) && lengthMatch;
+  const hmac = (value) =>
+    crypto.createHmac('sha256', 'internal-key-compare').update(value).digest();
+  const valid = crypto.timingSafeEqual(hmac(expected), hmac(provided));
 
   if (!valid) {
     return next(crearError(INVALID_KEY_MESSAGE, HTTP_STATUS.UNAUTHORIZED));
