@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AUTH_STRINGS } from '@/features/auth/constants/auth.constants';
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { validateLoginForm, getFieldError } from '@/features/auth/shared/auth.validation';
-import { loginUser, reactivateAccount } from '@/features/auth/shared/auth.api';
+import { loginUser } from '@/features/auth/shared/auth.api';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import type { FieldError, LoginFormData, ApiErrorResponse } from '@/features/auth/types/auth.types';
 
@@ -18,9 +18,6 @@ export function useLoginForm() {
   const [formData, setFormData] = useState<LoginFormData>(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isAccountInactive, setIsAccountInactive] = useState(false);
-  const [reactivating, setReactivating] = useState(false);
-  const [reactivationSuccess, setReactivationSuccess] = useState(false);
   const auth = useAuth();
   const router = useRouter();
 
@@ -34,16 +31,9 @@ export function useLoginForm() {
     return getFieldError(errors, field);
   }
 
-  function handleCancelReactivation() {
-    setIsAccountInactive(false);
-    setReactivationSuccess(false);
-    setErrors([]);
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrors([]);
-    setIsAccountInactive(false);
 
     const validationErrors = validateLoginForm(formData);
     if (validationErrors.length > 0) {
@@ -61,11 +51,9 @@ export function useLoginForm() {
       const apiError = err as ApiErrorResponse;
       if (apiError.errors && apiError.errors.length > 0) {
         setErrors(apiError.errors);
-      } else if (apiError.error === AUTH_STRINGS.INACTIVE_ACCOUNT_ERROR) {
-        setIsAccountInactive(true);
       } else if (apiError.error) {
         const KNOWN_ERRORS: Record<string, string> = {
-          [AUTH_STRINGS.INACTIVE_ACCOUNT_ERROR]: AUTH_STRINGS.errors.connectionError,
+          [AUTH_STRINGS.INACTIVE_ACCOUNT_ERROR]: AUTH_STRINGS.INACTIVE_ACCOUNT_ERROR,
           'Correo electrónico o contraseña incorrectos': AUTH_STRINGS.errors.invalidCredentials,
         };
         const safeMessage = KNOWN_ERRORS[apiError.error] ?? AUTH_STRINGS.errors.unexpectedError;
@@ -78,36 +66,11 @@ export function useLoginForm() {
     }
   }
 
-  async function handleReactivate() {
-    setReactivating(true);
-    setErrors([]);
-
-    try {
-      await reactivateAccount({ email: formData.email, password: formData.password });
-      setReactivationSuccess(true);
-      setIsAccountInactive(false);
-    } catch (err) {
-      const apiError = err as ApiErrorResponse;
-      setErrors([{
-        field: 'general',
-        message: apiError.error ?? AUTH_STRINGS.inactiveAccount.errorFallback,
-      }]);
-      setIsAccountInactive(false);
-    } finally {
-      setReactivating(false);
-    }
-  }
-
   return {
     formData,
     loading,
     handleChange,
     handleSubmit,
     fieldError,
-    isAccountInactive,
-    reactivating,
-    reactivationSuccess,
-    handleReactivate,
-    handleCancelReactivation,
   };
 }
