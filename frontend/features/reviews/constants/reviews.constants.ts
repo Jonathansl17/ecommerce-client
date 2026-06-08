@@ -14,6 +14,7 @@ export const REVIEW_STRINGS = {
   loading: 'Cargando tus productos comprados...',
   loadError: 'No se pudieron cargar tus productos comprados',
   empty: 'Aún no tienes productos comprados para reseñar.',
+  profileEmpty: 'Aún no has publicado ninguna reseña.',
   verifiedBadge: 'Compra verificada',
   editedTag: 'editada',
   pendingModeration: 'Pendiente de moderación',
