@@ -17,12 +17,6 @@ export interface LoginFormData {
   password: string;
 }
 
-export interface ReactivateAccountData {
-  email: string;
-  password: string;
-}
-
-
 
 export interface AuthUser {
   id: string;
@@ -68,11 +62,6 @@ export interface LoginFormProps {
   handleChange: (field: keyof LoginFormData) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   fieldError: (field: string) => string | undefined;
-  isAccountInactive: boolean;
-  reactivating: boolean;
-  reactivationSuccess: boolean;
-  onReactivate: () => void;
-  onCancelReactivation: () => void;
 }
 
 export interface RegisterFormProps {
