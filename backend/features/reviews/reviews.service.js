@@ -295,6 +295,7 @@ export const eliminar = async (userId, reviewId) => {
 
   await prisma.$transaction([
     prisma.reviewVote.deleteMany({ where: { reviewId: reviewIdBig } }),
+    prisma.reviewResponse.deleteMany({ where: { reviewId: reviewIdBig } }),
     prisma.review.delete({ where: { id: reviewIdBig } }),
   ]);
 };
