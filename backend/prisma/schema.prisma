@@ -401,6 +401,7 @@ model Review {
   votes      ReviewVote[]
   response   ReviewResponse?
 
+  @@unique([clientUserId, productId])
   @@map("reviews")
 }
 

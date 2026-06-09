@@ -155,13 +155,16 @@ export const eliminarComoModerador = async (req, res, next) => {
   }
 };
 
+const MAX_VOTE_IDS = 50;
+
 export const obtenerMisVotos = async (req, res, next) => {
   try {
     const reviewIds = (req.query.reviewIds ?? '')
       .toString()
       .split(',')
       .map((s) => s.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, MAX_VOTE_IDS);
     const votos = await obtenerMisVotosService(req.user.id, reviewIds);
     res.status(HTTP_STATUS.OK).json(votos);
   } catch (error) {
