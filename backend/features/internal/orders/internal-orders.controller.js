@@ -2,6 +2,7 @@ import { HTTP_STATUS } from '../../../shared/constants/http.constants.js';
 import {
   actualizarEstadoPedido as actualizarEstadoPedidoService,
   cancelarPedidoAdmin as cancelarPedidoAdminService,
+  aprobarPago as aprobarPagoService,
 } from '../../orders/orders.service.js';
 import {
   listarPedidos as listarPedidosService,
@@ -38,6 +39,15 @@ export const actualizarEstadoPedido = async (req, res, next) => {
 export const cancelarPedido = async (req, res, next) => {
   try {
     const resultado = await cancelarPedidoAdminService(req.params.id);
+    res.status(HTTP_STATUS.OK).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const aprobarPago = async (req, res, next) => {
+  try {
+    const resultado = await aprobarPagoService(req.params.id, req.params.paymentId);
     res.status(HTTP_STATUS.OK).json(resultado);
   } catch (error) {
     next(error);

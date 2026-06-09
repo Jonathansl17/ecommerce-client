@@ -4,6 +4,7 @@ import {
   cancelarPedido,
   listarPedidos,
   obtenerPedidoPorId,
+  aprobarPago,
 } from './internal-orders.controller.js';
 import {
   validateListOrdersQuery,
@@ -16,5 +17,6 @@ router.get('/', validateListOrdersQuery, listarPedidos);
 router.get('/:id', obtenerPedidoPorId);
 router.patch('/:id/status', validateUpdateOrderStatus, actualizarEstadoPedido);
 router.post('/:id/cancel', cancelarPedido);
+router.patch('/:id/payments/:paymentId/approve', aprobarPago);
 
 export default router;
