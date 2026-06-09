@@ -88,6 +88,23 @@ const reviewReadLimiter = rateLimit({
   skip: (req) => req.method !== 'GET',
 });
 
+const checkoutLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const cartMutationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'GET',
+});
+
 // Keyed by API key so all traffic from the same admin backend shares one bucket
 const internalLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -103,6 +120,8 @@ app.use('/api/password-recovery/request', recoveryLimiter);
 app.use('/api/password-recovery/validate-token', recoveryLimiter);
 app.use('/api/password-recovery/reset', recoveryLimiter);
 app.use('/api/clients/reactivate', loginLimiter);
+app.use('/api/orders/checkout', checkoutLimiter);
+app.use('/api/cart', cartMutationLimiter);
 app.use('/api/reviews', reviewReadLimiter);
 app.use('/api/reviews', reviewWriteLimiter);
 app.use('/api/internal', internalLimiter);
