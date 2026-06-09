@@ -21,6 +21,8 @@ export const PAYMENT_MESSAGES = {
   NOT_FOUND: 'Pago no encontrado para este pedido',
   ALREADY_APPROVED: 'El pago ya estaba aprobado',
   APPROVE_SUCCESS: 'Pago aprobado exitosamente',
+  ORDER_NOT_PAYABLE: 'El pedido no está en estado pendiente de pago',
+  AMOUNT_MISMATCH: 'El monto del pago no coincide con el total del pedido',
 };
 
 export const ORDER_STATUS_VALUES = [
@@ -34,3 +36,15 @@ export const ORDER_STATUS_VALUES = [
   'delivered',
   'cancelled',
 ];
+
+export const ORDER_STATUS_TRANSITIONS = {
+  pending_payment: ['confirmed', 'cancelled'],
+  confirmed: ['in_preparation', 'cancelled'],
+  in_preparation: ['customization_in_progress', 'ready_shipment', 'cancelled'],
+  customization_in_progress: ['ready_shipment', 'cancelled'],
+  ready_shipment: ['shipped'],
+  shipped: ['in_transit'],
+  in_transit: ['delivered'],
+  delivered: [],
+  cancelled: [],
+};
