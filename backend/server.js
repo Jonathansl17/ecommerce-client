@@ -33,7 +33,13 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(requireFetchHeader);
+// El CSRF (validación de Origin) aplica solo a peticiones del navegador.
+// Las rutas internas son servidor-a-servidor y ya están protegidas por la
+// API key (X-Admin-Api-Key), así que se eximen del chequeo de Origin.
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/internal')) return next();
+  return requireFetchHeader(req, res, next);
+});
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
