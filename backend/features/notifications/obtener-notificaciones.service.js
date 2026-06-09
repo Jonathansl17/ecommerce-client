@@ -18,6 +18,7 @@ export async function obtenerNotificaciones({ clientUserId, soloNoLeidas }) {
   const notificaciones = await prisma.clientNotification.findMany({
     where: filtroBase,
     orderBy: { createdAt: 'desc' },
+    take: 100,
     select: {
       id: true,
       title: true,
