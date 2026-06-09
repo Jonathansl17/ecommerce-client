@@ -12,6 +12,15 @@ function crearTransporte() {
   });
 }
 
+function escaparHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function formatearExpiracion(expiresAt) {
   return new Intl.DateTimeFormat('es-CR', {
     dateStyle: 'medium',
@@ -40,7 +49,9 @@ export async function enviarCorreoRecuperacionPassword({
   const config = obtenerConfiguracionCorreo();
 
   if (!config.host || !config.port || !config.user || !config.pass || !config.from) {
-    console.warn('[password-recovery] SMTP no configurado. Enlace generado:', recoveryUrl);
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[password-recovery] SMTP no configurado. Enlace de desarrollo generado (no usar en producción).');
+    }
     return;
   }
 
@@ -48,7 +59,7 @@ export async function enviarCorreoRecuperacionPassword({
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
       <h2>Recuperacion de contrasena</h2>
-      <p>Hola${fullName ? `, ${fullName}` : ''}.</p>
+      <p>Hola${fullName ? `, ${escaparHtml(fullName)}` : ''}.</p>
       <p>Recibimos una solicitud para restablecer tu contrasena.</p>
       <p>
         <a
@@ -75,6 +86,6 @@ export async function enviarCorreoRecuperacionPassword({
       throw error;
     }
 
-    console.warn('[password-recovery] No se pudo enviar el correo. Enlace generado:', recoveryUrl, error);
+    console.warn('[password-recovery] No se pudo enviar el correo de recuperación.', error?.message);
   }
 }
