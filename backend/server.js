@@ -39,6 +39,7 @@ app.use(cookieParser());
 // They are protected by requireInternalApiKey inside internalRoutes.
 app.use('/api/internal', internalRoutes);
 
+// CSRF check only for browser-facing routes; internal API is API-key authenticated
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/internal')) return next();
   return requireFetchHeader(req, res, next);
@@ -87,6 +88,15 @@ const reviewReadLimiter = rateLimit({
   skip: (req) => req.method !== 'GET',
 });
 
+// Keyed by API key so all traffic from the same admin backend shares one bucket
+const internalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 300,
+  keyGenerator: (req) => req.headers['x-admin-api-key'] ?? ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/refresh', refreshLimiter);
 app.use('/api/password-recovery/request', recoveryLimiter);
@@ -95,6 +105,7 @@ app.use('/api/password-recovery/reset', recoveryLimiter);
 app.use('/api/clients/reactivate', loginLimiter);
 app.use('/api/reviews', reviewReadLimiter);
 app.use('/api/reviews', reviewWriteLimiter);
+app.use('/api/internal', internalLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/password-recovery', passwordRecoveryRoutes);

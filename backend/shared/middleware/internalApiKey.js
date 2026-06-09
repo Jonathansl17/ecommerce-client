@@ -22,6 +22,9 @@ export function requireInternalApiKey(req, res, next) {
     return next(crearError(MISSING_KEY_MESSAGE, HTTP_STATUS.UNAUTHORIZED));
   }
 
+  // Hash both values to a fixed-length digest so timingSafeEqual never throws
+  // on a length mismatch and the comparison does not leak key length via
+  // short-circuit evaluation.
   const hmac = (value) =>
     crypto.createHmac('sha256', 'internal-key-compare').update(value).digest();
   const valid = crypto.timingSafeEqual(hmac(expected), hmac(provided));

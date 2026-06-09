@@ -12,6 +12,7 @@ import {
   PAYMENT_STATUSES,
   CANCELLABLE_ORDER_STATUS,
   CANCELLED_ORDER_STATUS,
+  ORDER_STATUS_TRANSITIONS,
 } from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 import { TAX_RATE } from '../../shared/constants/tax.constants.js';
@@ -711,6 +712,13 @@ export const actualizarEstadoPedido = async (orderId, { status: newStatus, cance
   }
 
   const previousStatus = currentOrder.status;
+  const allowedTransitions = ORDER_STATUS_TRANSITIONS[previousStatus] ?? [];
+  if (!allowedTransitions.includes(newStatus)) {
+    throw crearError(
+      `Transición de estado inválida: ${previousStatus} → ${newStatus}`,
+      HTTP_STATUS.CONFLICT,
+    );
+  }
 
   const { order, orderStatusNotification } = await prisma.$transaction(async (tx) => {
     const updatedOrderCount = await tx.order.updateMany({
@@ -740,6 +748,20 @@ export const actualizarEstadoPedido = async (orderId, { status: newStatus, cance
       }
 
       throw crearError('Conflicto al actualizar el estado del pedido', HTTP_STATUS.CONFLICT);
+    }
+
+    // Release reserved stock when admin cancels via this path
+    if (newStatus === CANCELLED_ORDER_STATUS) {
+      const items = await tx.orderItem.findMany({
+        where: { orderId: parsedOrderId },
+        select: { variantId: true, quantity: true },
+      });
+      for (const item of items) {
+        await tx.productVariant.updateMany({
+          where: { id: item.variantId, reservedStock: { gte: item.quantity } },
+          data: { reservedStock: { decrement: item.quantity } },
+        });
+      }
     }
 
     const updatedOrder = await tx.order.findUnique({
