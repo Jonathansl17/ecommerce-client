@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   actualizarEstadoReview,
+  eliminarReview,
   listarReviews,
   obtenerEstadisticasReviews,
   obtenerReviewPorId,
@@ -16,5 +17,6 @@ router.get('/stats', obtenerEstadisticasReviews);
 router.get('/', validateListReviewsQuery, listarReviews);
 router.get('/:id', obtenerReviewPorId);
 router.patch('/:id/status', validateUpdateReviewStatus, actualizarEstadoReview);
+router.delete('/:id/moderation', eliminarReview);
 
 export default router;

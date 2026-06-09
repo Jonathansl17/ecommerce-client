@@ -139,6 +139,30 @@ export const actualizarEstadoReview = async (reviewId, { status }) => {
   return serializarReview(actualizada);
 };
 
+export const eliminarReviewInterno = async (reviewId) => {
+  const existente = await prisma.review.findUnique({
+    where: { id: BigInt(reviewId) },
+    select: { id: true },
+  });
+
+  if (!existente) {
+    throw crearError(
+      INTERNAL_REVIEWS_MESSAGES.NOT_FOUND,
+      HTTP_STATUS.NOT_FOUND,
+    );
+  }
+
+  // La respuesta del admin se borra por onDelete: Cascade; los votos no
+  // tienen cascada declarada, así que se eliminan primero para evitar el
+  // error de llave foránea.
+  await prisma.$transaction([
+    prisma.reviewVote.deleteMany({ where: { reviewId: BigInt(reviewId) } }),
+    prisma.review.delete({ where: { id: BigInt(reviewId) } }),
+  ]);
+
+  return { id: reviewId.toString(), deleted: true };
+};
+
 export const obtenerEstadisticasReviews = async () => {
   const agrupado = await prisma.review.groupBy({
     by: ['status'],
