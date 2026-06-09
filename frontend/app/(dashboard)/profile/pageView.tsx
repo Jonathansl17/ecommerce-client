@@ -1,6 +1,7 @@
 'use client';
 
 import { Profile } from '@/features/clients/components/Profile';
+import { MyReviewsSection } from '@/features/reviews/components/MyReviewsSection';
 import { ProfileEditDialog } from '@/features/clients/components/ProfileEditDialog';
 import { ChangePasswordDialog } from '@/features/clients/components/ChangePasswordDialog';
 import { DeactivateAccountDialog } from '@/features/clients/components/DeactivateAccountDialog';
@@ -59,6 +60,11 @@ export function ProfilePageView({
             {PROFILE_STRINGS.editButtons.changePassword}
           </button>
         </div>
+      </div>
+
+      {/* Mis reseñas */}
+      <div className="mt-6 border border-border rounded-lg bg-card p-6 shadow-sm">
+        <MyReviewsSection />
       </div>
 
       {/* Zona de peligro */}

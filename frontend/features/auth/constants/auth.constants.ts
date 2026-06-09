@@ -49,15 +49,6 @@ export const AUTH_STRINGS = {
     connectionError: 'No se pudo conectar con el servidor',
     invalidCredentials: 'Correo electrónico o contraseña incorrectos',
   },
-  inactiveAccount: {
-    title: '¿Deseas reactivar tu cuenta?',
-    description: 'Bloqueaste tu cuenta desde el perfil. Puedes reactivarla ahora para volver a acceder.',
-    reactivateButton: 'Reactivar cuenta',
-    reactivatingButton: 'Reactivando...',
-    cancelButton: 'Cancelar',
-    successMessage: 'Cuenta reactivada. Ya puedes iniciar sesión.',
-    errorFallback: 'No se pudo reactivar la cuenta',
-  },
   INACTIVE_ACCOUNT_ERROR: 'Tu cuenta está inactiva. Contacta al soporte.',
 } as const;
 

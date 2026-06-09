@@ -1,6 +1,7 @@
 import prisma from '../../../shared/db/prisma.js';
 import { crearError } from '../../../shared/middleware/errorHandler.js';
 import { HTTP_STATUS } from '../../../shared/constants/http.constants.js';
+import { PRISMA_ERROR_CODES } from '../../../shared/constants/app.constants.js';
 import {
   INTERNAL_REVIEWS_MESSAGES,
   REVIEW_STATUSES,
@@ -8,7 +9,7 @@ import {
 
 const REVIEW_INCLUDE = {
   clientUser: {
-    select: { id: true, fullName: true, email: true },
+    select: { id: true, fullName: true },
   },
   product: {
     select: {
@@ -51,7 +52,6 @@ function serializarReview(review) {
       ? {
           id: review.clientUser.id.toString(),
           fullName: review.clientUser.fullName,
-          email: review.clientUser.email,
         }
       : null,
     product: review.product
@@ -118,25 +118,19 @@ export const obtenerReviewPorIdInterno = async (reviewId) => {
 };
 
 export const actualizarEstadoReview = async (reviewId, { status }) => {
-  const existente = await prisma.review.findUnique({
-    where: { id: BigInt(reviewId) },
-    select: { id: true },
-  });
-
-  if (!existente) {
-    throw crearError(
-      INTERNAL_REVIEWS_MESSAGES.NOT_FOUND,
-      HTTP_STATUS.NOT_FOUND,
-    );
+  try {
+    const actualizada = await prisma.review.update({
+      where: { id: BigInt(reviewId) },
+      data: { status, updatedAt: new Date() },
+      include: REVIEW_INCLUDE,
+    });
+    return serializarReview(actualizada);
+  } catch (error) {
+    if (error?.code === PRISMA_ERROR_CODES.NOT_FOUND) {
+      throw crearError(INTERNAL_REVIEWS_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+    }
+    throw error;
   }
-
-  const actualizada = await prisma.review.update({
-    where: { id: BigInt(reviewId) },
-    data: { status, updatedAt: new Date() },
-    include: REVIEW_INCLUDE,
-  });
-
-  return serializarReview(actualizada);
 };
 
 export const obtenerEstadisticasReviews = async () => {
