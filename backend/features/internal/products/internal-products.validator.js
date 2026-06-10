@@ -51,8 +51,7 @@ const productSchema = z.object({
     .string()
     .min(1, 'imageUrl es requerido')
     .max(INTERNAL_PRODUCTS_LIMITS.IMAGE_URL_MAX, 'imageUrl excede el maximo de caracteres')
-    .url('imageUrl debe ser una URL valida')
-    .refine((value) => value.startsWith('https://'), 'imageUrl debe usar https'),
+    .url('imageUrl debe ser una URL valida'),
   category: z
     .string()
     .min(1, 'category es requerido')
