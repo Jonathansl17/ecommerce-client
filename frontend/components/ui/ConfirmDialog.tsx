@@ -62,9 +62,6 @@ export function ConfirmDialog({
 
   if (!open) return null;
 
-  const confirmClass = destructive
-    ? '!bg-destructive !text-white hover:!opacity-90'
-    : '';
 
   return (
     <div
@@ -110,10 +107,12 @@ export function ConfirmDialog({
           </button>
           <Button
             type="button"
+            variant={destructive ? 'destructive' : 'primary'}
+            fullWidth
             onClick={onConfirm}
             isLoading={loading}
             disabled={confirmDisabled}
-            className={`sm:w-auto sm:px-5 ${confirmClass}`}
+            className="sm:w-auto sm:px-5"
           >
             {confirmLabel}
           </Button>

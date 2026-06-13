@@ -41,6 +41,7 @@ export function ForgotPasswordForm({
 
         <Button
           type="submit"
+          fullWidth
           isLoading={loading}
           loadingText={strings.submittingButton}
         >

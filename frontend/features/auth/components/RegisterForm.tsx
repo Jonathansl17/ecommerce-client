@@ -67,6 +67,7 @@ export function RegisterForm({
 
         <Button
           type="submit"
+          fullWidth
           isLoading={loading}
           loadingText={strings.submittingButton}
         >
