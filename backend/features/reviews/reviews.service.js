@@ -8,7 +8,22 @@ import {
   COMPLETED_ORDER_STATUS,
   VOTE_TYPES,
 } from './reviews.constants.js';
+import { deleteReviewOnAdmin } from '../../shared/adminApi/admin-api.client.js';
 import { PRISMA_ERROR_CODES } from '../../shared/constants/app.constants.js';
+
+// Propaga el borrado de una reseña al backend del admin (borra su reseña
+// espejo, identificada por externalId = id de la reseña del cliente). Tolerante
+// a fallos: si el admin no responde, no revertimos el borrado del cliente.
+async function propagarBorradoAlAdmin(reviewId) {
+  try {
+    await deleteReviewOnAdmin(reviewId);
+  } catch (err) {
+    console.error(
+      `No se pudo borrar la reseña ${reviewId} en el admin:`,
+      err.message,
+    );
+  }
+}
 
 // ─── Helpers privados ──────────────────────────────────────────────────────
 
@@ -293,6 +308,8 @@ export const eliminar = async (userId, reviewId) => {
     prisma.reviewResponse.deleteMany({ where: { reviewId: reviewIdBig } }),
     prisma.review.delete({ where: { id: reviewIdBig } }),
   ]);
+
+  await propagarBorradoAlAdmin(reviewId);
 };
 
 // Eliminación por moderación (US-REV-006): un admin elimina la reseña de otro usuario
@@ -317,6 +334,8 @@ export const eliminarComoModerador = async (
     prisma.reviewVote.deleteMany({ where: { reviewId: reviewIdBig } }),
     prisma.review.delete({ where: { id: reviewIdBig } }),
   ]);
+
+  await propagarBorradoAlAdmin(reviewId);
 
   // Trazabilidad de la acción de moderación. El registro persistente en una tabla de
   // auditoría es una tarea aparte de US-REV-006 (#8), aún fuera de alcance.
