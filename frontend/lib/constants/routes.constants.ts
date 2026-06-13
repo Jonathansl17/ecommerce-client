@@ -6,8 +6,6 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   CATALOG: '/catalogo',
-  CATALOG_NEW: '/catalogo?categoria=nuevos',
-  CATALOG_OFFERS: '/catalogo?categoria=ofertas',
   ORDER_DETAIL: (id: string) => `/orders/${id}`,
   ORDERS: '/orders',
   CART: '/cart',

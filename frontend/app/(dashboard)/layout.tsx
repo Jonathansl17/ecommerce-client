@@ -8,7 +8,7 @@ import { ClientHeader } from '@/components/layout/ClientHeader';
 import { ClientSidebar } from '@/components/layout/ClientSidebar';
 import { PageTransition } from '@/components/layout/PageTransition';
 
-const PUBLIC_PATH_PREFIXES = ['/catalogo', '/productos'];
+const PUBLIC_PATH_PREFIXES = ['/dashboard', '/catalogo', '/productos'];
 
 function isPublicPath(pathname: string | null): boolean {
   if (pathname == null) return false;
