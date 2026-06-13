@@ -1,6 +1,7 @@
 import { HTTP_STATUS } from '../../../shared/constants/http.constants.js';
 import {
   actualizarEstadoReview as actualizarEstadoReviewService,
+  eliminarReviewInterno as eliminarReviewInternoService,
   listarReviews as listarReviewsService,
   obtenerEstadisticasReviews as obtenerEstadisticasReviewsService,
   obtenerReviewPorIdInterno as obtenerReviewPorIdInternoService,
@@ -30,6 +31,15 @@ export const actualizarEstadoReview = async (req, res, next) => {
       req.params.id,
       req.body,
     );
+    res.status(HTTP_STATUS.OK).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const eliminarReview = async (req, res, next) => {
+  try {
+    const resultado = await eliminarReviewInternoService(req.params.id);
     res.status(HTTP_STATUS.OK).json(resultado);
   } catch (error) {
     next(error);
