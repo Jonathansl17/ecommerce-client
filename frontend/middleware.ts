@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED_PREFIXES = ['/dashboard', '/orders', '/cart', '/checkout', '/profile', '/reviews'];
+// /dashboard (home), /catalogo y /productos son públicos: la tienda se puede navegar sin sesión.
+const PROTECTED_PREFIXES = ['/orders', '/cart', '/checkout', '/profile', '/reviews'];
 const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 
 // Cookie name debe coincidir con auth.constants.js COOKIE_NAMES.ACCESS = 'ec_access'
@@ -28,7 +29,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
     '/orders/:path*',
     '/cart/:path*',
     '/checkout/:path*',

@@ -17,4 +17,6 @@ export const SIDEBAR_SUPPORT_STRINGS = {
   title: '¿Necesitas ayuda?',
   availability: 'Disponible 24/7',
   button: 'Contactar soporte',
+  email: 'soporte@tienda.com',
+  emailSubject: 'Solicitud de soporte',
 };

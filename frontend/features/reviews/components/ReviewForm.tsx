@@ -106,15 +106,18 @@ export function ReviewForm({
         {onCancel && (
           <Button
             type="button"
+            variant="outline"
+            fullWidth
             onClick={onCancel}
             disabled={submitting}
-            className="!bg-transparent !text-foreground border border-foreground/20 hover:!bg-accent sm:w-auto sm:px-5"
+            className="sm:w-auto sm:px-5"
           >
             {REVIEW_STRINGS.cancel}
           </Button>
         )}
         <Button
           type="submit"
+          fullWidth
           isLoading={submitting}
           loadingText={submittingLabel}
           className="sm:w-auto sm:px-5"

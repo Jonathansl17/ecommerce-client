@@ -9,15 +9,31 @@ import { PanelHeader } from './ui/PanelHeader';
 import { PanelLoadingState } from './ui/PanelLoadingState';
 import { PanelErrorState } from './ui/PanelErrorState';
 import { PanelEmptyState } from './ui/PanelEmptyState';
+import { Pagination } from '@/components/ui/Pagination';
 import { NOTIFICATION_STRINGS } from '../constants/notifications.constants';
+
+const ITEMS_PER_PAGE = 5;
 
 export function NotificationBell() {
   const [abierto, setAbierto] = useState(false);
   const [ringing, setRinging] = useState(false);
+  const [pagina, setPagina] = useState(1);
   const { notificaciones, noLeidas, cargando, error, marcarComoLeida, descartarNotificacion } = useNotifications();
   const contenedorRef = useRef<HTMLDivElement>(null);
   const ringTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelId = useId();
+
+  const totalPaginas = Math.max(1, Math.ceil(notificaciones.length / ITEMS_PER_PAGE));
+
+  // Mantener la página dentro de rango cuando cambia la lista (p. ej. al descartar).
+  useEffect(() => {
+    if (pagina > totalPaginas) setPagina(totalPaginas);
+  }, [pagina, totalPaginas]);
+
+  const notificacionesPagina = notificaciones.slice(
+    (pagina - 1) * ITEMS_PER_PAGE,
+    pagina * ITEMS_PER_PAGE,
+  );
 
   useEffect(() => {
     function handleClickFuera(e: MouseEvent) {
@@ -86,20 +102,34 @@ export function NotificationBell() {
           {sinNotificaciones && <PanelEmptyState />}
 
           {hayNotificaciones && (
-            <ul
-              role="menu"
-              aria-label={NOTIFICATION_STRINGS.bellAriaLabel}
-              className="max-h-80 divide-y divide-zinc-300 dark:divide-zinc-600 overflow-y-auto"
-            >
-              {notificaciones.map((notificacion) => (
-                <NotificationItem
-                  key={notificacion.id}
-                  notification={notificacion}
-                  onRead={marcarComoLeida}
-                  onDismiss={descartarNotificacion}
-                />
-              ))}
-            </ul>
+            <>
+              <ul
+                role="menu"
+                aria-label={NOTIFICATION_STRINGS.bellAriaLabel}
+                className="max-h-80 divide-y divide-zinc-300 dark:divide-zinc-600 overflow-y-auto"
+              >
+                {notificacionesPagina.map((notificacion) => (
+                  <NotificationItem
+                    key={notificacion.id}
+                    notification={notificacion}
+                    onRead={marcarComoLeida}
+                    onDismiss={descartarNotificacion}
+                  />
+                ))}
+              </ul>
+              {notificaciones.length > ITEMS_PER_PAGE && (
+                <div className="border-t border-border px-3 py-2">
+                  <Pagination
+                    page={pagina}
+                    limit={ITEMS_PER_PAGE}
+                    total={notificaciones.length}
+                    itemLabelSingular="notificación"
+                    itemLabelPlural="notificaciones"
+                    onPageChange={setPagina}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
