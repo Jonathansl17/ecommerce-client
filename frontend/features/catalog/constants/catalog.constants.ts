@@ -1,6 +1,7 @@
 export const CATALOG_STRINGS = {
   title: 'Catálogo',
   subtitle: 'Explora todos los productos disponibles en la tienda.',
+  searchResultsFor: 'Resultados para',
   loading: 'Cargando productos...',
   empty: 'No hay productos disponibles en este momento.',
   errorFallback: 'No se pudo cargar el catálogo',

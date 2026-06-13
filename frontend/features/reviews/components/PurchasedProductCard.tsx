@@ -89,6 +89,7 @@ export function PurchasedProductCard({
         <div className="flex justify-end">
           <Button
             type="button"
+            fullWidth
             onClick={onStartEditing}
             className="sm:w-auto sm:px-5"
           >

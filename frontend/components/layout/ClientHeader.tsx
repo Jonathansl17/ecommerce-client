@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, Menu, X, Home } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { ProfileDropdown } from '@/components/layout/ProfileDropdown';
@@ -14,9 +15,18 @@ import { ClientHeaderProps } from './layout.interface';
 
 export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
+  const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
   const initials = user?.fullName ? getInitials(user.fullName) : '';
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const term = query.trim();
+    router.push(term ? `${ROUTES.CATALOG}?q=${encodeURIComponent(term)}` : ROUTES.CATALOG);
+    setSearchOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur">
@@ -31,7 +41,7 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
 
         {/* Botón Home */}
         <Link
-          href={ROUTES.HOME}
+          href={ROUTES.DASHBOARD}
           className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           title={HEADER_STRINGS.homeTitle}
         >
@@ -40,16 +50,18 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
         </Link>
 
         {/* Buscador desktop */}
-        <div className="mx-auto hidden max-w-md flex-1 md:block">
+        <form onSubmit={submitSearch} className="mx-auto hidden max-w-md flex-1 md:block">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder={HEADER_STRINGS.searchPlaceholder}
               className="w-full rounded-md border border-input bg-secondary py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-        </div>
+        </form>
 
         {/* Buscador toggle móvil */}
         <button
@@ -86,17 +98,19 @@ export function ClientHeader({ onMenuOpen }: ClientHeaderProps) {
 
       {/* Buscador móvil expandido */}
       {searchOpen && (
-        <div className="px-4 pb-4 md:hidden">
+        <form onSubmit={submitSearch} className="px-4 pb-4 md:hidden">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder={HEADER_STRINGS.searchPlaceholderMobile}
               autoFocus
               className="w-full rounded-md border border-input bg-secondary py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-        </div>
+        </form>
       )}
     </header>
   );
