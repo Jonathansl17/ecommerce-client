@@ -35,8 +35,11 @@ const INCLUDE_RELACIONES = {
   },
 };
 
+// Solo se listan productos cuyo Item esta activo: el borrado logico del admin
+// marca Item.status = 'inactive', lo que los retira de la tienda.
 export const obtenerTodos = async () => {
   return prisma.product.findMany({
+    where: { item: { status: 'active' } },
     include: INCLUDE_RELACIONES,
   });
 };
@@ -56,7 +59,7 @@ export const obtenerPorId = async (id) => {
 
 export const obtenerPorCategoria = async (categoriaId) => {
   return prisma.product.findMany({
-    where: { categoryId: BigInt(categoriaId) },
+    where: { categoryId: BigInt(categoriaId), item: { status: 'active' } },
     include: INCLUDE_RELACIONES,
   });
 };
