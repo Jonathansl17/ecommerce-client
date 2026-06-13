@@ -98,14 +98,17 @@ function ResponseForm({
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button
           type="button"
+          variant="outline"
+          fullWidth
           onClick={onCancel}
           disabled={submitting}
-          className="!bg-transparent !text-foreground border border-foreground/20 hover:!bg-accent sm:w-auto sm:px-5"
+          className="sm:w-auto sm:px-5"
         >
           {STRINGS.actions.cancel}
         </Button>
         <Button
           type="submit"
+          fullWidth
           isLoading={submitting}
           loadingText={submittingLabel}
           disabled={trimmed.length === 0}
@@ -189,8 +192,10 @@ export function AdminResponseSection({
     return (
       <Button
         type="button"
+        variant="outline"
+        size="sm"
         onClick={() => setMode('create')}
-        className="!bg-transparent !text-primary border border-primary/40 hover:!bg-primary/10 sm:w-auto sm:px-4 text-sm"
+        className="border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
       >
         {STRINGS.actions.respond}
       </Button>

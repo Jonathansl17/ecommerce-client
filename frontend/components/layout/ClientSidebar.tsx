@@ -69,9 +69,12 @@ export function ClientSidebar() {
               <p className="text-xs text-muted-foreground">{SIDEBAR_SUPPORT_STRINGS.availability}</p>
             </div>
           </div>
-          <button className="w-full rounded-md border border-border px-3 py-1.5 text-sm text-sidebar-foreground transition-colors hover:bg-background">
+          <a
+            href={`mailto:${SIDEBAR_SUPPORT_STRINGS.email}?subject=${encodeURIComponent(SIDEBAR_SUPPORT_STRINGS.emailSubject)}`}
+            className="block w-full rounded-md border border-border px-3 py-1.5 text-center text-sm text-sidebar-foreground transition-colors hover:bg-background"
+          >
             {SIDEBAR_SUPPORT_STRINGS.button}
-          </button>
+          </a>
         </div>
       </div>
     </aside>

@@ -1,5 +1,6 @@
 import { ROUTES } from '@/lib/constants/routes.constants';
 import { DASHBOARD_NAV_STRINGS } from '@/features/auth/constants/auth.constants';
+import { FeaturedProducts } from '@/features/catalog/components/FeaturedProducts';
 
 const PAGE_TITLE = 'Bienvenido a la tienda';
 const PAGE_SUBTITLE = 'Explora nuestros productos y encuentra lo que necesitas.';
@@ -10,23 +11,6 @@ const FEATURED_SECTIONS = [
     title: 'Explorar catálogo',
     description: 'Descubre todos nuestros productos disponibles.',
   },
-  {
-    href: ROUTES.CATALOG_NEW,
-    title: 'Nuevos productos',
-    description: 'Los últimos productos agregados a nuestra tienda.',
-  },
-  {
-    href: ROUTES.CATALOG_OFFERS,
-    title: 'Ofertas especiales',
-    description: 'Aprovecha los mejores descuentos disponibles.',
-  },
-] as const;
-
-const PLACEHOLDER_PRODUCTS = [
-  { id: 1, name: 'Producto destacado 1', price: '₡12,500' },
-  { id: 2, name: 'Producto destacado 2', price: '₡8,900' },
-  { id: 3, name: 'Producto destacado 3', price: '₡15,200' },
-  { id: 4, name: 'Producto destacado 4', price: '₡6,750' },
 ] as const;
 
 const PRODUCTS_TITLE = 'Productos destacados';
@@ -66,24 +50,7 @@ export default function StorePage() {
         >
           {PRODUCTS_TITLE}
         </h2>
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-          {PLACEHOLDER_PRODUCTS.map((product) => (
-            <div
-              key={product.id}
-              className="rounded-lg border border-foreground/10 bg-background p-4 space-y-3"
-            >
-              <div className="aspect-square rounded-md bg-foreground/5" />
-              <div>
-                <p className="text-sm font-medium text-foreground">
-                  {product.name}
-                </p>
-                <p className="text-sm font-bold text-foreground/80">
-                  {product.price}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <FeaturedProducts />
       </section>
     </div>
   );
