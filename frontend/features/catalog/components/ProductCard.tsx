@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/routes.constants';
+import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { addCartItem } from '@/features/cart/api/cart.api';
 import {
@@ -116,24 +117,25 @@ export function ProductCard({ product, cartVariantIds }: ProductCardProps) {
           {inCart ? (
             <Link
               href={ROUTES.CART}
-              className="flex-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white text-center hover:bg-emerald-700 transition-colors"
+              className="inline-flex flex-1 items-center justify-center rounded-md bg-success px-3 py-1.5 text-sm font-medium text-success-foreground transition-opacity hover:opacity-90"
             >
               {buyLabel}
             </Link>
           ) : (
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="sm"
               onClick={handleBuy}
               disabled={ejecutando || outOfStock}
-              className="flex-1 rounded-xl bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1"
             >
               {buyLabel}
-            </button>
+            </Button>
           )}
 
           <Link
             href={ROUTES.PRODUCT_DETAIL(product.itemId)}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="inline-flex items-center justify-center rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             {CATALOG_STRINGS.viewDetail}
           </Link>

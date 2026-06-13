@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import { useCallback } from 'react';
+import { X, Minus, Plus } from 'lucide-react';
+import { IconButton } from '@/components/ui/IconButton';
 import { CART_STRINGS, CART_QUANTITY, CART_CURRENCY_FORMAT } from '../constants/cart.constants';
 import type { CartItemRowProps } from '../types/cart.types';
 
@@ -93,25 +95,15 @@ export function CartItemRow({
           </div>
 
           {/* Remove button */}
-          <button
-            type="button"
+          <IconButton
+            variant="danger"
             onClick={handleRemove}
             disabled={ejecutando}
-            aria-label={CART_STRINGS.removeItemAriaLabel(productName)}
-            className="shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+            label={CART_STRINGS.removeItemAriaLabel(productName)}
+            className="shrink-0"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
+            <X className="h-4 w-4" aria-hidden="true" />
+          </IconButton>
         </div>
 
         {/* Quantity stepper + line total */}
@@ -119,32 +111,22 @@ export function CartItemRow({
           <div
             role="group"
             aria-label={CART_STRINGS.quantityAriaLabel}
-            className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50"
+            className="flex items-center gap-1 rounded-md border border-border bg-muted"
           >
             <button
               type="button"
               onClick={handleDecrease}
               disabled={!canDecrease}
               aria-label={CART_STRINGS.decreaseQuantity}
-              className="flex h-8 w-8 items-center justify-center rounded-l-xl text-slate-600 transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-8 w-8 items-center justify-center rounded-l-md text-foreground/70 transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3.5 w-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
-              </svg>
+              <Minus className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
 
             <span
               aria-live="polite"
               aria-atomic="true"
-              className="min-w-[2rem] text-center text-sm font-semibold text-slate-950"
+              className="min-w-[2rem] text-center text-sm font-semibold text-foreground"
             >
               {item.quantity}
             </span>
@@ -154,27 +136,13 @@ export function CartItemRow({
               onClick={handleIncrease}
               disabled={!canIncrease}
               aria-label={CART_STRINGS.increaseQuantity}
-              className="flex h-8 w-8 items-center justify-center rounded-r-xl text-slate-600 transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-8 w-8 items-center justify-center rounded-r-md text-foreground/70 transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3.5 w-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 4.5v15m7.5-7.5h-15"
-                />
-              </svg>
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
           </div>
 
-          <p className="text-sm font-bold text-slate-950">
+          <p className="text-sm font-bold text-foreground">
             {formatCurrency(lineTotal)}
           </p>
         </div>
