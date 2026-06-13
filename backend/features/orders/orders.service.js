@@ -12,8 +12,10 @@ import {
   PAYMENT_STATUSES,
   CANCELLABLE_ORDER_STATUS,
   CANCELLED_ORDER_STATUS,
+  ORDER_STATUS_TRANSITIONS,
 } from './orders.constants.js';
 import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
+import { parseBigInt } from '../../shared/utils/parseBigInt.js';
 import { TAX_RATE } from '../../shared/constants/tax.constants.js';
 
 const ORDER_STATUS_NOTIFICATION_SELECT = {
@@ -149,7 +151,7 @@ export function serializarPedido(orden) {
 export const checkout = async (userId, { shippingAddress, paymentMethod, externalReference }) => {
   // 1. Obtener carrito activo con ítems
   const carrito = await prisma.cart.findFirst({
-    where: { clientUserId: BigInt(userId), status: 'active' },
+    where: { clientUserId: parseBigInt(userId, 'userId'), status: 'active' },
     include: {
       cartItems: {
         include: {
@@ -167,21 +169,7 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
     throw crearError(ORDERS_MESSAGES.CART_EMPTY, HTTP_STATUS.BAD_REQUEST);
   }
 
-  // 2. Verificar stock disponible para cada ítem
-  for (const item of carrito.cartItems) {
-    const disponible = item.variant.currentStock - item.variant.reservedStock;
-    if (disponible < item.quantity) {
-      // Log interno con detalles — el cliente solo recibe el mensaje genérico
-      console.warn('[CHECKOUT] Stock insuficiente', {
-        variantId: item.variantId.toString(),
-        solicitado: item.quantity,
-        disponible,
-      });
-      throw crearError(ORDERS_MESSAGES.OUT_OF_STOCK, HTTP_STATUS.BAD_REQUEST);
-    }
-  }
-
-  // 3. Calcular totales con aritmética entera (centavos) para evitar pérdida de precisión float
+  // 2. Calcular totales con aritmética entera (centavos) para evitar pérdida de precisión float
   const subtotalCents = carrito.cartItems.reduce(
     (acc, item) => acc + Math.round(Number(item.unitPriceSnap) * 100) * item.quantity,
     0,
@@ -190,14 +178,29 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
   const taxes = Math.round(subtotalCents * TAX_RATE) / 100;
   const totalAmount = subtotal + taxes;
 
-  // 4. Crear Order, OrderItems, Payment y actualizar stock en una sola transacción
+  // 3. Crear Order, OrderItems, Payment y actualizar stock en una sola transacción.
+  //    La verificación de stock se hace DENTRO de la TX con Serializable isolation para
+  //    eliminar la race condition TOCTOU: dos checkouts concurrentes no pueden ambos
+  //    pasar el check y exceder el stock real.
   let orden;
   try {
   orden = await prisma.$transaction(async (tx) => {
+    // Verificar y reservar stock bajo lock de fila (Serializable garantiza consistencia)
+    for (const item of carrito.cartItems) {
+      const variante = await tx.productVariant.findUnique({
+        where: { id: item.variantId },
+        select: { currentStock: true, reservedStock: true },
+      });
+      const disponible = variante.currentStock - variante.reservedStock;
+      if (disponible < item.quantity) {
+        throw crearError(ORDERS_MESSAGES.OUT_OF_STOCK, HTTP_STATUS.BAD_REQUEST);
+      }
+    }
+
     // Crear la orden
     const nuevaOrden = await tx.order.create({
       data: {
-        clientUserId: BigInt(userId),
+        clientUserId: parseBigInt(userId, 'userId'),
         cartId: carrito.id,
         status: 'pending_payment',
         subtotal,
@@ -247,7 +250,7 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
       where: { id: nuevaOrden.id },
       select: ORDER_SELECT,
     });
-  });
+  }, { isolationLevel: 'Serializable' });
   } catch (error) {
     // cartId tiene @unique en Order — dos requests simultáneos del mismo carrito
     if (error?.code === 'P2002') {
@@ -261,7 +264,7 @@ export const checkout = async (userId, { shippingAddress, paymentMethod, externa
 
 export const obtenerMisPedidos = async (userId) => {
   const pedidos = await prisma.order.findMany({
-    where: { clientUserId: BigInt(userId) },
+    where: { clientUserId: parseBigInt(userId, 'userId') },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -290,8 +293,8 @@ export const obtenerMisPedidos = async (userId) => {
 export const obtenerPedidoPorId = async (userId, orderId) => {
   const orden = await prisma.order.findFirst({
     where: {
-      id: BigInt(orderId),
-      clientUserId: BigInt(userId),
+      id: parseBigInt(orderId, 'orderId'),
+      clientUserId: parseBigInt(userId, 'userId'),
     },
     select: ORDER_SELECT,
   });
@@ -304,8 +307,8 @@ export const obtenerPedidoPorId = async (userId, orderId) => {
 };
 
 export const aprobarPago = async (orderId, paymentId) => {
-  const parsedOrderId = BigInt(orderId);
-  const parsedPaymentId = BigInt(paymentId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
+  const parsedPaymentId = parseBigInt(paymentId, 'paymentId');
 
   const payment = await prisma.payment.findFirst({
     where: { id: parsedPaymentId, orderId: parsedOrderId },
@@ -317,6 +320,13 @@ export const aprobarPago = async (orderId, paymentId) => {
       status: true,
       createdAt: true,
       updatedAt: true,
+      order: {
+        select: {
+          status: true,
+          totalAmount: true,
+          clientUser: { select: { id: true, fullName: true, email: true } },
+        },
+      },
     },
   });
 
@@ -328,9 +338,26 @@ export const aprobarPago = async (orderId, paymentId) => {
     return { message: PAYMENT_MESSAGES.ALREADY_APPROVED };
   }
 
+  if (payment.order.status !== CANCELLABLE_ORDER_STATUS) {
+    throw crearError(PAYMENT_MESSAGES.ORDER_NOT_PAYABLE, HTTP_STATUS.CONFLICT);
+  }
+
+  if (!payment.amount.equals(payment.order.totalAmount)) {
+    throw crearError(PAYMENT_MESSAGES.AMOUNT_MISMATCH, HTTP_STATUS.CONFLICT);
+  }
+
   const approvedAt = new Date();
 
   const [pagoActualizado, orden] = await prisma.$transaction(async (tx) => {
+    // Re-check order status inside tx to close TOCTOU window
+    const orderCheck = await tx.order.findUnique({
+      where: { id: parsedOrderId },
+      select: { status: true },
+    });
+    if (orderCheck?.status !== CANCELLABLE_ORDER_STATUS) {
+      throw crearError(PAYMENT_MESSAGES.ORDER_NOT_PAYABLE, HTTP_STATUS.CONFLICT);
+    }
+
     const pago = await tx.payment.update({
       where: { id: parsedPaymentId },
       data: { status: PAYMENT_STATUSES.APPROVED, updatedAt: approvedAt },
@@ -379,8 +406,8 @@ export const aprobarPago = async (orderId, paymentId) => {
 };
 
 export const cancelarPedido = async (userId, orderId) => {
-  const parsedOrderId = BigInt(orderId);
-  const parsedUserId = BigInt(userId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
+  const parsedUserId = parseBigInt(userId, 'userId');
   const changedAt = new Date();
 
   const currentOrder = await prisma.order.findUnique({
@@ -525,7 +552,7 @@ export const cancelarPedido = async (userId, orderId) => {
 };
 
 export const cancelarPedidoAdmin = async (orderId) => {
-  const parsedOrderId = BigInt(orderId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
   const changedAt = new Date();
 
   const currentOrder = await prisma.order.findUnique({
@@ -667,7 +694,7 @@ export const cancelarPedidoAdmin = async (orderId) => {
 };
 
 export const actualizarEstadoPedido = async (orderId, { status: newStatus, cancelationReason }) => {
-  const parsedOrderId = BigInt(orderId);
+  const parsedOrderId = parseBigInt(orderId, 'orderId');
   const changedAt = new Date();
 
   const currentOrder = await prisma.order.findUnique({
@@ -711,6 +738,13 @@ export const actualizarEstadoPedido = async (orderId, { status: newStatus, cance
   }
 
   const previousStatus = currentOrder.status;
+  const allowedTransitions = ORDER_STATUS_TRANSITIONS[previousStatus] ?? [];
+  if (!allowedTransitions.includes(newStatus)) {
+    throw crearError(
+      `Transición de estado inválida: ${previousStatus} → ${newStatus}`,
+      HTTP_STATUS.CONFLICT,
+    );
+  }
 
   const { order, orderStatusNotification } = await prisma.$transaction(async (tx) => {
     const updatedOrderCount = await tx.order.updateMany({
@@ -740,6 +774,20 @@ export const actualizarEstadoPedido = async (orderId, { status: newStatus, cance
       }
 
       throw crearError('Conflicto al actualizar el estado del pedido', HTTP_STATUS.CONFLICT);
+    }
+
+    // Release reserved stock when admin cancels via this path
+    if (newStatus === CANCELLED_ORDER_STATUS) {
+      const items = await tx.orderItem.findMany({
+        where: { orderId: parsedOrderId },
+        select: { variantId: true, quantity: true },
+      });
+      for (const item of items) {
+        await tx.productVariant.updateMany({
+          where: { id: item.variantId, reservedStock: { gte: item.quantity } },
+          data: { reservedStock: { decrement: item.quantity } },
+        });
+      }
     }
 
     const updatedOrder = await tx.order.findUnique({
@@ -803,6 +851,5 @@ export const actualizarEstadoPedido = async (orderId, { status: newStatus, cance
       orderStatusNotification == null
         ? ORDERS_MESSAGES.STATUS_UNCHANGED
         : ORDERS_MESSAGES.STATUS_UPDATED_SUCCESS,
-    integrationComment: NOTIFICATION_MESSAGES.ORDER_STATUS_NOTIFICATION_TRIGGER_COMMENT,
   };
 };

@@ -5,18 +5,17 @@ import { HTTP_STATUS } from '../../shared/constants/http.constants.js';
 import { serializarNotificacion } from './serializar-notificacion.utils.js';
 
 export async function marcarComoLeida({ notificationId, clientUserId }) {
-  const notificacion = await prisma.clientNotification.findFirst({
+  const result = await prisma.clientNotification.updateMany({
     where: { id: notificationId, clientUserId },
-    select: { id: true, read: true },
+    data: { read: true },
   });
 
-  if (!notificacion) {
+  if (result.count === 0) {
     throw crearError(NOTIFICATION_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
   }
 
-  const actualizada = await prisma.clientNotification.update({
+  const actualizada = await prisma.clientNotification.findUnique({
     where: { id: notificationId },
-    data: { read: true },
     select: {
       id: true,
       title: true,

@@ -33,9 +33,13 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-// El CSRF (validación de Origin) aplica solo a peticiones del navegador.
-// Las rutas internas son servidor-a-servidor y ya están protegidas por la
-// API key (X-Admin-Api-Key), así que se eximen del chequeo de Origin.
+
+// Internal routes called by the admin backend (server-to-server) don't carry an
+// Origin header, so they must be mounted before the browser-facing CSRF check.
+// They are protected by requireInternalApiKey inside internalRoutes.
+app.use('/api/internal', internalRoutes);
+
+// CSRF check only for browser-facing routes; internal API is API-key authenticated
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/internal')) return next();
   return requireFetchHeader(req, res, next);
@@ -66,9 +70,61 @@ const recoveryLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const reviewWriteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'GET',
+});
+
+const reviewReadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method !== 'GET',
+});
+
+const checkoutLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const cartMutationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  keyGenerator: (req) => ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'GET',
+});
+
+// Keyed by API key so all traffic from the same admin backend shares one bucket
+const internalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 300,
+  keyGenerator: (req) => req.headers['x-admin-api-key'] ?? ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/refresh', refreshLimiter);
 app.use('/api/password-recovery/request', recoveryLimiter);
+app.use('/api/password-recovery/validate-token', recoveryLimiter);
+app.use('/api/password-recovery/reset', recoveryLimiter);
+app.use('/api/clients/reactivate', loginLimiter);
+app.use('/api/orders/checkout', checkoutLimiter);
+app.use('/api/cart', cartMutationLimiter);
+app.use('/api/reviews', reviewReadLimiter);
+app.use('/api/reviews', reviewWriteLimiter);
+app.use('/api/internal', internalLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/password-recovery', passwordRecoveryRoutes);
@@ -78,7 +134,6 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/reviews', reviewsRoutes);
-app.use('/api/internal', internalRoutes);
 
 app.use(errorHandler);
 

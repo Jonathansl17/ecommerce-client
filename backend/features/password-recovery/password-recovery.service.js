@@ -112,11 +112,15 @@ export const restablecerPassword = async ({ token, password, saltRounds }) => {
   // Hash antes de la transacción — bcrypt es lento, no debe estar dentro del lock
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
-  await prisma.$transaction(async (tx) => {
+  const { email, fullName } = await prisma.$transaction(async (tx) => {
     // Leer Y marcar usedAt en la misma transacción — elimina el TOCTOU
     const recoveryToken = await tx.clientRecoveryToken.findFirst({
       where: { tokenHash, usedAt: null, expiresAt: { gt: new Date() } },
-      select: { id: true, userId: true, user: { select: { accountStatus: true } } },
+      select: {
+        id: true,
+        userId: true,
+        user: { select: { accountStatus: true, email: true, fullName: true } },
+      },
     });
 
     if (!recoveryToken || recoveryToken.user.accountStatus !== 'active') {
@@ -138,11 +142,13 @@ export const restablecerPassword = async ({ token, password, saltRounds }) => {
       where: { userId: recoveryToken.userId, revokedAt: null, rotatedAt: null },
       data: { revokedAt: new Date() },
     });
+
+    return { email: recoveryToken.user.email, fullName: recoveryToken.user.fullName };
   });
 
   enviarCorreoCambioContrasena(
-    { email: recoveryToken.user.email, fullName: recoveryToken.user.fullName },
-    now,
+    { email, fullName },
+    new Date(),
   ).catch((err) => console.error(PASSWORD_RECOVERY_MESSAGES.EMAIL_SEND_ERROR, err.message));
 
   return { message: PASSWORD_RECOVERY_MESSAGES.PASSWORD_RESET };
