@@ -4,6 +4,7 @@ import internalOrdersRoutes from './orders/internal-orders.routes.js';
 import internalUsersRoutes from './users/internal-users.routes.js';
 import internalStockRoutes from './stock/internal-stock.routes.js';
 import internalReviewsRoutes from './reviews/internal-reviews.routes.js';
+import internalProductsRoutes from './products/internal-products.routes.js';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use('/orders', internalOrdersRoutes);
 router.use('/users', internalUsersRoutes);
 router.use('/stock', internalStockRoutes);
 router.use('/reviews', internalReviewsRoutes);
+router.use('/products', internalProductsRoutes);
 
 export default router;

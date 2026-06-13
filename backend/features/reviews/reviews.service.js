@@ -9,6 +9,7 @@ import {
   VOTE_TYPES,
 } from './reviews.constants.js';
 import { deleteReviewOnAdmin } from '../../shared/adminApi/admin-api.client.js';
+import { PRISMA_ERROR_CODES } from '../../shared/constants/app.constants.js';
 
 // Propaga el borrado de una reseña al backend del admin (borra su reseña
 // espejo, identificada por externalId = id de la reseña del cliente). Tolerante
@@ -82,17 +83,6 @@ async function verificarCompraCompletada(clientUserId, productId) {
   }
 }
 
-// Garantiza una reseña por producto por usuario.
-async function verificarReviewNoExiste(clientUserId, productId) {
-  const existente = await prisma.review.findFirst({
-    where: { clientUserId, productId },
-    select: { id: true },
-  });
-
-  if (existente) {
-    throw crearError(REVIEWS_MESSAGES.ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
-  }
-}
 
 // Obtiene una reseña validando que pertenezca al usuario autenticado.
 async function obtenerReviewPropia(clientUserId, reviewId) {
@@ -271,20 +261,25 @@ export const crear = async (userId, { productId, rating, comment }) => {
   const productIdBig = toBigIntOrThrow(productId, REVIEWS_MESSAGES.INVALID_PRODUCT_ID);
 
   await verificarCompraCompletada(userIdBig, productIdBig);
-  await verificarReviewNoExiste(userIdBig, productIdBig);
 
-  const nueva = await prisma.review.create({
-    data: {
-      productId: productIdBig,
-      clientUserId: userIdBig,
-      rating,
-      comment,
-      status: REVIEW_STATUS.APPROVED,
-    },
-    include: { clientUser: { select: { fullName: true } } },
-  });
-
-  return mapReview(nueva);
+  try {
+    const nueva = await prisma.review.create({
+      data: {
+        productId: productIdBig,
+        clientUserId: userIdBig,
+        rating,
+        comment,
+        status: REVIEW_STATUS.APPROVED,
+      },
+      include: { clientUser: { select: { fullName: true } } },
+    });
+    return mapReview(nueva);
+  } catch (error) {
+    if (error.code === PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT) {
+      throw crearError(REVIEWS_MESSAGES.ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
+    }
+    throw error;
+  }
 };
 
 export const actualizar = async (userId, reviewId, { rating, comment }) => {
@@ -310,6 +305,7 @@ export const eliminar = async (userId, reviewId) => {
 
   await prisma.$transaction([
     prisma.reviewVote.deleteMany({ where: { reviewId: reviewIdBig } }),
+    prisma.reviewResponse.deleteMany({ where: { reviewId: reviewIdBig } }),
     prisma.review.delete({ where: { id: reviewIdBig } }),
   ]);
 
@@ -343,7 +339,8 @@ export const eliminarComoModerador = async (
 
   // Trazabilidad de la acción de moderación. El registro persistente en una tabla de
   // auditoría es una tarea aparte de US-REV-006 (#8), aún fuera de alcance.
-  const detalle = reasonDetail ? ` (${reasonDetail})` : '';
+  const safeDetail = reasonDetail ? reasonDetail.replace(/[\r\n\t]/g, ' ') : '';
+  const detalle = safeDetail ? ` (${safeDetail})` : '';
   console.info(
     `[moderación] Reseña ${reviewId} eliminada por admin ${moderatorId}. Motivo: ${reasonCode}${detalle}`,
   );
